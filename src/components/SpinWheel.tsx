@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useMemo, useRef } from 'react';
+import { useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useGame } from '@/context/GameContext';
 import { useWheelAnimation } from '@/hooks/useWheelAnimation';
@@ -12,7 +12,7 @@ import type { Player } from '@/lib/types';
 function MiniTeamList({ players, team, max }: { players: Player[]; team: 'CT' | 'T'; max: number }) {
   const isCT = team === 'CT';
   return (
-    <div className="flex-1 min-w-[160px]">
+    <div className="w-full lg:w-[200px] lg:min-w-[180px]">
       <div className="text-center mb-2">
         <GlowText color={isCT ? 'ct' : 't'} as="h3" className="text-base">{team}</GlowText>
       </div>
@@ -48,9 +48,7 @@ function MiniTeamList({ players, team, max }: { players: Player[]; team: 'CT' | 
 
 export default function SpinWheel() {
   const { state, dispatch } = useGame();
-  const { playTick, playWinner, muted, setMuted } = useSound();
-  const lastPickedRef = useRef<Player | null>(null);
-  const showingResultRef = useRef(false);
+  const { playTick, playWinner, playSwoosh, muted, setMuted } = useSound();
 
   const onTick = useCallback(() => {
     playTick();
@@ -58,19 +56,22 @@ export default function SpinWheel() {
 
   const onComplete = useCallback((player: Player) => {
     playWinner();
-    lastPickedRef.current = player;
-    showingResultRef.current = true;
-
     setTimeout(() => {
       dispatch({ type: 'SPIN_COMPLETE', payload: { playerId: player.id } });
-      showingResultRef.current = false;
     }, 1500);
   }, [dispatch, playWinner]);
+
+  const onSegmentClick = useCallback((player: Player) => {
+    if (state.isSpinning) return;
+    playSwoosh();
+    dispatch({ type: 'SPIN_COMPLETE', payload: { playerId: player.id } });
+  }, [state.isSpinning, dispatch, playSwoosh]);
 
   const { canvasRef, spin } = useWheelAnimation({
     players: state.availablePlayers,
     onTick,
     onComplete,
+    onSegmentClick,
   });
 
   const handleSpin = useCallback(() => {
@@ -87,7 +88,7 @@ export default function SpinWheel() {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="w-full max-w-4xl mx-auto flex flex-col items-center gap-4"
+      className="w-full max-w-5xl mx-auto flex flex-col items-center gap-4"
     >
       {/* Header */}
       <div className="text-center">
@@ -99,34 +100,48 @@ export default function SpinWheel() {
         </p>
       </div>
 
-      {/* Wheel + Spin button */}
-      <div className="flex flex-col items-center gap-3">
-        <canvas
-          ref={canvasRef}
-          className="w-[280px] h-[280px] md:w-[350px] md:h-[350px]"
-        />
-        <Button
-          variant={state.currentTurn === 'CT' ? 'ct' : 't'}
-          size="lg"
-          onClick={handleSpin}
-          disabled={state.isSpinning || state.availablePlayers.length === 0}
-        >
-          {state.isSpinning ? 'Losuje se...' : 'SPIN!'}
-        </Button>
-        <button
-          onClick={() => setMuted(!muted)}
-          className="text-gray-500 hover:text-gray-300 transition-colors text-xs font-rajdhani cursor-pointer"
-        >
-          {muted ? '🔇 Zvuk vypnutý' : '🔊 Zvuk zapnutý'}
-        </button>
+      {/* Desktop: CT left | Wheel center | T right */}
+      {/* Mobile: Wheel, then CT, then T */}
+      <div className="w-full flex flex-col lg:flex-row items-center lg:items-start gap-4 lg:gap-6">
+        {/* CT - hidden on mobile, shown on desktop left */}
+        <div className="hidden lg:block">
+          <MiniTeamList players={state.teamCT} team="CT" max={5} />
+        </div>
+
+        {/* Wheel + Spin button (center) */}
+        <div className="flex-1 flex flex-col items-center gap-3">
+          <canvas
+            ref={canvasRef}
+            className="w-[280px] h-[280px] md:w-[350px] md:h-[350px] cursor-pointer"
+          />
+          <p className="text-gray-500 font-rajdhani text-xs">
+            Click a segment to pick directly
+          </p>
+          <Button
+            variant={state.currentTurn === 'CT' ? 'ct' : 't'}
+            size="lg"
+            onClick={handleSpin}
+            disabled={state.isSpinning || state.availablePlayers.length === 0}
+          >
+            {state.isSpinning ? 'Spinning...' : 'SPIN!'}
+          </Button>
+          <button
+            onClick={() => setMuted(!muted)}
+            className="text-gray-500 hover:text-gray-300 transition-colors text-xs font-rajdhani cursor-pointer"
+          >
+            {muted ? '🔇 Sound off' : '🔊 Sound on'}
+          </button>
+        </div>
+
+        {/* T - hidden on mobile, shown on desktop right */}
+        <div className="hidden lg:block">
+          <MiniTeamList players={state.teamT} team="T" max={5} />
+        </div>
       </div>
 
-      {/* Teams side by side below wheel */}
-      <div className="w-full flex gap-4">
+      {/* Mobile: Teams below wheel */}
+      <div className="w-full flex flex-col gap-4 lg:hidden">
         <MiniTeamList players={state.teamCT} team="CT" max={5} />
-        <div className="flex items-center">
-          <span className="font-orbitron text-sm font-bold text-gray-600">VS</span>
-        </div>
         <MiniTeamList players={state.teamT} team="T" max={5} />
       </div>
     </motion.div>

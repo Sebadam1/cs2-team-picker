@@ -34,7 +34,7 @@ function GameContent() {
 export default function Home() {
   return (
     <GameProvider>
-      <main className="flex-1 flex items-start justify-center p-4 md:p-8 pt-8 md:pt-12 relative z-10 overflow-y-auto">
+      <main className="flex-1 flex items-center justify-center p-4 md:p-8 relative z-10 overflow-y-auto">
         <GameContent />
       </main>
       <ParticleBackground />

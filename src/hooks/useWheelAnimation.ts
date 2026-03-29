@@ -8,9 +8,10 @@ interface WheelAnimationOptions {
   players: Player[];
   onTick?: () => void;
   onComplete?: (player: Player) => void;
+  onSegmentClick?: (player: Player) => void;
 }
 
-export function useWheelAnimation({ players, onTick, onComplete }: WheelAnimationOptions) {
+export function useWheelAnimation({ players, onTick, onComplete, onSegmentClick }: WheelAnimationOptions) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const angleRef = useRef(0);
   const velocityRef = useRef(0);
@@ -18,6 +19,18 @@ export function useWheelAnimation({ players, onTick, onComplete }: WheelAnimatio
   const targetPlayerRef = useRef<Player | null>(null);
   const lastSegmentRef = useRef(-1);
   const rafRef = useRef<number>(0);
+
+  const getWheelGeometry = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return null;
+    const dpr = window.devicePixelRatio || 1;
+    const width = canvas.width / dpr;
+    const height = canvas.height / dpr;
+    const centerX = width / 2;
+    const centerY = height / 2;
+    const radius = Math.min(centerX, centerY) - 20;
+    return { centerX, centerY, radius };
+  }, []);
 
   const drawWheel = useCallback((ctx: CanvasRenderingContext2D, width: number, height: number) => {
     const centerX = width / 2;
@@ -35,7 +48,6 @@ export function useWheelAnimation({ players, onTick, onComplete }: WheelAnimatio
       const startAngle = angleRef.current + i * segmentAngle;
       const endAngle = startAngle + segmentAngle;
 
-      // Segment fill
       ctx.beginPath();
       ctx.moveTo(centerX, centerY);
       ctx.arc(centerX, centerY, radius, startAngle, endAngle);
@@ -43,7 +55,6 @@ export function useWheelAnimation({ players, onTick, onComplete }: WheelAnimatio
       ctx.fillStyle = WHEEL_COLORS[i % WHEEL_COLORS.length];
       ctx.fill();
 
-      // Segment border
       ctx.strokeStyle = 'rgba(255,255,255,0.15)';
       ctx.lineWidth = 2;
       ctx.stroke();
@@ -71,7 +82,6 @@ export function useWheelAnimation({ players, onTick, onComplete }: WheelAnimatio
     ctx.lineWidth = 3;
     ctx.stroke();
 
-    // Center text
     ctx.fillStyle = '#ffffff';
     ctx.font = 'bold 14px Orbitron, sans-serif';
     ctx.textAlign = 'center';
@@ -102,12 +112,33 @@ export function useWheelAnimation({ players, onTick, onComplete }: WheelAnimatio
   const getSegmentAtPointer = useCallback((): number => {
     if (players.length === 0) return -1;
     const segmentAngle = (2 * Math.PI) / players.length;
-    // Pointer is at top (-PI/2)
     const pointerAngle = -Math.PI / 2;
     let normalizedAngle = (pointerAngle - angleRef.current) % (2 * Math.PI);
     if (normalizedAngle < 0) normalizedAngle += 2 * Math.PI;
     return Math.floor(normalizedAngle / segmentAngle) % players.length;
   }, [players]);
+
+  const getSegmentAtPosition = useCallback((clientX: number, clientY: number): number => {
+    const geo = getWheelGeometry();
+    if (!geo || players.length === 0) return -1;
+
+    const canvas = canvasRef.current;
+    if (!canvas) return -1;
+
+    const rect = canvas.getBoundingClientRect();
+    const x = clientX - rect.left - geo.centerX;
+    const y = clientY - rect.top - geo.centerY;
+
+    const distance = Math.sqrt(x * x + y * y);
+    if (distance > geo.radius || distance < 30) return -1; // outside wheel or inside center
+
+    let clickAngle = Math.atan2(y, x);
+    let relAngle = (clickAngle - angleRef.current) % (2 * Math.PI);
+    if (relAngle < 0) relAngle += 2 * Math.PI;
+
+    const segmentAngle = (2 * Math.PI) / players.length;
+    return Math.floor(relAngle / segmentAngle) % players.length;
+  }, [players, getWheelGeometry]);
 
   const animate = useCallback(() => {
     const canvas = canvasRef.current;
@@ -124,7 +155,6 @@ export function useWheelAnimation({ players, onTick, onComplete }: WheelAnimatio
       angleRef.current += velocityRef.current;
       velocityRef.current *= 0.985;
 
-      // Tick sound on segment change
       const currentSeg = getSegmentAtPointer();
       if (currentSeg !== lastSegmentRef.current && currentSeg >= 0) {
         lastSegmentRef.current = currentSeg;
@@ -151,23 +181,28 @@ export function useWheelAnimation({ players, onTick, onComplete }: WheelAnimatio
     targetPlayerRef.current = targetPlayer || players[Math.floor(Math.random() * players.length)];
     const targetIndex = players.indexOf(targetPlayerRef.current);
 
-    // Calculate target angle so that this segment lands at the pointer
     const segmentAngle = (2 * Math.PI) / players.length;
     const targetSegCenter = targetIndex * segmentAngle + segmentAngle / 2;
-    // Pointer at -PI/2; we need angleRef.current + targetSegCenter ≡ -PI/2 (mod 2PI)
-    // + some extra full rotations for drama
     const extraRotations = 5 + Math.random() * 3;
     const targetAngle = -Math.PI / 2 - targetSegCenter + extraRotations * 2 * Math.PI;
     const deltaAngle = targetAngle - angleRef.current;
 
-    // Calculate initial velocity from delta: sum of geometric series v * (1/(1-r))
-    // where r = 0.985 → sum ≈ v / 0.015
     velocityRef.current = deltaAngle * 0.015;
     if (velocityRef.current < 0.15) velocityRef.current = 0.15 + Math.random() * 0.1;
 
     spinningRef.current = true;
     lastSegmentRef.current = -1;
   }, [players]);
+
+  // Handle canvas click for segment selection
+  const handleCanvasClick = useCallback((e: MouseEvent) => {
+    if (spinningRef.current || players.length === 0) return;
+
+    const segIndex = getSegmentAtPosition(e.clientX, e.clientY);
+    if (segIndex >= 0 && segIndex < players.length) {
+      onSegmentClick?.(players[segIndex]);
+    }
+  }, [players, getSegmentAtPosition, onSegmentClick]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -186,13 +221,16 @@ export function useWheelAnimation({ players, onTick, onComplete }: WheelAnimatio
     const observer = new ResizeObserver(resizeCanvas);
     observer.observe(canvas);
 
+    canvas.addEventListener('click', handleCanvasClick);
+
     rafRef.current = requestAnimationFrame(animate);
 
     return () => {
       observer.disconnect();
       cancelAnimationFrame(rafRef.current);
+      canvas.removeEventListener('click', handleCanvasClick);
     };
-  }, [animate]);
+  }, [animate, handleCanvasClick]);
 
   return { canvasRef, spin, isSpinning: spinningRef };
 }

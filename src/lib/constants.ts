@@ -25,6 +25,6 @@ export const TOTAL_PLAYERS = 10;
 export const TEAM_SIZE = 5;
 
 export const DEFAULT_NAMES = [
-  'Hráč 1', 'Hráč 2', 'Hráč 3', 'Hráč 4', 'Hráč 5',
-  'Hráč 6', 'Hráč 7', 'Hráč 8', 'Hráč 9', 'Hráč 10',
+  'Player 1', 'Player 2', 'Player 3', 'Player 4', 'Player 5',
+  'Player 6', 'Player 7', 'Player 8', 'Player 9', 'Player 10',
 ];

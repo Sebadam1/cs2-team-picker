@@ -115,7 +115,7 @@ export default function PlayerCard({ player, team }: PlayerCardProps) {
           animate={{ opacity: 1, scale: 1 }}
           className="text-xs text-gray-400 font-rajdhani"
         >
-          Vyber hráče z {team === 'CT' ? 'T' : 'CT'}
+          Pick from {team === 'CT' ? 'T' : 'CT'}
         </motion.span>
       )}
     </motion.div>

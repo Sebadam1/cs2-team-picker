@@ -77,7 +77,7 @@ export default function TeamColumn({ team, players }: TeamColumnProps) {
           ))}
           {players.length === 0 && (
             <div className="flex items-center justify-center h-[200px] text-gray-600 font-rajdhani text-sm border border-dashed border-white/10 rounded-lg">
-              Přetáhni sem hráče
+              Drag players here
             </div>
           )}
         </div>

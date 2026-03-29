@@ -16,10 +16,10 @@ const orbitron = Orbitron({
 
 export const metadata: Metadata = {
   title: "CS2 Team Picker - 5v5 Draft",
-  description: "Interaktivní losování hráčů do CS2 týmů přes kolo štěstí",
+  description: "Interactive CS2 team picker with a fortune wheel for 5v5 draft",
   openGraph: {
     title: "CS2 Team Picker",
-    description: "Vylosuj 5v5 týmy pro CS2 přes kolo štěstí!",
+    description: "Draft 5v5 teams for CS2 with a fortune wheel!",
   },
 };
 
@@ -30,7 +30,7 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="cs"
+      lang="en"
       className={`${rajdhani.variable} ${orbitron.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-[#0a0a0f] text-gray-100 font-rajdhani">

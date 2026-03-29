@@ -66,7 +66,7 @@ export default function PlayerInput() {
           CS2 TEAM PICKER
         </GlowText>
         <p className="text-gray-400 font-rajdhani text-lg">
-          Zadej 10 hráčů pro losování do týmů
+          Enter 10 players for the team draft
         </p>
       </div>
 
@@ -88,7 +88,7 @@ export default function PlayerInput() {
                 value={name}
                 onChange={(e) => updateName(i, e.target.value)}
                 onKeyDown={(e) => handleKeyDown(i, e)}
-                placeholder={`Hráč ${i + 1}`}
+                placeholder={`Player ${i + 1}`}
                 className="w-full pl-13 pr-4 py-3 bg-white/5 border border-white/10 rounded-lg
                   text-white font-rajdhani text-base
                   placeholder:text-gray-600
@@ -107,19 +107,19 @@ export default function PlayerInput() {
           animate={{ opacity: 1 }}
           className="text-red-400 text-center text-sm mb-4 font-rajdhani"
         >
-          Jména hráčů musí být unikátní!
+          Player names must be unique!
         </motion.p>
       )}
 
       <div className="flex gap-3 justify-center flex-wrap">
         <Button variant="ghost" size="sm" onClick={handleFillDefaults}>
-          Výchozí jména
+          Default Names
         </Button>
         <Button variant="ghost" size="sm" onClick={handleShuffle} disabled={!names.some((n) => n.trim())}>
-          Zamíchat pořadí
+          Shuffle Order
         </Button>
         <Button variant="primary" size="lg" onClick={handleStart} disabled={!allFilled || hasDuplicates}>
-          Začít losování
+          Start Draft
         </Button>
       </div>
     </motion.div>
