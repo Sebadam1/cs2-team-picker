@@ -98,6 +98,19 @@ export default function PlayerCard({ player, team }: PlayerCardProps) {
         <div className="w-4 h-0.5 bg-gray-500 rounded" />
       </div>
 
+      {/* Photo */}
+      <div className={`w-8 h-8 rounded-full overflow-hidden border flex-shrink-0 ${
+        team === 'CT' ? 'border-sky-400/30' : 'border-amber-400/30'
+      }`}>
+        {player.photoUrl ? (
+          <img src={player.photoUrl} alt={player.name} className="w-full h-full object-cover" />
+        ) : (
+          <div className="w-full h-full bg-white/10 flex items-center justify-center text-gray-500 text-xs font-bold">
+            {player.name.charAt(0)}
+          </div>
+        )}
+      </div>
+
       {/* Pick order badge */}
       <span className={`text-xs font-orbitron font-bold px-2 py-0.5 rounded ${teamColors.badge}`}>
         #{player.pickOrder}

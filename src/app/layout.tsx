@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Rajdhani, Orbitron } from "next/font/google";
 import "./globals.css";
+import { ProfileProvider } from "@/context/ProfileContext";
+import { HistoryProvider } from "@/context/HistoryContext";
 
 const rajdhani = Rajdhani({
   variable: "--font-rajdhani",
@@ -34,7 +36,11 @@ export default function RootLayout({
       className={`${rajdhani.variable} ${orbitron.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-[#0a0a0f] text-gray-100 font-rajdhani">
-        {children}
+        <ProfileProvider>
+          <HistoryProvider>
+            {children}
+          </HistoryProvider>
+        </ProfileProvider>
       </body>
     </html>
   );

@@ -1,21 +1,103 @@
 'use client';
 
+import { useState, useCallback } from 'react';
 import { GameProvider, useGame } from '@/context/GameContext';
+import { useHistory } from '@/context/HistoryContext';
 import ParticleBackground from '@/components/ParticleBackground';
+import ProfileSelector from '@/components/profiles/ProfileSelector';
 import PlayerInput from '@/components/PlayerInput';
 import SpinWheel from '@/components/SpinWheel';
 import CaseOpening from '@/components/CaseOpening';
 import TeamDisplay from '@/components/TeamDisplay';
+import ProfileManager from '@/components/profiles/ProfileManager';
+import DraftHistory from '@/components/history/DraftHistory';
+import PlayerStatsPanel from '@/components/stats/PlayerStatsPanel';
+import Tabs from '@/components/ui/Tabs';
 import { AnimatePresence, motion } from 'motion/react';
 
-function GameContent() {
-  const { state } = useGame();
+const TABS = [
+  { id: 'draft', label: 'Draft', icon: '🎯' },
+  { id: 'profiles', label: 'Profiles', icon: '👥' },
+  { id: 'history', label: 'History', icon: '📋' },
+  { id: 'stats', label: 'Stats', icon: '📊' },
+];
+
+function DraftContent() {
+  const { state, dispatch } = useGame();
+  const { saveDraft } = useHistory();
+  const [useProfiles, setUseProfiles] = useState(true);
+  const [draftSaved, setDraftSaved] = useState(false);
+
+  // Auto-save draft when results phase is reached
+  const handleDraftSave = useCallback(async () => {
+    if (draftSaved || state.phase !== 'results' || state.draftId) return;
+
+    // Only save if players have profile IDs (profile-based draft)
+    const hasProfiles = state.teamCT.some((p) => p.profileId);
+    if (!hasProfiles) return;
+
+    try {
+      const teamCT = state.teamCT.map((p) => ({
+        profileId: p.profileId!,
+        pickOrder: p.pickOrder!,
+      }));
+      const teamT = state.teamT.map((p) => ({
+        profileId: p.profileId!,
+        pickOrder: p.pickOrder!,
+      }));
+
+      const draftId = await saveDraft({
+        animationType: state.animationType,
+        teamCT,
+        teamT,
+      });
+
+      dispatch({ type: 'SET_DRAFT_ID', payload: draftId });
+      setDraftSaved(true);
+    } catch (err) {
+      console.error('Failed to save draft:', err);
+    }
+  }, [state, draftSaved, saveDraft, dispatch]);
+
+  // Trigger save when phase changes to results
+  if (state.phase === 'results' && !draftSaved && !state.draftId) {
+    handleDraftSave();
+  }
+
+  // Reset saved state when going back to input
+  if (state.phase === 'input' && draftSaved) {
+    setDraftSaved(false);
+  }
 
   return (
     <AnimatePresence mode="wait">
       {state.phase === 'input' && (
         <motion.div key="input" exit={{ opacity: 0, scale: 0.95 }} transition={{ duration: 0.3 }}>
-          <PlayerInput />
+          {useProfiles ? (
+            <div>
+              <ProfileSelector />
+              <div className="text-center mt-4">
+                <button
+                  onClick={() => setUseProfiles(false)}
+                  className="text-gray-600 hover:text-gray-400 font-rajdhani text-xs cursor-pointer transition-colors"
+                >
+                  Or enter names manually
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div>
+              <PlayerInput />
+              <div className="text-center mt-4">
+                <button
+                  onClick={() => setUseProfiles(true)}
+                  className="text-gray-600 hover:text-gray-400 font-rajdhani text-xs cursor-pointer transition-colors"
+                >
+                  Or select from profiles
+                </button>
+              </div>
+            </div>
+          )}
         </motion.div>
       )}
       {state.phase === 'spinning' && (
@@ -33,10 +115,40 @@ function GameContent() {
 }
 
 export default function Home() {
+  const [activeTab, setActiveTab] = useState('draft');
+
   return (
     <GameProvider>
+      {/* Top nav */}
+      <div className="relative z-20 px-4 pt-4 pb-2 flex justify-center">
+        <div className="w-full max-w-md">
+          <Tabs tabs={TABS} activeTab={activeTab} onChange={setActiveTab} />
+        </div>
+      </div>
+
       <main className="flex-1 flex items-center justify-center p-4 md:p-8 relative z-10 overflow-y-auto">
-        <GameContent />
+        <AnimatePresence mode="wait">
+          {activeTab === 'draft' && (
+            <motion.div key="draft" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="w-full flex justify-center">
+              <DraftContent />
+            </motion.div>
+          )}
+          {activeTab === 'profiles' && (
+            <motion.div key="profiles" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="w-full flex justify-center">
+              <ProfileManager />
+            </motion.div>
+          )}
+          {activeTab === 'history' && (
+            <motion.div key="history" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="w-full flex justify-center">
+              <DraftHistory />
+            </motion.div>
+          )}
+          {activeTab === 'stats' && (
+            <motion.div key="stats" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="w-full flex justify-center">
+              <PlayerStatsPanel />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </main>
       <ParticleBackground />
     </GameProvider>

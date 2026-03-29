@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import {
   DndContext,
   closestCenter,
@@ -15,13 +15,17 @@ import { motion } from 'motion/react';
 import { useGame } from '@/context/GameContext';
 import { useSound } from '@/hooks/useSound';
 import TeamColumn from './TeamColumn';
+import TeamStatsOverlay from './stats/TeamStatsOverlay';
+import MatchForm from './history/MatchForm';
 import Button from './ui/Button';
 import GlowText from './ui/GlowText';
+import Modal from './ui/Modal';
 import type { TeamSide } from '@/lib/types';
 
 export default function TeamDisplay() {
   const { state, dispatch } = useGame();
   const { playSwoosh } = useSound();
+  const [showMatchForm, setShowMatchForm] = useState(false);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -90,6 +94,10 @@ export default function TeamDisplay() {
     dispatch({ type: 'RESET' });
   };
 
+  const ctProfileIds = state.teamCT.filter((p) => p.profileId).map((p) => p.profileId!);
+  const tProfileIds = state.teamT.filter((p) => p.profileId).map((p) => p.profileId!);
+  const hasProfiles = ctProfileIds.length > 0;
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
@@ -112,7 +120,11 @@ export default function TeamDisplay() {
         onDragEnd={handleDragEnd}
       >
         <div className="flex flex-col md:flex-row gap-4 mb-6">
-          <TeamColumn team="CT" players={state.teamCT} />
+          <div className="flex-1">
+            {/* Team stats overlay */}
+            {hasProfiles && <TeamStatsOverlay profileIds={ctProfileIds} team="CT" />}
+            <TeamColumn team="CT" players={state.teamCT} />
+          </div>
 
           <div className="flex md:flex-col items-center justify-center gap-2 py-2">
             <div className="w-12 h-[1px] md:w-[1px] md:h-12 bg-white/10" />
@@ -120,7 +132,11 @@ export default function TeamDisplay() {
             <div className="w-12 h-[1px] md:w-[1px] md:h-12 bg-white/10" />
           </div>
 
-          <TeamColumn team="T" players={state.teamT} />
+          <div className="flex-1">
+            {/* Team stats overlay */}
+            {hasProfiles && <TeamStatsOverlay profileIds={tProfileIds} team="T" />}
+            <TeamColumn team="T" players={state.teamT} />
+          </div>
         </div>
       </DndContext>
 
@@ -145,10 +161,26 @@ export default function TeamDisplay() {
       )}
 
       <div className="flex justify-center gap-3 mt-6">
+        {hasProfiles && state.draftId && (
+          <Button variant="primary" size="md" onClick={() => setShowMatchForm(true)}>
+            Record Match Result
+          </Button>
+        )}
         <Button variant="danger" size="md" onClick={handleReset}>
           New Draft
         </Button>
       </div>
+
+      {/* Match Form Modal */}
+      {state.draftId && (
+        <Modal isOpen={showMatchForm} onClose={() => setShowMatchForm(false)} title="Record Match Result">
+          <MatchForm
+            draftId={state.draftId}
+            onComplete={() => setShowMatchForm(false)}
+            onCancel={() => setShowMatchForm(false)}
+          />
+        </Modal>
+      )}
     </motion.div>
   );
 }

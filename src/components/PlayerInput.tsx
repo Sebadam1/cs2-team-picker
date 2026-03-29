@@ -38,7 +38,7 @@ export default function PlayerInput() {
 
   const handleStart = () => {
     if (!allFilled || hasDuplicates) return;
-    dispatch({ type: 'SET_PLAYERS', payload: { names: names.map((n) => n.trim()), animationType } });
+    dispatch({ type: 'SET_PLAYERS_LEGACY', payload: { names: names.map((n) => n.trim()), animationType } });
   };
 
   const handleShuffle = () => {

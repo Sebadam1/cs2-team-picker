@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useReducer, type ReactNode } from 'react';
-import type { GameState, GameAction, Player } from '@/lib/types';
+import type { GameState, GameAction, Player, PlayerProfile } from '@/lib/types';
 import { generateId, shuffleArray } from '@/lib/utils';
 
 const initialState: GameState = {
@@ -15,17 +15,37 @@ const initialState: GameState = {
   pickNumber: 0,
   isSpinning: false,
   selectedForSwap: null,
+  draftId: null,
 };
+
+function profileToPlayer(profile: PlayerProfile): Player {
+  return {
+    id: generateId(),
+    name: profile.name,
+    team: null,
+    pickOrder: null,
+    profileId: profile.id,
+    photoUrl: profile.photoUrl,
+    soundUrl: profile.soundUrl,
+  };
+}
+
+function nameToPlayer(name: string): Player {
+  return {
+    id: generateId(),
+    name,
+    team: null,
+    pickOrder: null,
+    profileId: null,
+    photoUrl: null,
+    soundUrl: null,
+  };
+}
 
 function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
     case 'SET_PLAYERS': {
-      const players: Player[] = action.payload.names.map((name) => ({
-        id: generateId(),
-        name,
-        team: null,
-        pickOrder: null,
-      }));
+      const players: Player[] = action.payload.profiles.map(profileToPlayer);
       return {
         ...state,
         phase: 'spinning',
@@ -37,6 +57,24 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         currentTurn: 'CT',
         pickNumber: 0,
         isSpinning: false,
+        draftId: null,
+      };
+    }
+
+    case 'SET_PLAYERS_LEGACY': {
+      const players: Player[] = action.payload.names.map(nameToPlayer);
+      return {
+        ...state,
+        phase: 'spinning',
+        animationType: action.payload.animationType,
+        players,
+        availablePlayers: shuffleArray(players),
+        teamCT: [],
+        teamT: [],
+        currentTurn: 'CT',
+        pickNumber: 0,
+        isSpinning: false,
+        draftId: null,
       };
     }
 
@@ -130,6 +168,9 @@ function gameReducer(state: GameState, action: GameAction): GameState {
 
     case 'CLEAR_SWAP_SELECTION':
       return { ...state, selectedForSwap: null };
+
+    case 'SET_DRAFT_ID':
+      return { ...state, draftId: action.payload };
 
     case 'RESET':
       return initialState;

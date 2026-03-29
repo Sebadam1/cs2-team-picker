@@ -69,5 +69,44 @@ export function useSound() {
     } catch {}
   }, [muted, getCtx]);
 
-  return { muted, setMuted, playTick, playWinner, playSwoosh };
+  const profileAudioRef = useRef<HTMLAudioElement | null>(null);
+
+  const playProfileSound = useCallback((url: string) => {
+    if (muted || !url) return;
+    try {
+      if (!profileAudioRef.current) {
+        profileAudioRef.current = new Audio();
+      }
+      profileAudioRef.current.src = url;
+      profileAudioRef.current.play().catch(() => {});
+    } catch {}
+  }, [muted]);
+
+  const playCaseOpen = useCallback(() => {
+    if (muted) return;
+    try {
+      const ctx = getCtx();
+      // Metallic "case unlocking" sound
+      const osc1 = ctx.createOscillator();
+      const osc2 = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc1.connect(gain);
+      osc2.connect(gain);
+      gain.connect(ctx.destination);
+      osc1.type = 'triangle';
+      osc2.type = 'square';
+      osc1.frequency.setValueAtTime(200, ctx.currentTime);
+      osc1.frequency.exponentialRampToValueAtTime(800, ctx.currentTime + 0.15);
+      osc2.frequency.setValueAtTime(150, ctx.currentTime);
+      osc2.frequency.exponentialRampToValueAtTime(600, ctx.currentTime + 0.1);
+      gain.gain.setValueAtTime(0.12, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+      osc1.start(ctx.currentTime);
+      osc1.stop(ctx.currentTime + 0.3);
+      osc2.start(ctx.currentTime);
+      osc2.stop(ctx.currentTime + 0.15);
+    } catch {}
+  }, [muted, getCtx]);
+
+  return { muted, setMuted, playTick, playWinner, playSwoosh, playProfileSound, playCaseOpen };
 }
