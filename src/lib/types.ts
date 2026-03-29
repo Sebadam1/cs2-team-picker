@@ -2,6 +2,8 @@ export type TeamSide = 'CT' | 'T';
 
 export type GamePhase = 'input' | 'spinning' | 'results';
 
+export type AnimationType = 'wheel' | 'case';
+
 export interface Player {
   id: string;
   name: string;
@@ -11,6 +13,7 @@ export interface Player {
 
 export interface GameState {
   phase: GamePhase;
+  animationType: AnimationType;
   players: Player[];
   availablePlayers: Player[];
   teamCT: Player[];
@@ -22,7 +25,7 @@ export interface GameState {
 }
 
 export type GameAction =
-  | { type: 'SET_PLAYERS'; payload: string[] }
+  | { type: 'SET_PLAYERS'; payload: { names: string[]; animationType: AnimationType } }
   | { type: 'START_SPIN' }
   | { type: 'SPIN_COMPLETE'; payload: { playerId: string } }
   | { type: 'SWAP_PLAYERS'; payload: { playerA: string; playerB: string } }

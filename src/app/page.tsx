@@ -4,6 +4,7 @@ import { GameProvider, useGame } from '@/context/GameContext';
 import ParticleBackground from '@/components/ParticleBackground';
 import PlayerInput from '@/components/PlayerInput';
 import SpinWheel from '@/components/SpinWheel';
+import CaseOpening from '@/components/CaseOpening';
 import TeamDisplay from '@/components/TeamDisplay';
 import { AnimatePresence, motion } from 'motion/react';
 
@@ -19,7 +20,7 @@ function GameContent() {
       )}
       {state.phase === 'spinning' && (
         <motion.div key="spinning" exit={{ opacity: 0, scale: 0.95 }} transition={{ duration: 0.3 }}>
-          <SpinWheel />
+          {state.animationType === 'case' ? <CaseOpening /> : <SpinWheel />}
         </motion.div>
       )}
       {state.phase === 'results' && (

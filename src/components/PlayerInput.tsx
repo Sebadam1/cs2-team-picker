@@ -5,12 +5,14 @@ import { motion } from 'motion/react';
 import { useGame } from '@/context/GameContext';
 import { TOTAL_PLAYERS, DEFAULT_NAMES } from '@/lib/constants';
 import { shuffleArray } from '@/lib/utils';
+import type { AnimationType } from '@/lib/types';
 import Button from './ui/Button';
 import GlowText from './ui/GlowText';
 
 export default function PlayerInput() {
   const { dispatch } = useGame();
   const [names, setNames] = useState<string[]>(Array(TOTAL_PLAYERS).fill(''));
+  const [animationType, setAnimationType] = useState<AnimationType>('wheel');
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   const updateName = useCallback((index: number, value: string) => {
@@ -36,7 +38,7 @@ export default function PlayerInput() {
 
   const handleStart = () => {
     if (!allFilled || hasDuplicates) return;
-    dispatch({ type: 'SET_PLAYERS', payload: names.map((n) => n.trim()) });
+    dispatch({ type: 'SET_PLAYERS', payload: { names: names.map((n) => n.trim()), animationType } });
   };
 
   const handleShuffle = () => {
@@ -110,6 +112,55 @@ export default function PlayerInput() {
           Player names must be unique!
         </motion.p>
       )}
+
+      {/* Animation Type Selector */}
+      <div className="mb-6">
+        <p className="text-center text-gray-400 font-rajdhani text-sm mb-3 uppercase tracking-wider">
+          Draft Animation
+        </p>
+        <div className="flex gap-3 justify-center">
+          <button
+            onClick={() => setAnimationType('wheel')}
+            className={`
+              flex-1 max-w-[220px] px-4 py-4 rounded-xl border-2 transition-all duration-200 cursor-pointer
+              ${animationType === 'wheel'
+                ? 'border-emerald-400/60 bg-emerald-500/10 shadow-[0_0_20px_rgba(0,230,118,0.15)]'
+                : 'border-white/10 bg-white/[0.02] hover:border-white/20 hover:bg-white/5'
+              }
+            `}
+          >
+            <div className="text-center">
+              <div className="text-3xl mb-2">🎡</div>
+              <div className={`font-orbitron text-sm font-bold ${animationType === 'wheel' ? 'text-emerald-400' : 'text-gray-400'}`}>
+                SPIN WHEEL
+              </div>
+              <div className="text-gray-500 font-rajdhani text-xs mt-1">
+                Classic fortune wheel
+              </div>
+            </div>
+          </button>
+          <button
+            onClick={() => setAnimationType('case')}
+            className={`
+              flex-1 max-w-[220px] px-4 py-4 rounded-xl border-2 transition-all duration-200 cursor-pointer
+              ${animationType === 'case'
+                ? 'border-amber-400/60 bg-amber-500/10 shadow-[0_0_20px_rgba(255,179,0,0.15)]'
+                : 'border-white/10 bg-white/[0.02] hover:border-white/20 hover:bg-white/5'
+              }
+            `}
+          >
+            <div className="text-center">
+              <div className="text-3xl mb-2">📦</div>
+              <div className={`font-orbitron text-sm font-bold ${animationType === 'case' ? 'text-amber-400' : 'text-gray-400'}`}>
+                CASE OPENING
+              </div>
+              <div className="text-gray-500 font-rajdhani text-xs mt-1">
+                CS2 case unboxing style
+              </div>
+            </div>
+          </button>
+        </div>
+      </div>
 
       <div className="flex gap-3 justify-center flex-wrap">
         <Button variant="ghost" size="sm" onClick={handleFillDefaults}>

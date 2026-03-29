@@ -6,6 +6,7 @@ import { generateId, shuffleArray } from '@/lib/utils';
 
 const initialState: GameState = {
   phase: 'input',
+  animationType: 'wheel',
   players: [],
   availablePlayers: [],
   teamCT: [],
@@ -19,7 +20,7 @@ const initialState: GameState = {
 function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
     case 'SET_PLAYERS': {
-      const players: Player[] = action.payload.map((name) => ({
+      const players: Player[] = action.payload.names.map((name) => ({
         id: generateId(),
         name,
         team: null,
@@ -28,6 +29,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
       return {
         ...state,
         phase: 'spinning',
+        animationType: action.payload.animationType,
         players,
         availablePlayers: shuffleArray(players),
         teamCT: [],
