@@ -101,11 +101,13 @@ export default function CaseOpening() {
   const [dimBackground, setDimBackground] = useState(false);
   const [indicatorPulse, setIndicatorPulse] = useState(false);
   const [nearEnd, setNearEnd] = useState(false);
+  const [stripScale, setStripScale] = useState(1);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const animRef = useRef<number>(0);
   const startTimeRef = useRef(0);
   const lastTickIndexRef = useRef(-1);
+  const durationRef = useRef(6000);
 
   const turnColor = state.currentTurn === 'CT' ? 'ct' : 't';
   const turnLabel = state.currentTurn === 'CT' ? 'COUNTER-TERRORISTS' : 'TERRORISTS';
@@ -137,6 +139,7 @@ export default function CaseOpening() {
     setDimBackground(true);
     setIndicatorPulse(true);
     setNearEnd(false);
+    setStripScale(1);
     dispatch({ type: 'START_SPIN' });
 
     // Screen shake + case open sound
@@ -148,7 +151,9 @@ export default function CaseOpening() {
     const targetOffset = WINNER_INDEX * ITEM_TOTAL + ITEM_WIDTH / 2 - containerWidth / 2;
     const finalTarget = targetOffset + (Math.random() - 0.5) * (ITEM_WIDTH * 0.6);
 
-    const DURATION = 6000;
+    // Random duration between 3s and 10s
+    const DURATION = 3000 + Math.random() * 7000;
+    durationRef.current = DURATION;
     startTimeRef.current = performance.now();
     lastTickIndexRef.current = -1;
 
@@ -160,11 +165,19 @@ export default function CaseOpening() {
       const eased = 1 - Math.pow(1 - progress, 4);
       let currentOffset = eased * finalTarget;
 
+      // "Nearly there" zoom effect — scale up strip in last 15%
+      if (progress > 0.85) {
+        const zoomPhase = (progress - 0.85) / 0.15;
+        // Smooth zoom from 1.0 to 1.06
+        const scale = 1 + 0.06 * Math.sin(zoomPhase * Math.PI * 0.5);
+        setStripScale(scale);
+      }
+
       // Slow suspense wobble near end
-      if (progress > 0.92) {
+      if (progress > 0.90) {
         if (!nearEnd) setNearEnd(true);
-        const wobblePhase = (progress - 0.92) / 0.08;
-        currentOffset += Math.sin(wobblePhase * Math.PI * 5) * 4 * (1 - wobblePhase);
+        const wobblePhase = (progress - 0.90) / 0.10;
+        currentOffset += Math.sin(wobblePhase * Math.PI * 6) * 5 * (1 - wobblePhase);
       }
 
       setOffset(currentOffset);
@@ -183,6 +196,7 @@ export default function CaseOpening() {
         setIsRolling(false);
         setIndicatorPulse(false);
         setWinnerRevealed(true);
+        setStripScale(1);
 
         // 600ms dramatic pause before popup
         setTimeout(() => {
@@ -204,6 +218,7 @@ export default function CaseOpening() {
     setShowWinnerPopup(false);
     setDimBackground(false);
     setNearEnd(false);
+    setStripScale(1);
 
     setTimeout(() => {
       dispatch({ type: 'SPIN_COMPLETE', payload: { playerId: currentWinner.id } });
@@ -277,7 +292,10 @@ export default function CaseOpening() {
 
           {/* Case Opening Strip */}
           <div className="flex-1 flex flex-col items-center gap-4 w-full min-w-0">
-            <div className="w-full max-w-[750px] relative">
+            <div
+              className="w-full max-w-[750px] relative transition-transform duration-300 ease-out"
+              style={{ transform: `scale(${stripScale})` }}
+            >
               {/* Center indicator line - pulsing during roll */}
               <motion.div
                 animate={indicatorPulse ? {
