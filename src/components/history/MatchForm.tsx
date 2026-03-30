@@ -73,8 +73,8 @@ export default function MatchForm({ draftId, onComplete, onCancel, ctTeamName, t
               className={`
                 px-3 py-2 rounded-lg border text-sm font-rajdhani font-semibold transition-all cursor-pointer
                 ${mapName === map
-                  ? 'border-emerald-400/60 bg-emerald-500/10 text-emerald-400'
-                  : 'border-white/10 bg-white/[0.02] text-gray-400 hover:border-white/20 hover:bg-white/5'
+                  ? 'border-[#8b9bb4]/40 bg-[#8b9bb4]/10 text-[#8b9bb4]'
+                  : 'border-white/[0.06] bg-white/[0.02] text-gray-500 hover:border-white/[0.1] hover:bg-white/[0.04]'
                 }
               `}
             >
@@ -94,8 +94,8 @@ export default function MatchForm({ draftId, onComplete, onCancel, ctTeamName, t
             className={`
               flex-1 px-4 py-3 rounded-xl border-2 font-orbitron font-bold text-sm transition-all cursor-pointer
               ${winningTeam === 'CT'
-                ? 'border-sky-400/60 bg-sky-500/10 text-sky-400 shadow-[0_0_20px_rgba(79,195,247,0.2)]'
-                : 'border-white/10 bg-white/[0.02] text-gray-500 hover:border-white/20'
+                ? 'border-[#6b8fc2]/40 bg-[#6b8fc2]/10 text-[#8bafd4]'
+                : 'border-white/[0.06] bg-white/[0.02] text-gray-500 hover:border-white/[0.1]'
               }
             `}
           >
@@ -107,8 +107,8 @@ export default function MatchForm({ draftId, onComplete, onCancel, ctTeamName, t
             className={`
               flex-1 px-4 py-3 rounded-xl border-2 font-orbitron font-bold text-sm transition-all cursor-pointer
               ${winningTeam === 'T'
-                ? 'border-amber-400/60 bg-amber-500/10 text-amber-400 shadow-[0_0_20px_rgba(255,179,0,0.2)]'
-                : 'border-white/10 bg-white/[0.02] text-gray-500 hover:border-white/20'
+                ? 'border-[#c49a6c]/40 bg-[#c49a6c]/10 text-[#d4a86a]'
+                : 'border-white/[0.06] bg-white/[0.02] text-gray-500 hover:border-white/[0.1]'
               }
             `}
           >
@@ -137,7 +137,7 @@ export default function MatchForm({ draftId, onComplete, onCancel, ctTeamName, t
         <button
           type="submit"
           disabled={saving}
-          className="font-rajdhani font-bold uppercase tracking-wider border rounded-lg transition-all duration-200 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed bg-emerald-500/20 border-emerald-400/50 text-emerald-400 hover:bg-emerald-500/30 hover:border-emerald-400 hover:shadow-[0_0_20px_rgba(0,230,118,0.3)] px-3 py-1.5 text-sm"
+          className="font-rajdhani font-bold uppercase tracking-wider border rounded-md transition-all duration-200 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed bg-gradient-to-b from-[#3a7a3a] to-[#2d5e2d] border-[#4a8a4a]/40 text-[#a8d8a8] hover:from-[#438a43] hover:to-[#356e35] hover:border-[#5a9a5a]/50 px-3 py-1.5 text-sm"
         >
           {saving ? 'Saving...' : 'Save Match Result'}
         </button>

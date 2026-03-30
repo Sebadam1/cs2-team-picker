@@ -81,7 +81,7 @@ export default function PlayerInput() {
             transition={{ delay: i * 0.05, duration: 0.3 }}
           >
             <div className="relative group">
-              <div className="absolute left-3 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white/10 flex items-center justify-center text-sm font-bold text-gray-400 font-orbitron group-focus-within:bg-emerald-500/20 group-focus-within:text-emerald-400 transition-colors">
+              <div className="absolute left-3 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white/[0.06] flex items-center justify-center text-sm font-bold text-gray-500 font-orbitron group-focus-within:bg-[#8b9bb4]/15 group-focus-within:text-[#8b9bb4] transition-colors">
                 {i + 1}
               </div>
               <input
@@ -91,11 +91,10 @@ export default function PlayerInput() {
                 onChange={(e) => updateName(i, e.target.value)}
                 onKeyDown={(e) => handleKeyDown(i, e)}
                 placeholder={`Player ${i + 1}`}
-                className="w-full pl-13 pr-4 py-3 bg-white/5 border border-white/10 rounded-lg
-                  text-white font-rajdhani text-base
+                className="w-full pl-13 pr-4 py-3 bg-white/[0.03] border border-white/[0.06] rounded-md
+                  text-[#c8ccd4] font-rajdhani text-base
                   placeholder:text-gray-600
-                  focus:outline-none focus:border-emerald-400/50 focus:bg-white/8
-                  focus:shadow-[0_0_15px_rgba(0,230,118,0.15)]
+                  focus:outline-none focus:border-[#8b9bb4]/40 focus:bg-white/[0.05]
                   transition-all duration-200"
               />
             </div>
@@ -124,14 +123,14 @@ export default function PlayerInput() {
             className={`
               flex-1 max-w-[220px] px-4 py-4 rounded-xl border-2 transition-all duration-200 cursor-pointer
               ${animationType === 'wheel'
-                ? 'border-emerald-400/60 bg-emerald-500/10 shadow-[0_0_20px_rgba(0,230,118,0.15)]'
-                : 'border-white/10 bg-white/[0.02] hover:border-white/20 hover:bg-white/5'
+                ? 'border-[#4a8a4a]/50 bg-[#3a7a3a]/10'
+                : 'border-white/[0.06] bg-white/[0.02] hover:border-white/[0.1] hover:bg-white/[0.04]'
               }
             `}
           >
             <div className="text-center">
               <div className="text-3xl mb-2">🎡</div>
-              <div className={`font-orbitron text-sm font-bold ${animationType === 'wheel' ? 'text-emerald-400' : 'text-gray-400'}`}>
+              <div className={`font-orbitron text-sm font-bold ${animationType === 'wheel' ? 'text-[#8b9bb4]' : 'text-gray-500'}`}>
                 SPIN WHEEL
               </div>
               <div className="text-gray-500 font-rajdhani text-xs mt-1">
@@ -144,14 +143,14 @@ export default function PlayerInput() {
             className={`
               flex-1 max-w-[220px] px-4 py-4 rounded-xl border-2 transition-all duration-200 cursor-pointer
               ${animationType === 'case'
-                ? 'border-amber-400/60 bg-amber-500/10 shadow-[0_0_20px_rgba(255,179,0,0.15)]'
-                : 'border-white/10 bg-white/[0.02] hover:border-white/20 hover:bg-white/5'
+                ? 'border-[#c49a6c]/40 bg-[#c49a6c]/10'
+                : 'border-white/[0.06] bg-white/[0.02] hover:border-white/[0.1] hover:bg-white/[0.04]'
               }
             `}
           >
             <div className="text-center">
               <div className="text-3xl mb-2">📦</div>
-              <div className={`font-orbitron text-sm font-bold ${animationType === 'case' ? 'text-amber-400' : 'text-gray-400'}`}>
+              <div className={`font-orbitron text-sm font-bold ${animationType === 'case' ? 'text-[#d4a86a]' : 'text-gray-500'}`}>
                 CASE OPENING
               </div>
               <div className="text-gray-500 font-rajdhani text-xs mt-1">

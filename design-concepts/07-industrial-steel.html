@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CS2 Team Picker - Industrial Steel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: #1a1a1e;
+            color: #c8c8cc;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Brushed metal background texture */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                repeating-linear-gradient(
+                    90deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(255,255,255,0.008) 2px,
+                    rgba(255,255,255,0.008) 3px
+                ),
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 1px,
+                    rgba(255,255,255,0.005) 1px,
+                    rgba(255,255,255,0.005) 2px
+                ),
+                linear-gradient(135deg, #1a1a1e 0%, #24242a 25%, #1e1e22 50%, #28282e 75%, #1a1a1e 100%);
+            z-index: -1;
+        }
+
+        /* Concept Label */
+        .concept-label {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            background: linear-gradient(135deg, #3a3a40, #2a2a30);
+            border: 2px solid #555;
+            padding: 8px 18px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #f0c040;
+            z-index: 1000;
+            box-shadow:
+                inset 1px 1px 0 rgba(255,255,255,0.1),
+                inset -1px -1px 0 rgba(0,0,0,0.3),
+                0 2px 8px rgba(0,0,0,0.5);
+        }
+
+        .concept-label::before,
+        .concept-label::after {
+            content: '';
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #888 30%, #444 70%);
+            border: 1px solid #333;
+        }
+
+        .concept-label::before {
+            top: -3px;
+            left: -3px;
+        }
+
+        .concept-label::after {
+            top: -3px;
+            right: -3px;
+        }
+
+        /* Nav Tabs */
+        .nav-tabs {
+            display: flex;
+            background: linear-gradient(180deg, #2e2e34, #222228);
+            border-bottom: 3px solid #111;
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.05),
+                0 2px 6px rgba(0,0,0,0.4);
+            padding: 0 24px;
+        }
+
+        .nav-tab {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #666;
+            padding: 18px 28px;
+            cursor: pointer;
+            position: relative;
+            transition: color 0.2s;
+            border: none;
+            background: none;
+        }
+
+        .nav-tab:hover {
+            color: #999;
+        }
+
+        .nav-tab.active {
+            color: #f0c040;
+        }
+
+        .nav-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: repeating-linear-gradient(
+                -45deg,
+                #f0c040,
+                #f0c040 4px,
+                #111 4px,
+                #111 8px
+            );
+        }
+
+        /* Main Content */
+        .main-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 32px 24px;
+        }
+
+        /* Match Header */
+        .match-header {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .match-header h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 28px;
+            font-weight: 900;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            color: #ddd;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .match-meta {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            color: #666;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            margin-top: 6px;
+        }
+
+        /* Teams Container */
+        .teams-container {
+            display: flex;
+            gap: 0;
+            align-items: stretch;
+        }
+
+        /* Metal Panel Base */
+        .metal-panel {
+            position: relative;
+            background: linear-gradient(145deg, #2a2a30, #1e1e24, #252530);
+            border: 2px solid #3a3a40;
+            box-shadow:
+                inset 2px 2px 4px rgba(255,255,255,0.04),
+                inset -2px -2px 4px rgba(0,0,0,0.4),
+                0 4px 16px rgba(0,0,0,0.4);
+            padding: 24px;
+        }
+
+        /* Rivet decorator */
+        .rivet {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, #666, #333 60%, #222);
+            border: 1px solid #444;
+            box-shadow:
+                inset 0 1px 1px rgba(255,255,255,0.2),
+                0 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .rivet.tl { top: 8px; left: 8px; }
+        .rivet.tr { top: 8px; right: 8px; }
+        .rivet.bl { bottom: 8px; left: 8px; }
+        .rivet.br { bottom: 8px; right: 8px; }
+
+        /* Team Panels */
+        .team-panel {
+            flex: 1;
+        }
+
+        .team-panel.team-a .metal-panel {
+            border-left: 4px solid #4a7a9e;
+        }
+
+        .team-panel.team-b .metal-panel {
+            border-right: 4px solid #b86a3a;
+        }
+
+        .team-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #333;
+        }
+
+        .team-name {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+        }
+
+        .team-a .team-name {
+            color: #6aafe0;
+        }
+
+        .team-b .team-name {
+            color: #d48040;
+        }
+
+        .team-record {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            color: #888;
+            letter-spacing: 2px;
+        }
+
+        .team-record .wins { color: #5a5; }
+        .team-record .losses { color: #a55; }
+
+        /* Player Row */
+        .player-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 10px 14px;
+            margin-bottom: 6px;
+            background: linear-gradient(90deg, rgba(255,255,255,0.02), transparent);
+            border: 1px solid #2a2a30;
+            position: relative;
+        }
+
+        .team-a .player-row {
+            border-left: 4px solid #4a7a9e;
+        }
+
+        .team-b .player-row {
+            border-right: 4px solid #b86a3a;
+            flex-direction: row-reverse;
+            text-align: right;
+            background: linear-gradient(270deg, rgba(255,255,255,0.02), transparent);
+        }
+
+        .player-row:hover {
+            background: rgba(255,255,255,0.03);
+            border-color: #3a3a44;
+        }
+
+        /* Hexagonal Avatar */
+        .player-avatar {
+            width: 42px;
+            height: 42px;
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .player-avatar .hex {
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, #3a3a44, #2a2a30);
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            color: #888;
+        }
+
+        .team-a .player-avatar .hex {
+            background: linear-gradient(135deg, #2a4a60, #1e3444);
+            color: #6aafe0;
+        }
+
+        .team-b .player-avatar .hex {
+            background: linear-gradient(135deg, #5a3820, #442a18);
+            color: #d48040;
+        }
+
+        .player-info {
+            flex: 1;
+        }
+
+        .player-name {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #ddd;
+        }
+
+        .player-stats {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            color: #666;
+            letter-spacing: 1px;
+        }
+
+        .player-stats .w { color: #5a5; }
+        .player-stats .l { color: #a55; }
+
+        /* VS Divider */
+        .vs-divider {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 70px;
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .vs-divider .hazard-stripe {
+            width: 8px;
+            flex: 1;
+            background: repeating-linear-gradient(
+                -45deg,
+                #f0c040,
+                #f0c040 4px,
+                #222 4px,
+                #222 8px
+            );
+            opacity: 0.7;
+        }
+
+        .vs-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 24px;
+            font-weight: 900;
+            color: #f0c040;
+            text-shadow: 0 0 10px rgba(240,192,64,0.3);
+            padding: 14px 0;
+            letter-spacing: 4px;
+        }
+
+        /* Action Buttons */
+        .actions {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 28px;
+        }
+
+        .btn-industrial {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            padding: 14px 32px;
+            border: 2px solid #4a4a50;
+            background: linear-gradient(180deg, #3a3a40, #2a2a30, #252530);
+            color: #bbb;
+            cursor: pointer;
+            position: relative;
+            box-shadow:
+                inset 1px 1px 0 rgba(255,255,255,0.06),
+                inset -1px -1px 0 rgba(0,0,0,0.3),
+                0 3px 8px rgba(0,0,0,0.4);
+            transition: all 0.15s;
+        }
+
+        .btn-industrial:hover {
+            background: linear-gradient(180deg, #444450, #333340, #2e2e38);
+            color: #eee;
+            border-color: #5a5a60;
+        }
+
+        .btn-industrial:active {
+            box-shadow:
+                inset 2px 2px 4px rgba(0,0,0,0.4),
+                inset -1px -1px 2px rgba(255,255,255,0.03);
+        }
+
+        .btn-industrial.primary {
+            border-color: #8a7a30;
+            color: #f0c040;
+        }
+
+        .btn-industrial.primary:hover {
+            border-color: #b09a40;
+            background: linear-gradient(180deg, #3a3828, #2e2c20, #2a2820);
+        }
+
+        /* Rivet decorators on buttons */
+        .btn-industrial::before,
+        .btn-industrial::after {
+            content: '';
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, #555, #333);
+            border: 1px solid #222;
+        }
+
+        .btn-industrial::before {
+            left: 6px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .btn-industrial::after {
+            right: 6px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        /* Case Opening Strip */
+        .case-strip-section {
+            margin-top: 32px;
+        }
+
+        .case-strip-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .case-strip-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #888;
+        }
+
+        .hazard-line {
+            flex: 1;
+            height: 4px;
+            background: repeating-linear-gradient(
+                -45deg,
+                #f0c040,
+                #f0c040 3px,
+                #222 3px,
+                #222 6px
+            );
+            opacity: 0.4;
+        }
+
+        .case-strip {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding: 4px 0 12px;
+        }
+
+        .case-item {
+            flex-shrink: 0;
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(145deg, #2e2e34, #222228);
+            border: 2px solid #3a3a40;
+            box-shadow:
+                inset 1px 1px 2px rgba(255,255,255,0.04),
+                inset -1px -1px 2px rgba(0,0,0,0.3),
+                0 2px 6px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: relative;
+            transition: border-color 0.2s;
+        }
+
+        .case-item:hover {
+            border-color: #555;
+        }
+
+        .case-item .rivet {
+            width: 6px;
+            height: 6px;
+        }
+
+        .case-item .rivet.tl { top: 4px; left: 4px; }
+        .case-item .rivet.tr { top: 4px; right: 4px; }
+        .case-item .rivet.bl { bottom: 4px; left: 4px; }
+        .case-item .rivet.br { bottom: 4px; right: 4px; }
+
+        .case-icon {
+            font-size: 28px;
+            margin-bottom: 6px;
+        }
+
+        .case-name {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 11px;
+            font-weight: 600;
+            color: #777;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .case-rarity {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+        }
+
+        .rarity-blue { background: linear-gradient(90deg, transparent, #4a7ab8, transparent); }
+        .rarity-purple { background: linear-gradient(90deg, transparent, #8a5ab8, transparent); }
+        .rarity-pink { background: linear-gradient(90deg, transparent, #b85a8a, transparent); }
+        .rarity-red { background: linear-gradient(90deg, transparent, #b85a5a, transparent); }
+        .rarity-gold { background: linear-gradient(90deg, transparent, #b8a05a, transparent); }
+
+        /* Scrollbar */
+        .case-strip::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .case-strip::-webkit-scrollbar-track {
+            background: #1a1a1e;
+        }
+
+        .case-strip::-webkit-scrollbar-thumb {
+            background: #3a3a40;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="concept-label">07 / Industrial Steel</div>
+
+    <!-- Nav Tabs -->
+    <nav class="nav-tabs">
+        <button class="nav-tab active">Draft</button>
+        <button class="nav-tab">Profiles</button>
+        <button class="nav-tab">History</button>
+        <button class="nav-tab">Stats</button>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content">
+
+        <!-- Match Header -->
+        <div class="match-header">
+            <h1>Draft Results</h1>
+            <div class="match-meta">Match #1247 &bull; Dust II &bull; Competitive</div>
+        </div>
+
+        <!-- Teams -->
+        <div class="teams-container">
+
+            <!-- Team A -->
+            <div class="team-panel team-a">
+                <div class="metal-panel">
+                    <span class="rivet tl"></span>
+                    <span class="rivet tr"></span>
+                    <span class="rivet bl"></span>
+                    <span class="rivet br"></span>
+
+                    <div class="team-header">
+                        <div class="team-name">Team A</div>
+                        <div class="team-record"><span class="wins">12W</span> / <span class="losses">5L</span></div>
+                    </div>
+
+                    <div class="player-row">
+                        <div class="player-avatar"><div class="hex">P</div></div>
+                        <div class="player-info">
+                            <div class="player-name">Pepa</div>
+                            <div class="player-stats"><span class="w">47W</span> / <span class="l">22L</span> &mdash; 68%</div>
+                        </div>
+                    </div>
+                    <div class="player-row">
+                        <div class="player-avatar"><div class="hex">M</div></div>
+                        <div class="player-info">
+                            <div class="player-name">Martin</div>
+                            <div class="player-stats"><span class="w">39W</span> / <span class="l">28L</span> &mdash; 58%</div>
+                        </div>
+                    </div>
+                    <div class="player-row">
+                        <div class="player-avatar"><div class="hex">T</div></div>
+                        <div class="player-info">
+                            <div class="player-name">Tomas</div>
+                            <div class="player-stats"><span class="w">51W</span> / <span class="l">19L</span> &mdash; 73%</div>
+                        </div>
+                    </div>
+                    <div class="player-row">
+                        <div class="player-avatar"><div class="hex">D</div></div>
+                        <div class="player-info">
+                            <div class="player-name">David</div>
+                            <div class="player-stats"><span class="w">33W</span> / <span class="l">31L</span> &mdash; 52%</div>
+                        </div>
+                    </div>
+                    <div class="player-row">
+                        <div class="player-avatar"><div class="hex">J</div></div>
+                        <div class="player-info">
+                            <div class="player-name">Jakub</div>
+                            <div class="player-stats"><span class="w">44W</span> / <span class="l">25L</span> &mdash; 64%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VS Divider -->
+            <div class="vs-divider">
+                <div class="hazard-stripe"></div>
+                <div class="vs-text">VS</div>
+                <div class="hazard-stripe"></div>
+            </div>
+
+            <!-- Team B -->
+            <div class="team-panel team-b">
+                <div class="metal-panel">
+                    <span class="rivet tl"></span>
+                    <span class="rivet tr"></span>
+                    <span class="rivet bl"></span>
+                    <span class="rivet br"></span>
+
+                    <div class="team-header">
+                        <div class="team-name">Team B</div>
+                        <div class="team-record"><span class="wins">10W</span> / <span class="losses">7L</span></div>
+                    </div>
+
+                    <div class="player-row">
+                        <div class="player-avatar"><div class="hex">A</div></div>
+                        <div class="player-info">
+                            <div class="player-name">Adam</div>
+                            <div class="player-stats"><span class="w">42W</span> / <span class="l">26L</span> &mdash; 62%</div>
+                        </div>
+                    </div>
+                    <div class="player-row">
+                        <div class="player-avatar"><div class="hex">O</div></div>
+                        <div class="player-info">
+                            <div class="player-name">Ondra</div>
+                            <div class="player-stats"><span class="w">36W</span> / <span class="l">30L</span> &mdash; 55%</div>
+                        </div>
+                    </div>
+                    <div class="player-row">
+                        <div class="player-avatar"><div class="hex">F</div></div>
+                        <div class="player-info">
+                            <div class="player-name">Filip</div>
+                            <div class="player-stats"><span class="w">48W</span> / <span class="l">21L</span> &mdash; 70%</div>
+                        </div>
+                    </div>
+                    <div class="player-row">
+                        <div class="player-avatar"><div class="hex">L</div></div>
+                        <div class="player-info">
+                            <div class="player-name">Lukas</div>
+                            <div class="player-stats"><span class="w">29W</span> / <span class="l">34L</span> &mdash; 46%</div>
+                        </div>
+                    </div>
+                    <div class="player-row">
+                        <div class="player-avatar"><div class="hex">V</div></div>
+                        <div class="player-info">
+                            <div class="player-name">Vojta</div>
+                            <div class="player-stats"><span class="w">38W</span> / <span class="l">27L</span> &mdash; 58%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="actions">
+            <button class="btn-industrial">Redraft</button>
+            <button class="btn-industrial primary">Start Match</button>
+            <button class="btn-industrial">Share</button>
+            <button class="btn-industrial">Export</button>
+        </div>
+
+        <!-- Case Opening Strip -->
+        <div class="case-strip-section">
+            <div class="case-strip-header">
+                <div class="case-strip-title">Case Preview</div>
+                <div class="hazard-line"></div>
+            </div>
+            <div class="case-strip">
+                <div class="case-item">
+                    <span class="rivet tl"></span><span class="rivet tr"></span>
+                    <span class="rivet bl"></span><span class="rivet br"></span>
+                    <div class="case-icon">&#x1F52B;</div>
+                    <div class="case-name">AK-47</div>
+                    <div class="case-rarity rarity-gold"></div>
+                </div>
+                <div class="case-item">
+                    <span class="rivet tl"></span><span class="rivet tr"></span>
+                    <span class="rivet bl"></span><span class="rivet br"></span>
+                    <div class="case-icon">&#x1F52A;</div>
+                    <div class="case-name">Karambit</div>
+                    <div class="case-rarity rarity-red"></div>
+                </div>
+                <div class="case-item">
+                    <span class="rivet tl"></span><span class="rivet tr"></span>
+                    <span class="rivet bl"></span><span class="rivet br"></span>
+                    <div class="case-icon">&#x1F3AF;</div>
+                    <div class="case-name">AWP</div>
+                    <div class="case-rarity rarity-pink"></div>
+                </div>
+                <div class="case-item">
+                    <span class="rivet tl"></span><span class="rivet tr"></span>
+                    <span class="rivet bl"></span><span class="rivet br"></span>
+                    <div class="case-icon">&#x1F9E4;</div>
+                    <div class="case-name">Gloves</div>
+                    <div class="case-rarity rarity-purple"></div>
+                </div>
+                <div class="case-item">
+                    <span class="rivet tl"></span><span class="rivet tr"></span>
+                    <span class="rivet bl"></span><span class="rivet br"></span>
+                    <div class="case-icon">&#x1F4A3;</div>
+                    <div class="case-name">M4A4</div>
+                    <div class="case-rarity rarity-blue"></div>
+                </div>
+                <div class="case-item">
+                    <span class="rivet tl"></span><span class="rivet tr"></span>
+                    <span class="rivet bl"></span><span class="rivet br"></span>
+                    <div class="case-icon">&#x2694;</div>
+                    <div class="case-name">Bayonet</div>
+                    <div class="case-rarity rarity-red"></div>
+                </div>
+                <div class="case-item">
+                    <span class="rivet tl"></span><span class="rivet tr"></span>
+                    <span class="rivet bl"></span><span class="rivet br"></span>
+                    <div class="case-icon">&#x1F52B;</div>
+                    <div class="case-name">Deagle</div>
+                    <div class="case-rarity rarity-purple"></div>
+                </div>
+                <div class="case-item">
+                    <span class="rivet tl"></span><span class="rivet tr"></span>
+                    <span class="rivet bl"></span><span class="rivet br"></span>
+                    <div class="case-icon">&#x1F9F0;</div>
+                    <div class="case-name">USP-S</div>
+                    <div class="case-rarity rarity-blue"></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>

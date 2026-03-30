@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Concept 1: Classic CS2 Main Menu</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Rajdhani', sans-serif;
+    background: #0a0a0c;
+    color: #e0e0e0;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* CS2 main menu style background */
+  .bg-layer {
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 20% 50%, rgba(255, 153, 0, 0.06) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 20%, rgba(59, 130, 246, 0.04) 0%, transparent 50%),
+      linear-gradient(180deg, #0d0d10 0%, #0a0a0c 100%);
+    z-index: 0;
+  }
+
+  /* Subtle noise texture */
+  .bg-layer::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    opacity: 0.5;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px;
+  }
+
+  /* Top nav bar - CS2 style angular */
+  .nav {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 50px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .nav-item {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    padding: 16px 28px;
+    color: rgba(255,255,255,0.35);
+    cursor: pointer;
+    position: relative;
+    transition: all 0.3s;
+  }
+
+  .nav-item:hover { color: rgba(255,255,255,0.6); }
+
+  .nav-item.active {
+    color: #ff9800;
+    background: linear-gradient(180deg, rgba(255,152,0,0.08) 0%, transparent 100%);
+  }
+
+  .nav-item.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: #ff9800;
+    box-shadow: 0 0 12px rgba(255,152,0,0.5);
+  }
+
+  /* Header section */
+  .header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  .header h1 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 42px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 6px;
+    color: #ff9800;
+    text-shadow: 0 0 40px rgba(255,152,0,0.3), 0 0 80px rgba(255,152,0,0.1);
+    margin-bottom: 8px;
+  }
+
+  .header p {
+    color: rgba(255,255,255,0.3);
+    font-size: 14px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+
+  /* Team columns */
+  .teams-grid {
+    display: grid;
+    grid-template-columns: 1fr 80px 1fr;
+    gap: 0;
+    align-items: start;
+  }
+
+  .team-col {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .team-header {
+    padding: 16px 24px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .team-a .team-header {
+    background: linear-gradient(90deg, rgba(59,130,246,0.1) 0%, transparent 100%);
+    color: #60a5fa;
+    border-left: 3px solid #3b82f6;
+  }
+
+  .team-b .team-header {
+    background: linear-gradient(270deg, rgba(255,152,0,0.1) 0%, transparent 100%);
+    color: #ffb74d;
+    border-right: 3px solid #ff9800;
+    justify-content: flex-end;
+  }
+
+  .team-record {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    opacity: 0.5;
+  }
+
+  .player-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 24px;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    transition: background 0.2s;
+    cursor: pointer;
+  }
+
+  .player-row:hover {
+    background: rgba(255,255,255,0.03);
+  }
+
+  .team-b .player-row {
+    flex-direction: row-reverse;
+  }
+
+  .player-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 2px;
+    background: rgba(255,255,255,0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.2);
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+
+  .team-a .player-avatar {
+    border: 1px solid rgba(59,130,246,0.2);
+  }
+
+  .team-b .player-avatar {
+    border: 1px solid rgba(255,152,0,0.2);
+  }
+
+  .player-info {
+    flex: 1;
+  }
+
+  .team-b .player-info {
+    text-align: right;
+  }
+
+  .player-name {
+    font-weight: 700;
+    font-size: 16px;
+    color: #fff;
+  }
+
+  .player-stats {
+    font-size: 11px;
+    color: rgba(255,255,255,0.3);
+    font-family: 'Orbitron', sans-serif;
+  }
+
+  .player-stats .w { color: #4ade80; }
+  .player-stats .l { color: #f87171; }
+
+  .pick-badge {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 2px;
+    background: rgba(255,255,255,0.05);
+    color: rgba(255,255,255,0.25);
+  }
+
+  /* VS divider */
+  .vs-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding-top: 60px;
+    gap: 12px;
+  }
+
+  .vs-line {
+    width: 1px;
+    height: 40px;
+    background: linear-gradient(180deg, transparent, rgba(255,255,255,0.1), transparent);
+  }
+
+  .vs-text {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 18px;
+    font-weight: 900;
+    color: rgba(255,255,255,0.15);
+    letter-spacing: 4px;
+  }
+
+  /* Action buttons */
+  .actions {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 40px;
+  }
+
+  .btn {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    padding: 14px 32px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #ff9800 0%, #e65100 100%);
+    color: #fff;
+    clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+  }
+
+  .btn-primary:hover {
+    box-shadow: 0 0 30px rgba(255,152,0,0.3);
+    transform: translateY(-1px);
+  }
+
+  .btn-ghost {
+    background: transparent;
+    color: rgba(255,255,255,0.4);
+    border: 1px solid rgba(255,255,255,0.1);
+    clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+  }
+
+  .btn-ghost:hover {
+    border-color: rgba(255,255,255,0.2);
+    color: rgba(255,255,255,0.6);
+  }
+
+  /* Case opening strip preview */
+  .case-strip {
+    margin-top: 60px;
+    text-align: center;
+  }
+
+  .case-strip h2 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.2);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .strip-container {
+    position: relative;
+    height: 160px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 2px;
+    background: rgba(0,0,0,0.3);
+  }
+
+  .strip-indicator {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #ff9800;
+    z-index: 10;
+    box-shadow: 0 0 15px rgba(255,152,0,0.6);
+    transform: translateX(-50%);
+  }
+
+  .strip-indicator::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0; height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 10px solid #ff9800;
+    filter: drop-shadow(0 0 6px rgba(255,152,0,0.8));
+  }
+
+  .strip-items {
+    display: flex;
+    gap: 4px;
+    padding: 10px;
+    position: absolute;
+    left: 20%;
+  }
+
+  .strip-item {
+    width: 130px;
+    height: 140px;
+    flex-shrink: 0;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 2px;
+    background: rgba(255,255,255,0.03);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    padding-bottom: 12px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .strip-item .initial {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -60%);
+    font-family: 'Orbitron', sans-serif;
+    font-size: 36px;
+    font-weight: 900;
+    color: rgba(255,255,255,0.06);
+  }
+
+  .strip-item .name {
+    position: relative;
+    z-index: 1;
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.5);
+    background: rgba(0,0,0,0.4);
+    width: 100%;
+    text-align: center;
+    padding: 6px;
+  }
+
+  .strip-item.winner {
+    border-color: #ff9800;
+    box-shadow: 0 0 20px rgba(255,152,0,0.3);
+  }
+
+  .strip-item.winner .name {
+    color: #ffb74d;
+    background: rgba(255,152,0,0.15);
+  }
+
+  /* Concept label */
+  .concept-label {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 10px;
+    color: rgba(255,255,255,0.15);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    z-index: 100;
+  }
+
+  .concept-name {
+    font-size: 24px;
+    font-weight: 900;
+    color: #ff9800;
+    display: block;
+    letter-spacing: 0;
+    text-shadow: 0 0 20px rgba(255,152,0,0.3);
+  }
+</style>
+</head>
+<body>
+  <div class="bg-layer"></div>
+  <div class="concept-label">
+    Concept 01
+    <span class="concept-name">Classic CS2 Menu</span>
+  </div>
+
+  <div class="container">
+    <nav class="nav">
+      <div class="nav-item active">Draft</div>
+      <div class="nav-item">Profiles</div>
+      <div class="nav-item">History</div>
+      <div class="nav-item">Stats</div>
+    </nav>
+
+    <div class="header">
+      <h1>Teams Drafted</h1>
+      <p>Drag players to reorder or click to swap</p>
+    </div>
+
+    <div class="teams-grid">
+      <div class="team-col team-a">
+        <div class="team-header">
+          Pepa's Team
+          <span class="team-record">12W / 8L</span>
+        </div>
+        <div class="player-row">
+          <div class="player-avatar">P</div>
+          <div class="player-info">
+            <div class="player-name">Pepa</div>
+            <div class="player-stats"><span class="w">5W</span> / <span class="l">3L</span></div>
+          </div>
+          <span class="pick-badge">#1</span>
+        </div>
+        <div class="player-row">
+          <div class="player-avatar">M</div>
+          <div class="player-info">
+            <div class="player-name">Martin</div>
+            <div class="player-stats"><span class="w">3W</span> / <span class="l">2L</span></div>
+          </div>
+          <span class="pick-badge">#3</span>
+        </div>
+        <div class="player-row">
+          <div class="player-avatar">T</div>
+          <div class="player-info">
+            <div class="player-name">Tomas</div>
+            <div class="player-stats"><span class="w">2W</span> / <span class="l">1L</span></div>
+          </div>
+          <span class="pick-badge">#5</span>
+        </div>
+        <div class="player-row">
+          <div class="player-avatar">D</div>
+          <div class="player-info">
+            <div class="player-name">David</div>
+            <div class="player-stats"><span class="w">1W</span> / <span class="l">1L</span></div>
+          </div>
+          <span class="pick-badge">#7</span>
+        </div>
+        <div class="player-row">
+          <div class="player-avatar">J</div>
+          <div class="player-info">
+            <div class="player-name">Jakub</div>
+            <div class="player-stats"><span class="w">1W</span> / <span class="l">1L</span></div>
+          </div>
+          <span class="pick-badge">#9</span>
+        </div>
+      </div>
+
+      <div class="vs-col">
+        <div class="vs-line"></div>
+        <span class="vs-text">VS</span>
+        <div class="vs-line"></div>
+      </div>
+
+      <div class="team-col team-b">
+        <div class="team-header">
+          <span class="team-record">10W / 10L</span>
+          Adam's Team
+        </div>
+        <div class="player-row">
+          <div class="player-avatar">A</div>
+          <div class="player-info">
+            <div class="player-name">Adam</div>
+            <div class="player-stats"><span class="w">4W</span> / <span class="l">4L</span></div>
+          </div>
+          <span class="pick-badge">#2</span>
+        </div>
+        <div class="player-row">
+          <div class="player-avatar">O</div>
+          <div class="player-info">
+            <div class="player-name">Ondra</div>
+            <div class="player-stats"><span class="w">3W</span> / <span class="l">2L</span></div>
+          </div>
+          <span class="pick-badge">#4</span>
+        </div>
+        <div class="player-row">
+          <div class="player-avatar">F</div>
+          <div class="player-info">
+            <div class="player-name">Filip</div>
+            <div class="player-stats"><span class="w">2W</span> / <span class="l">2L</span></div>
+          </div>
+          <span class="pick-badge">#6</span>
+        </div>
+        <div class="player-row">
+          <div class="player-avatar">L</div>
+          <div class="player-info">
+            <div class="player-name">Lukas</div>
+            <div class="player-stats"><span class="w">1W</span> / <span class="l">1L</span></div>
+          </div>
+          <span class="pick-badge">#8</span>
+        </div>
+        <div class="player-row">
+          <div class="player-avatar">V</div>
+          <div class="player-info">
+            <div class="player-name">Vojta</div>
+            <div class="player-stats"><span class="w">0W</span> / <span class="l">1L</span></div>
+          </div>
+          <span class="pick-badge">#10</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-primary">Lock Teams</button>
+      <button class="btn btn-ghost">New Draft</button>
+    </div>
+
+    <div class="case-strip">
+      <h2>Case Opening Preview</h2>
+      <div class="strip-container">
+        <div class="strip-indicator"></div>
+        <div class="strip-items">
+          <div class="strip-item"><span class="initial">M</span><span class="name">Martin</span></div>
+          <div class="strip-item"><span class="initial">T</span><span class="name">Tomas</span></div>
+          <div class="strip-item"><span class="initial">D</span><span class="name">David</span></div>
+          <div class="strip-item winner"><span class="initial">P</span><span class="name">Pepa</span></div>
+          <div class="strip-item"><span class="initial">A</span><span class="name">Adam</span></div>
+          <div class="strip-item"><span class="initial">F</span><span class="name">Filip</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

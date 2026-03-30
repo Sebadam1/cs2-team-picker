@@ -68,7 +68,7 @@ export default function ProfileManager() {
       </div>
 
       {profiles.length === 0 ? (
-        <div className="text-center py-16 border border-dashed border-white/10 rounded-xl">
+        <div className="text-center py-16 border border-dashed border-white/[0.06] rounded-lg">
           <p className="text-gray-500 font-rajdhani text-lg mb-2">No profiles yet</p>
           <p className="text-gray-600 font-rajdhani text-sm mb-6">Create player profiles to use in drafts</p>
           <Button variant="primary" size="md" onClick={() => setShowForm(true)}>

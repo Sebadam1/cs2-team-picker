@@ -60,9 +60,9 @@ export default function ProfileForm({ profile, onSubmit, onCancel }: ProfileForm
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="Enter player name"
-          className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white font-rajdhani
-            placeholder:text-gray-600 focus:outline-none focus:border-emerald-400/50 focus:bg-white/8
-            focus:shadow-[0_0_15px_rgba(0,230,118,0.15)] transition-all duration-200"
+          className="w-full px-4 py-3 bg-white/[0.03] border border-white/[0.06] rounded-md text-[#c8ccd4] font-rajdhani
+            placeholder:text-gray-600 focus:outline-none focus:border-[#8b9bb4]/40 focus:bg-white/[0.05]
+            transition-all duration-200"
           autoFocus
         />
       </div>
@@ -106,7 +106,7 @@ export default function ProfileForm({ profile, onSubmit, onCancel }: ProfileForm
           <button
             type="button"
             onClick={handleSoundPreview}
-            className="text-emerald-400 text-xs font-rajdhani hover:text-emerald-300 cursor-pointer flex items-center gap-1"
+            className="text-[#8b9bb4] text-xs font-rajdhani hover:text-[#a0b0c8] cursor-pointer flex items-center gap-1"
           >
             <span>🔊</span> Play preview
           </button>
@@ -136,7 +136,7 @@ export default function ProfileForm({ profile, onSubmit, onCancel }: ProfileForm
         <button
           type="submit"
           disabled={saving || !name.trim()}
-          className="font-rajdhani font-bold uppercase tracking-wider border rounded-lg transition-all duration-200 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed bg-emerald-500/20 border-emerald-400/50 text-emerald-400 hover:bg-emerald-500/30 hover:border-emerald-400 hover:shadow-[0_0_20px_rgba(0,230,118,0.3)] px-3 py-1.5 text-sm"
+          className="font-rajdhani font-bold uppercase tracking-wider border rounded-md transition-all duration-200 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed bg-gradient-to-b from-[#3a7a3a] to-[#2d5e2d] border-[#4a8a4a]/40 text-[#a8d8a8] hover:from-[#438a43] hover:to-[#356e35] hover:border-[#5a9a5a]/50 px-3 py-1.5 text-sm"
         >
           {saving ? 'Saving...' : profile ? 'Update Profile' : 'Create Profile'}
         </button>

@@ -35,7 +35,7 @@ export default function RootLayout({
       lang="en"
       className={`${rajdhani.variable} ${orbitron.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-[#0a0a0f] text-gray-100 font-rajdhani">
+      <body className="min-h-full flex flex-col bg-[#0d0f13] text-[#c8ccd4] font-rajdhani">
         <ProfileProvider>
           <HistoryProvider>
             {children}

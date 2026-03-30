@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CS2 Team Picker - Concept 15 / CS2 Buy Menu</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0d0f13;
+    background-image: radial-gradient(ellipse at 50% 30%, rgba(30,34,45,0.5) 0%, #0d0f13 70%);
+    color: #e0e0e0;
+    font-family: 'Rajdhani', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Tab Navigation */
+  .tab-nav {
+    display: flex;
+    background: rgba(10,12,16,0.95);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    padding: 0 20px;
+  }
+  .tab-nav a {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.3);
+    text-decoration: none;
+    padding: 13px 20px;
+    position: relative;
+    transition: color 0.2s;
+  }
+  .tab-nav a:hover { color: rgba(255,255,255,0.55); }
+  .tab-nav a.active {
+    color: #c8d0dc;
+  }
+  .tab-nav a.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: #8b9bb4;
+  }
+
+  /* Concept Label */
+  .concept-label {
+    text-align: center;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.15);
+    padding: 10px 0 0;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    padding: 24px 20px 16px;
+  }
+  .header h1 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    color: #c8d0dc;
+  }
+  .header .subtitle {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 13px;
+    color: rgba(255,255,255,0.35);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  /* Teams Layout */
+  .teams-container {
+    display: flex;
+    gap: 12px;
+    padding: 0 20px;
+    align-items: flex-start;
+    justify-content: center;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  /* Team Section - Buy Menu Category */
+  .team-section {
+    flex: 1;
+    max-width: 530px;
+  }
+
+  /* Category Header - like weapon category in buy menu */
+  .category-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    margin-bottom: 8px;
+    border-radius: 6px 6px 0 0;
+    position: relative;
+  }
+  .team-a .category-header {
+    background: linear-gradient(90deg, rgba(79,195,247,0.12), rgba(79,195,247,0.02));
+    border-bottom: 1px solid rgba(79,195,247,0.15);
+  }
+  .team-b .category-header {
+    background: linear-gradient(90deg, rgba(255,179,0,0.12), rgba(255,179,0,0.02));
+    border-bottom: 1px solid rgba(255,179,0,0.15);
+  }
+
+  .category-name {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+  }
+  .team-a .category-name { color: #4fc3f7; }
+  .team-b .category-name { color: #ffb300; }
+
+  /* Equipment Indicator - team stats overlay */
+  .equip-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 4px;
+    padding: 6px 10px;
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+  .equip-record {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .team-a .equip-record { color: #4fc3f7; }
+  .team-b .equip-record { color: #ffb300; }
+  .equip-label {
+    font-size: 8px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.25);
+  }
+  .equip-maps {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+  .equip-map {
+    font-size: 8px;
+    color: rgba(255,255,255,0.25);
+    background: rgba(255,255,255,0.03);
+    padding: 1px 4px;
+    border-radius: 2px;
+  }
+
+  /* VS Divider */
+  .vs-divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 44px;
+    align-self: center;
+  }
+  .vs-text {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 16px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    color: rgba(255,255,255,0.2);
+  }
+
+  /* Player Cards Grid - weapon card style */
+  .players-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .player-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.04);
+    border-radius: 6px;
+    padding: 8px 10px;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.15s;
+  }
+  .player-card:hover {
+    background: rgba(255,255,255,0.04);
+  }
+
+  /* Team-colored left border (like weapon card accent) */
+  .team-a .player-card {
+    border-left: 3px solid rgba(79,195,247,0.5);
+  }
+  .team-b .player-card {
+    border-left: 3px solid rgba(255,179,0,0.5);
+  }
+
+  /* Avatar at top of card area */
+  .card-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .team-a .card-avatar {
+    background: rgba(79,195,247,0.1);
+    border: 1px solid rgba(79,195,247,0.25);
+    color: #4fc3f7;
+  }
+  .team-b .card-avatar {
+    background: rgba(255,179,0,0.1);
+    border: 1px solid rgba(255,179,0,0.25);
+    color: #ffb300;
+  }
+
+  /* Price Tag pick order */
+  .price-tag {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 3px;
+    flex-shrink: 0;
+    letter-spacing: 0.5px;
+  }
+  .team-a .price-tag {
+    background: rgba(79,195,247,0.1);
+    color: #4fc3f7;
+    border: 1px solid rgba(79,195,247,0.15);
+  }
+  .team-b .price-tag {
+    background: rgba(255,179,0,0.1);
+    color: #ffb300;
+    border: 1px solid rgba(255,179,0,0.15);
+  }
+
+  /* Player Name */
+  .card-name {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: #e8ecf0;
+    min-width: 55px;
+  }
+
+  /* Player W/L */
+  .card-wl {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.35);
+    white-space: nowrap;
+  }
+
+  /* Compact horizontal map stats within card */
+  .card-maps {
+    margin-left: auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px 8px;
+    font-size: 9px;
+    font-weight: 500;
+  }
+  .card-map-entry {
+    display: flex;
+    justify-content: space-between;
+    gap: 4px;
+    white-space: nowrap;
+  }
+  .card-map-label {
+    color: rgba(255,255,255,0.2);
+  }
+  .card-map-val {
+    color: rgba(255,255,255,0.35);
+    font-weight: 600;
+  }
+
+  /* Action Buttons - Buy menu confirmation style */
+  .actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    padding: 24px 20px 32px;
+  }
+  .btn {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    border: none;
+    border-radius: 4px;
+    padding: 12px 28px;
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+  }
+  .btn-purchase {
+    background: linear-gradient(180deg, #3a7a3a, #2d5e2d);
+    color: #a8e6a8;
+    border: 1px solid rgba(100,200,100,0.25);
+    box-shadow: 0 2px 12px rgba(50,150,50,0.2);
+  }
+  .btn-purchase:hover {
+    background: linear-gradient(180deg, #458a45, #367036);
+    box-shadow: 0 4px 20px rgba(50,150,50,0.35);
+  }
+  .btn-cancel {
+    background: rgba(255,255,255,0.04);
+    color: rgba(255,255,255,0.45);
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .btn-cancel:hover {
+    background: rgba(255,255,255,0.08);
+    color: rgba(255,255,255,0.7);
+  }
+
+  /* Money/equipment style team stat bar below category header */
+  .team-record-bar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px 8px;
+    margin-bottom: 4px;
+  }
+  .record-badge {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.25);
+  }
+  .record-maps-row {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+  .record-map-chip {
+    font-size: 8px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.03);
+    padding: 1px 5px;
+    border-radius: 2px;
+    letter-spacing: 0.3px;
+  }
+</style>
+</head>
+<body>
+
+<!-- Tab Navigation -->
+<nav class="tab-nav">
+  <a href="#" class="active">Draft</a>
+  <a href="#">Profiles</a>
+  <a href="#">History</a>
+  <a href="#">Stats</a>
+</nav>
+
+<div class="concept-label">Concept 15 / CS2 Buy Menu</div>
+
+<!-- Header -->
+<div class="header">
+  <h1>Teams Drafted</h1>
+  <div class="subtitle">Select Your Loadout</div>
+</div>
+
+<!-- Teams -->
+<div class="teams-container">
+
+  <!-- Team A -->
+  <div class="team-section team-a">
+    <!-- Category Header (like weapon category) -->
+    <div class="category-header">
+      <span class="category-name">Pepa's Team</span>
+      <div class="equip-indicator">
+        <div>
+          <div class="equip-label">Team Record</div>
+          <div class="equip-record">0W / 0L</div>
+        </div>
+      </div>
+    </div>
+    <div class="team-record-bar">
+      <span class="record-badge">Maps:</span>
+      <div class="record-maps-row">
+        <span class="record-map-chip">Mirage</span>
+        <span class="record-map-chip">Inferno</span>
+        <span class="record-map-chip">Nuke</span>
+        <span class="record-map-chip">Overpass</span>
+        <span class="record-map-chip">Ancient</span>
+        <span class="record-map-chip">Anubis</span>
+        <span class="record-map-chip">Dust2</span>
+      </div>
+    </div>
+
+    <!-- Player cards - weapon items -->
+    <div class="players-grid">
+      <div class="player-card">
+        <div class="card-avatar">P</div>
+        <span class="price-tag">#1</span>
+        <span class="card-name">Pepa</span>
+        <span class="card-wl">0W / 0L</span>
+        <div class="card-maps">
+          <div class="card-map-entry"><span class="card-map-label">Mir</span><span class="card-map-val">0 0</span></div>
+          <div class="card-map-entry"><span class="card-map-label">Anc</span><span class="card-map-val">0 0</span></div>
+          <div class="card-map-entry"><span class="card-map-label">Inf</span><span class="card-map-val">0 0</span></div>
+          <div class="card-map-entry"><span class="card-map-label">Anu</span><span class="card-map-val">0 0</span></div>
+          <div class="card-map-entry"><span class="card-map-label">Nuk</span><span class="card-map-val">0 0</span></div>
+          <div class="card-map-entry"><span class="card-map-label">Dus</span><span class="card-map-val">0 0</span></div>
+          <div class="card-map-entry"><span class="card-map-label">Ove</span><span class="card-map-val">0 0</span></div>
+        </div>
+      </div>
+      <div class="player-card">
+        <div class="card-avatar">M</div>
+        <span class="price-tag">#3</span>
+        <span class="card-name">Martin</span>
+        <span class="card-wl">0W / 0L</span>
+        <div class="card-maps">
+          <div class="card-map-entry"><span class="card-map-label">Mir</span><span class="card-map-val">0 0</span></div>
+          <div class="card-map-entry"><span class="card-map-label">Anc</span><span class="card-map-val">0 0</span></div>
+          <div class="card-map-entry"><span class="card-map-label">Inf</span><span class="card-map-val">0 0</span></div>
+          <div class="card-map-entry"><span class="card-map-label">Anu</span><span class="card-map-val">0 0</span></div>
+          <div class="card-map-entry"><span class="card-map-label">Nuk</span><span class="card-map-val">0 0</span></div>
+          <div class="card-map-entry"><span class="card-map-label">Dus</span><span class="card-map-val">0 0</span></div>
+          <div class="card-map-entry"><span class="card-map-label">Ove</span><span class="card-map-val">0 0</span></div>
+        </div>
+      </div>
+      <div class="player-card">
+        <div class="card-avatar">T</div>
+        <span class="price-tag">#5</span>
+        <span class="card-name">Tomas</span>
+        <span class="card-wl">0W / 0L</span>
+        <div class="card-maps">
+          <div class="card-map-entry"><span class="card-map-label">Mir</span><span class="card-map-val">0 0</span></div>
+          <div class="card-map-entry"><span class="card-map-label">Anc</span><span class="card-map-val">0 0</span></div>
+          <div class="card-map-entry"><span class="card-map-label">Inf</span><span class="card-map-val">0 0</span></div>
+          <div class="card-map-entry"><span class="card-map-label">Anu</span><span class="card-map-val">0 0</span></div>
+          <div class="card-map-entry"><span class="card-map-label">Nuk</span><span class="card-map-val">0 0</span></div>
+          <div class="card-map-entry"><span class="card-map-label">Dus</span><span class="card-map-val">0 0</span></div>
+          <div class="card-map-entry"><span class="card-map-label">Ove</span><span class="card-map-val">0 0</span></div>
+        </div>
+      </div>
+      <div class="player-card">
+        <div class="card-avatar">D</div>
+        <span class="price-tag">#7</span>
+        <span class="card-name">David</span>
+        <span class="card-wl">0W / 0L</span>
+        <div class="card-maps">
+          <div class="card-map-entry"><span class="card-map-label">Mir</span><span class="card-map-val">0 0</span></div>
+          <div class="card-map-entry"><span class="card-map-label">Anc</span><span class="card-map-val">0 0</span></div>
+          <div class="card-map-entry"><span class="card-map-label">Inf</span><span class="card-map-val">0 0</span></div>
+          <div class="card-map-entry"><span class="card-map-label">Anu</span><span class="card-map-val">0 0</span></div>
+          <div class="card-map-entry"><span class="card-map-label">Nuk</span><span class="card-map-val">0 0</span></div>
+          <div class="card-map-entry"><span class="card-map-label">Dus</span><span class="card-map-val">0 0</span></div>
+          <div class="card-map-entry"><span class="card-map-label">Ove</span><span class="card-map-val">0 0</span></div>
+        </div>
+      </div>
+      <div class="player-card">
+        <div class="card-avatar">J</div>
+        <span class="price-tag">#9</span>
+        <span class="card-name">Jakub</span>
+        <span class="card-wl">0W / 0L</span>
+        <div class="card-maps">
+          <div class="card-map-entry"><span class="card-map-label">Mir</span><span class="card-map-val">0 0</span></div>
+          <div class="card-map-entry"><span class="card-map-label">Anc</span><span class="card-map-val">0 0</span></div>
+          <div class="card-map-entry"><span class="card-map-label">Inf</span><span class="card-map-val">0 0</span></div>
+          <div class="card-map-entry"><span class="card-map-label">Anu</span><span class="card-map-val">0 0</span></div>
+          <div class="card-map-entry"><span class="card-map-label">Nuk</span><span class="card-map-val">0 0</span></div>
+          <div class="card-map-entry"><span class="card-map-label">Dus</span><span class="card-map-val">0 0</span></div>
+          <div class="card-map-entry"><span class="card-map-label">Ove</span><span class="card-map-val">0 0</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VS Divider -->
+  <div class="vs-divider">
+    <span class="vs-text">VS</span>
+  </div>
+
+  <!-- Team B -->
+  <div class="team-section team-b">
+    <div class="category-header">
+      <span class="category-name">Adam's Team</span>
+      <div class="equip-indicator">
+        <div>
+          <div class="equip-label">Team Record</div>
+          <div class="equip-record">0W / 0L</div>
+        </div>
+      </div>
+    </div>
+    <div class="team-record-bar">
+      <span class="record-badge">Maps:</span>
+      <div class="record-maps-row">
+        <span class="record-map-chip">Mirage</span>
+        <span class="record-map-chip">Inferno</span>
+        <span class="record-map-chip">Nuke</span>
+        <span class="record-map-chip">Overpass</span>
+        <span class="record-map-chip">Ancient</span>
+        <span class="record-map-chip">Anubis</span>
+        <span class="record-map-chip">Dust2</span>
+      </div>
+    </div>
+
+    <div class="players-grid">
+      <div class="player-card">
+        <div class="card-avatar">A</div>
+        <span class="price-tag">#2</span>
+        <span class="card-name">Adam</span>
+        <span class="card-wl">0W / 0L</span>
+        <div class="card-maps">
+          <div class="card-map-entry"><span class="card-map-label">Mir</span><span class="card-map-val">0 0</span></div>
+          <div class="card-map-entry"><span class="card-map-label">Anc</span><span class="card-map-val">0 0</span></div>
+          <div class="card-map-entry"><span class="card-map-label">Inf</span><span class="card-map-val">0 0</span></div>
+          <div class="card-map-entry"><span class="card-map-label">Anu</span><span class="card-map-val">0 0</span></div>
+          <div class="card-map-entry"><span class="card-map-label">Nuk</span><span class="card-map-val">0 0</span></div>
+          <div class="card-map-entry"><span class="card-map-label">Dus</span><span class="card-map-val">0 0</span></div>
+          <div class="card-map-entry"><span class="card-map-label">Ove</span><span class="card-map-val">0 0</span></div>
+        </div>
+      </div>
+      <div class="player-card">
+        <div class="card-avatar">O</div>
+        <span class="price-tag">#4</span>
+        <span class="card-name">Ondra</span>
+        <span class="card-wl">0W / 0L</span>
+        <div class="card-maps">
+          <div class="card-map-entry"><span class="card-map-label">Mir</span><span class="card-map-val">0 0</span></div>
+          <div class="card-map-entry"><span class="card-map-label">Anc</span><span class="card-map-val">0 0</span></div>
+          <div class="card-map-entry"><span class="card-map-label">Inf</span><span class="card-map-val">0 0</span></div>
+          <div class="card-map-entry"><span class="card-map-label">Anu</span><span class="card-map-val">0 0</span></div>
+          <div class="card-map-entry"><span class="card-map-label">Nuk</span><span class="card-map-val">0 0</span></div>
+          <div class="card-map-entry"><span class="card-map-label">Dus</span><span class="card-map-val">0 0</span></div>
+          <div class="card-map-entry"><span class="card-map-label">Ove</span><span class="card-map-val">0 0</span></div>
+        </div>
+      </div>
+      <div class="player-card">
+        <div class="card-avatar">F</div>
+        <span class="price-tag">#6</span>
+        <span class="card-name">Filip</span>
+        <span class="card-wl">0W / 0L</span>
+        <div class="card-maps">
+          <div class="card-map-entry"><span class="card-map-label">Mir</span><span class="card-map-val">0 0</span></div>
+          <div class="card-map-entry"><span class="card-map-label">Anc</span><span class="card-map-val">0 0</span></div>
+          <div class="card-map-entry"><span class="card-map-label">Inf</span><span class="card-map-val">0 0</span></div>
+          <div class="card-map-entry"><span class="card-map-label">Anu</span><span class="card-map-val">0 0</span></div>
+          <div class="card-map-entry"><span class="card-map-label">Nuk</span><span class="card-map-val">0 0</span></div>
+          <div class="card-map-entry"><span class="card-map-label">Dus</span><span class="card-map-val">0 0</span></div>
+          <div class="card-map-entry"><span class="card-map-label">Ove</span><span class="card-map-val">0 0</span></div>
+        </div>
+      </div>
+      <div class="player-card">
+        <div class="card-avatar">L</div>
+        <span class="price-tag">#8</span>
+        <span class="card-name">Lukas</span>
+        <span class="card-wl">0W / 0L</span>
+        <div class="card-maps">
+          <div class="card-map-entry"><span class="card-map-label">Mir</span><span class="card-map-val">0 0</span></div>
+          <div class="card-map-entry"><span class="card-map-label">Anc</span><span class="card-map-val">0 0</span></div>
+          <div class="card-map-entry"><span class="card-map-label">Inf</span><span class="card-map-val">0 0</span></div>
+          <div class="card-map-entry"><span class="card-map-label">Anu</span><span class="card-map-val">0 0</span></div>
+          <div class="card-map-entry"><span class="card-map-label">Nuk</span><span class="card-map-val">0 0</span></div>
+          <div class="card-map-entry"><span class="card-map-label">Dus</span><span class="card-map-val">0 0</span></div>
+          <div class="card-map-entry"><span class="card-map-label">Ove</span><span class="card-map-val">0 0</span></div>
+        </div>
+      </div>
+      <div class="player-card">
+        <div class="card-avatar">V</div>
+        <span class="price-tag">#10</span>
+        <span class="card-name">Vojta</span>
+        <span class="card-wl">0W / 0L</span>
+        <div class="card-maps">
+          <div class="card-map-entry"><span class="card-map-label">Mir</span><span class="card-map-val">0 0</span></div>
+          <div class="card-map-entry"><span class="card-map-label">Anc</span><span class="card-map-val">0 0</span></div>
+          <div class="card-map-entry"><span class="card-map-label">Inf</span><span class="card-map-val">0 0</span></div>
+          <div class="card-map-entry"><span class="card-map-label">Anu</span><span class="card-map-val">0 0</span></div>
+          <div class="card-map-entry"><span class="card-map-label">Nuk</span><span class="card-map-val">0 0</span></div>
+          <div class="card-map-entry"><span class="card-map-label">Dus</span><span class="card-map-val">0 0</span></div>
+          <div class="card-map-entry"><span class="card-map-label">Ove</span><span class="card-map-val">0 0</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Action Buttons -->
+<div class="actions">
+  <button class="btn btn-purchase">Lock Teams</button>
+  <button class="btn btn-cancel">New Draft</button>
+</div>
+
+</body>
+</html>

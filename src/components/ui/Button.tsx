@@ -13,11 +13,11 @@ interface ButtonProps {
 }
 
 const variants = {
-  primary: 'bg-emerald-500/20 border-emerald-400/50 text-emerald-400 hover:bg-emerald-500/30 hover:border-emerald-400 hover:shadow-[0_0_20px_rgba(0,230,118,0.3)]',
-  ct: 'bg-sky-500/20 border-sky-400/50 text-sky-300 hover:bg-sky-500/30 hover:border-sky-400 hover:shadow-[0_0_20px_rgba(79,195,247,0.3)]',
-  t: 'bg-amber-500/20 border-amber-400/50 text-amber-300 hover:bg-amber-500/30 hover:border-amber-400 hover:shadow-[0_0_20px_rgba(255,179,0,0.3)]',
-  ghost: 'bg-white/5 border-white/10 text-gray-300 hover:bg-white/10 hover:border-white/20',
-  danger: 'bg-red-500/20 border-red-400/50 text-red-400 hover:bg-red-500/30 hover:border-red-400',
+  primary: 'bg-gradient-to-b from-[#3a7a3a] to-[#2d5e2d] border-[#4a8a4a]/40 text-[#a8d8a8] hover:from-[#438a43] hover:to-[#356e35] hover:border-[#5a9a5a]/50 hover:shadow-[0_0_12px_rgba(58,122,58,0.2)]',
+  ct: 'bg-[#3d5a80]/20 border-[#6b8fc2]/30 text-[#8bafd4] hover:bg-[#3d5a80]/30 hover:border-[#6b8fc2]/50',
+  t: 'bg-[#8b6914]/20 border-[#c49a6c]/30 text-[#d4a86a] hover:bg-[#8b6914]/30 hover:border-[#c49a6c]/50',
+  ghost: 'bg-transparent border-white/[0.06] text-gray-400 hover:bg-white/[0.04] hover:border-white/[0.1] hover:text-gray-300',
+  danger: 'bg-[#5a2020]/30 border-[#8b3030]/40 text-[#d46a6a] hover:bg-[#5a2020]/40 hover:border-[#8b3030]/60',
 };
 
 const sizes = {
@@ -29,10 +29,10 @@ const sizes = {
 export default function Button({ variant = 'primary', size = 'md', className = '', children, disabled, onClick }: ButtonProps) {
   return (
     <motion.button
-      whileHover={disabled ? {} : { scale: 1.03 }}
-      whileTap={disabled ? {} : { scale: 0.97 }}
+      whileHover={disabled ? {} : { scale: 1.02 }}
+      whileTap={disabled ? {} : { scale: 0.98 }}
       className={`
-        font-rajdhani font-bold uppercase tracking-wider border rounded-lg
+        font-rajdhani font-bold uppercase tracking-wider border rounded-md
         transition-all duration-200 cursor-pointer
         disabled:opacity-40 disabled:cursor-not-allowed
         ${variants[variant]} ${sizes[size]} ${className}

@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CS2 Team Picker - Concept 14 / CS2 Premier</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0b0e14;
+    color: #e0e0e0;
+    font-family: 'Rajdhani', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Tab Navigation */
+  .tab-nav {
+    display: flex;
+    background: #0f1218;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    padding: 0 24px;
+  }
+  .tab-nav a {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.35);
+    text-decoration: none;
+    padding: 14px 22px;
+    position: relative;
+    transition: color 0.2s;
+  }
+  .tab-nav a:hover { color: rgba(255,255,255,0.6); }
+  .tab-nav a.active {
+    color: #fff;
+  }
+  .tab-nav a.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #4fc3f7, #ffb300);
+  }
+
+  /* Concept Label */
+  .concept-label {
+    text-align: center;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.2);
+    padding: 10px 0 0;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    padding: 28px 20px 18px;
+  }
+  .header h1 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    background: linear-gradient(135deg, #4fc3f7, #fff, #ffb300);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .header .subtitle {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px;
+    color: rgba(255,255,255,0.4);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  /* Teams Container */
+  .teams-container {
+    display: flex;
+    gap: 16px;
+    padding: 0 24px;
+    align-items: flex-start;
+    justify-content: center;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  /* Team Section */
+  .team-section {
+    flex: 1;
+    max-width: 520px;
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .team-section.team-a {
+    background: linear-gradient(180deg, rgba(79,195,247,0.08) 0%, rgba(11,14,20,0.95) 40%);
+    border: 1px solid rgba(79,195,247,0.12);
+  }
+  .team-section.team-b {
+    background: linear-gradient(180deg, rgba(255,179,0,0.08) 0%, rgba(11,14,20,0.95) 40%);
+    border: 1px solid rgba(255,179,0,0.12);
+  }
+
+  /* Team color gradient at top edge (Premier style) */
+  .team-section.team-a::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #4fc3f7, rgba(79,195,247,0.3));
+  }
+  .team-section.team-b::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #ffb300, rgba(255,179,0,0.3));
+  }
+
+  /* Team Header */
+  .team-header {
+    padding: 16px 18px 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .team-name {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .team-a .team-name { color: #4fc3f7; }
+  .team-b .team-name { color: #ffb300; }
+
+  /* Team Record Overlay */
+  .team-record {
+    background: rgba(255,255,255,0.04);
+    border-radius: 8px;
+    padding: 8px 12px;
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+  .team-record-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 8px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.3);
+    margin-bottom: 4px;
+  }
+  .team-record-wl {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+  .team-a .team-record-wl { color: #4fc3f7; }
+  .team-b .team-record-wl { color: #ffb300; }
+  .team-record-maps {
+    display: flex;
+    gap: 6px;
+    margin-top: 4px;
+    flex-wrap: wrap;
+  }
+  .map-tag {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    color: rgba(255,255,255,0.3);
+    background: rgba(255,255,255,0.03);
+    padding: 1px 5px;
+    border-radius: 3px;
+  }
+
+  /* VS Divider */
+  .vs-divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 50px;
+    align-self: center;
+  }
+  .vs-text {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 18px;
+    font-weight: 900;
+    letter-spacing: 3px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.5), rgba(255,255,255,0.15));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Player Rows */
+  .players-list {
+    padding: 6px 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .player-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.04);
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Rating Bar - Premier style colored bar on left edge */
+  .player-row::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    border-radius: 3px 0 0 3px;
+  }
+  .team-a .player-row::before {
+    background: linear-gradient(180deg, #4fc3f7, #2196f3);
+  }
+  .team-b .player-row::before {
+    background: linear-gradient(180deg, #ffb300, #ff8f00);
+  }
+
+  /* Avatar */
+  .player-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .team-a .player-avatar {
+    background: rgba(79,195,247,0.15);
+    border: 1px solid rgba(79,195,247,0.3);
+    color: #4fc3f7;
+  }
+  .team-b .player-avatar {
+    background: rgba(255,179,0,0.15);
+    border: 1px solid rgba(255,179,0,0.3);
+    color: #ffb300;
+  }
+
+  /* Pick Badge */
+  .pick-badge {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+  .team-a .pick-badge {
+    background: rgba(79,195,247,0.15);
+    color: #4fc3f7;
+    border: 1px solid rgba(79,195,247,0.2);
+  }
+  .team-b .pick-badge {
+    background: rgba(255,179,0,0.15);
+    color: #ffb300;
+    border: 1px solid rgba(255,179,0,0.2);
+  }
+
+  /* Premier Rank Icon - decorative diamond shape */
+  .rank-icon {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    position: relative;
+    display: inline-block;
+  }
+  .rank-icon::before {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 9px; height: 9px;
+    transform: translate(-50%, -50%) rotate(45deg);
+    border: 1.5px solid;
+    border-radius: 1px;
+  }
+  .team-a .rank-icon::before {
+    border-color: rgba(79,195,247,0.5);
+    background: rgba(79,195,247,0.1);
+  }
+  .team-b .rank-icon::before {
+    border-color: rgba(255,179,0,0.5);
+    background: rgba(255,179,0,0.1);
+  }
+
+  /* Player Name - large and bold (Premier emphasis) */
+  .player-name {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+    color: #fff;
+    flex-shrink: 0;
+    min-width: 60px;
+  }
+
+  /* Player Stats */
+  .player-stats {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .player-wl {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.4);
+    white-space: nowrap;
+  }
+
+  /* Mini Map Grid - 2 columns */
+  .map-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px 8px;
+    font-size: 9px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.3);
+  }
+  .map-grid .map-entry {
+    display: flex;
+    justify-content: space-between;
+    gap: 4px;
+    white-space: nowrap;
+  }
+  .map-grid .map-label {
+    color: rgba(255,255,255,0.25);
+  }
+  .map-grid .map-val {
+    color: rgba(255,255,255,0.4);
+    font-weight: 600;
+  }
+
+  /* Bottom Performance Bar (Premier-style summary) */
+  .performance-bar {
+    max-width: 1200px;
+    margin: 20px auto 0;
+    padding: 0 24px;
+  }
+  .perf-inner {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 10px;
+    padding: 12px 20px;
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+  }
+  .perf-stat {
+    text-align: center;
+  }
+  .perf-stat .perf-value {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+  }
+  .perf-stat .perf-label {
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.3);
+    margin-top: 2px;
+  }
+
+  /* Action Buttons */
+  .actions {
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    padding: 22px 24px 30px;
+  }
+  .btn {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 32px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, #4fc3f7, #29b6f6);
+    color: #0b0e14;
+    box-shadow: 0 4px 20px rgba(79,195,247,0.25);
+  }
+  .btn-primary:hover {
+    box-shadow: 0 6px 28px rgba(79,195,247,0.4);
+    transform: translateY(-1px);
+  }
+  .btn-secondary {
+    background: rgba(255,255,255,0.06);
+    color: rgba(255,255,255,0.6);
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .btn-secondary:hover {
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+  }
+</style>
+</head>
+<body>
+
+<!-- Tab Navigation -->
+<nav class="tab-nav">
+  <a href="#" class="active">Draft</a>
+  <a href="#">Profiles</a>
+  <a href="#">History</a>
+  <a href="#">Stats</a>
+</nav>
+
+<div class="concept-label">Concept 14 / CS2 Premier</div>
+
+<!-- Header -->
+<div class="header">
+  <h1>Teams Drafted</h1>
+  <div class="subtitle">Premier Match Ready</div>
+</div>
+
+<!-- Teams -->
+<div class="teams-container">
+
+  <!-- Team A -->
+  <div class="team-section team-a">
+    <div class="team-header">
+      <div class="team-name">Pepa's Team</div>
+      <div class="team-record">
+        <div class="team-record-title">Team Record</div>
+        <div class="team-record-wl">0W / 0L</div>
+        <div class="team-record-maps">
+          <span class="map-tag">Mirage</span>
+          <span class="map-tag">Inferno</span>
+          <span class="map-tag">Nuke</span>
+          <span class="map-tag">Overpass</span>
+          <span class="map-tag">Ancient</span>
+          <span class="map-tag">Anubis</span>
+          <span class="map-tag">Dust2</span>
+        </div>
+      </div>
+    </div>
+    <div class="players-list">
+      <!-- Player 1 -->
+      <div class="player-row">
+        <div class="player-avatar">P</div>
+        <span class="pick-badge">#1</span>
+        <span class="rank-icon"></span>
+        <span class="player-name">Pepa</span>
+        <div class="player-stats">
+          <span class="player-wl">0W / 0L</span>
+          <div class="map-grid">
+            <div class="map-entry"><span class="map-label">Mir</span><span class="map-val">0 0</span></div>
+            <div class="map-entry"><span class="map-label">Anc</span><span class="map-val">0 0</span></div>
+            <div class="map-entry"><span class="map-label">Inf</span><span class="map-val">0 0</span></div>
+            <div class="map-entry"><span class="map-label">Anu</span><span class="map-val">0 0</span></div>
+            <div class="map-entry"><span class="map-label">Nuk</span><span class="map-val">0 0</span></div>
+            <div class="map-entry"><span class="map-label">Dus</span><span class="map-val">0 0</span></div>
+            <div class="map-entry"><span class="map-label">Ove</span><span class="map-val">0 0</span></div>
+          </div>
+        </div>
+      </div>
+      <!-- Player 2 -->
+      <div class="player-row">
+        <div class="player-avatar">M</div>
+        <span class="pick-badge">#3</span>
+        <span class="rank-icon"></span>
+        <span class="player-name">Martin</span>
+        <div class="player-stats">
+          <span class="player-wl">0W / 0L</span>
+          <div class="map-grid">
+            <div class="map-entry"><span class="map-label">Mir</span><span class="map-val">0 0</span></div>
+            <div class="map-entry"><span class="map-label">Anc</span><span class="map-val">0 0</span></div>
+            <div class="map-entry"><span class="map-label">Inf</span><span class="map-val">0 0</span></div>
+            <div class="map-entry"><span class="map-label">Anu</span><span class="map-val">0 0</span></div>
+            <div class="map-entry"><span class="map-label">Nuk</span><span class="map-val">0 0</span></div>
+            <div class="map-entry"><span class="map-label">Dus</span><span class="map-val">0 0</span></div>
+            <div class="map-entry"><span class="map-label">Ove</span><span class="map-val">0 0</span></div>
+          </div>
+        </div>
+      </div>
+      <!-- Player 3 -->
+      <div class="player-row">
+        <div class="player-avatar">T</div>
+        <span class="pick-badge">#5</span>
+        <span class="rank-icon"></span>
+        <span class="player-name">Tomas</span>
+        <div class="player-stats">
+          <span class="player-wl">0W / 0L</span>
+          <div class="map-grid">
+            <div class="map-entry"><span class="map-label">Mir</span><span class="map-val">0 0</span></div>
+            <div class="map-entry"><span class="map-label">Anc</span><span class="map-val">0 0</span></div>
+            <div class="map-entry"><span class="map-label">Inf</span><span class="map-val">0 0</span></div>
+            <div class="map-entry"><span class="map-label">Anu</span><span class="map-val">0 0</span></div>
+            <div class="map-entry"><span class="map-label">Nuk</span><span class="map-val">0 0</span></div>
+            <div class="map-entry"><span class="map-label">Dus</span><span class="map-val">0 0</span></div>
+            <div class="map-entry"><span class="map-label">Ove</span><span class="map-val">0 0</span></div>
+          </div>
+        </div>
+      </div>
+      <!-- Player 4 -->
+      <div class="player-row">
+        <div class="player-avatar">D</div>
+        <span class="pick-badge">#7</span>
+        <span class="rank-icon"></span>
+        <span class="player-name">David</span>
+        <div class="player-stats">
+          <span class="player-wl">0W / 0L</span>
+          <div class="map-grid">
+            <div class="map-entry"><span class="map-label">Mir</span><span class="map-val">0 0</span></div>
+            <div class="map-entry"><span class="map-label">Anc</span><span class="map-val">0 0</span></div>
+            <div class="map-entry"><span class="map-label">Inf</span><span class="map-val">0 0</span></div>
+            <div class="map-entry"><span class="map-label">Anu</span><span class="map-val">0 0</span></div>
+            <div class="map-entry"><span class="map-label">Nuk</span><span class="map-val">0 0</span></div>
+            <div class="map-entry"><span class="map-label">Dus</span><span class="map-val">0 0</span></div>
+            <div class="map-entry"><span class="map-label">Ove</span><span class="map-val">0 0</span></div>
+          </div>
+        </div>
+      </div>
+      <!-- Player 5 -->
+      <div class="player-row">
+        <div class="player-avatar">J</div>
+        <span class="pick-badge">#9</span>
+        <span class="rank-icon"></span>
+        <span class="player-name">Jakub</span>
+        <div class="player-stats">
+          <span class="player-wl">0W / 0L</span>
+          <div class="map-grid">
+            <div class="map-entry"><span class="map-label">Mir</span><span class="map-val">0 0</span></div>
+            <div class="map-entry"><span class="map-label">Anc</span><span class="map-val">0 0</span></div>
+            <div class="map-entry"><span class="map-label">Inf</span><span class="map-val">0 0</span></div>
+            <div class="map-entry"><span class="map-label">Anu</span><span class="map-val">0 0</span></div>
+            <div class="map-entry"><span class="map-label">Nuk</span><span class="map-val">0 0</span></div>
+            <div class="map-entry"><span class="map-label">Dus</span><span class="map-val">0 0</span></div>
+            <div class="map-entry"><span class="map-label">Ove</span><span class="map-val">0 0</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VS Divider -->
+  <div class="vs-divider">
+    <span class="vs-text">VS</span>
+  </div>
+
+  <!-- Team B -->
+  <div class="team-section team-b">
+    <div class="team-header">
+      <div class="team-name">Adam's Team</div>
+      <div class="team-record">
+        <div class="team-record-title">Team Record</div>
+        <div class="team-record-wl">0W / 0L</div>
+        <div class="team-record-maps">
+          <span class="map-tag">Mirage</span>
+          <span class="map-tag">Inferno</span>
+          <span class="map-tag">Nuke</span>
+          <span class="map-tag">Overpass</span>
+          <span class="map-tag">Ancient</span>
+          <span class="map-tag">Anubis</span>
+          <span class="map-tag">Dust2</span>
+        </div>
+      </div>
+    </div>
+    <div class="players-list">
+      <!-- Player 1 -->
+      <div class="player-row">
+        <div class="player-avatar">A</div>
+        <span class="pick-badge">#2</span>
+        <span class="rank-icon"></span>
+        <span class="player-name">Adam</span>
+        <div class="player-stats">
+          <span class="player-wl">0W / 0L</span>
+          <div class="map-grid">
+            <div class="map-entry"><span class="map-label">Mir</span><span class="map-val">0 0</span></div>
+            <div class="map-entry"><span class="map-label">Anc</span><span class="map-val">0 0</span></div>
+            <div class="map-entry"><span class="map-label">Inf</span><span class="map-val">0 0</span></div>
+            <div class="map-entry"><span class="map-label">Anu</span><span class="map-val">0 0</span></div>
+            <div class="map-entry"><span class="map-label">Nuk</span><span class="map-val">0 0</span></div>
+            <div class="map-entry"><span class="map-label">Dus</span><span class="map-val">0 0</span></div>
+            <div class="map-entry"><span class="map-label">Ove</span><span class="map-val">0 0</span></div>
+          </div>
+        </div>
+      </div>
+      <!-- Player 2 -->
+      <div class="player-row">
+        <div class="player-avatar">O</div>
+        <span class="pick-badge">#4</span>
+        <span class="rank-icon"></span>
+        <span class="player-name">Ondra</span>
+        <div class="player-stats">
+          <span class="player-wl">0W / 0L</span>
+          <div class="map-grid">
+            <div class="map-entry"><span class="map-label">Mir</span><span class="map-val">0 0</span></div>
+            <div class="map-entry"><span class="map-label">Anc</span><span class="map-val">0 0</span></div>
+            <div class="map-entry"><span class="map-label">Inf</span><span class="map-val">0 0</span></div>
+            <div class="map-entry"><span class="map-label">Anu</span><span class="map-val">0 0</span></div>
+            <div class="map-entry"><span class="map-label">Nuk</span><span class="map-val">0 0</span></div>
+            <div class="map-entry"><span class="map-label">Dus</span><span class="map-val">0 0</span></div>
+            <div class="map-entry"><span class="map-label">Ove</span><span class="map-val">0 0</span></div>
+          </div>
+        </div>
+      </div>
+      <!-- Player 3 -->
+      <div class="player-row">
+        <div class="player-avatar">F</div>
+        <span class="pick-badge">#6</span>
+        <span class="rank-icon"></span>
+        <span class="player-name">Filip</span>
+        <div class="player-stats">
+          <span class="player-wl">0W / 0L</span>
+          <div class="map-grid">
+            <div class="map-entry"><span class="map-label">Mir</span><span class="map-val">0 0</span></div>
+            <div class="map-entry"><span class="map-label">Anc</span><span class="map-val">0 0</span></div>
+            <div class="map-entry"><span class="map-label">Inf</span><span class="map-val">0 0</span></div>
+            <div class="map-entry"><span class="map-label">Anu</span><span class="map-val">0 0</span></div>
+            <div class="map-entry"><span class="map-label">Nuk</span><span class="map-val">0 0</span></div>
+            <div class="map-entry"><span class="map-label">Dus</span><span class="map-val">0 0</span></div>
+            <div class="map-entry"><span class="map-label">Ove</span><span class="map-val">0 0</span></div>
+          </div>
+        </div>
+      </div>
+      <!-- Player 4 -->
+      <div class="player-row">
+        <div class="player-avatar">L</div>
+        <span class="pick-badge">#8</span>
+        <span class="rank-icon"></span>
+        <span class="player-name">Lukas</span>
+        <div class="player-stats">
+          <span class="player-wl">0W / 0L</span>
+          <div class="map-grid">
+            <div class="map-entry"><span class="map-label">Mir</span><span class="map-val">0 0</span></div>
+            <div class="map-entry"><span class="map-label">Anc</span><span class="map-val">0 0</span></div>
+            <div class="map-entry"><span class="map-label">Inf</span><span class="map-val">0 0</span></div>
+            <div class="map-entry"><span class="map-label">Anu</span><span class="map-val">0 0</span></div>
+            <div class="map-entry"><span class="map-label">Nuk</span><span class="map-val">0 0</span></div>
+            <div class="map-entry"><span class="map-label">Dus</span><span class="map-val">0 0</span></div>
+            <div class="map-entry"><span class="map-label">Ove</span><span class="map-val">0 0</span></div>
+          </div>
+        </div>
+      </div>
+      <!-- Player 5 -->
+      <div class="player-row">
+        <div class="player-avatar">V</div>
+        <span class="pick-badge">#10</span>
+        <span class="rank-icon"></span>
+        <span class="player-name">Vojta</span>
+        <div class="player-stats">
+          <span class="player-wl">0W / 0L</span>
+          <div class="map-grid">
+            <div class="map-entry"><span class="map-label">Mir</span><span class="map-val">0 0</span></div>
+            <div class="map-entry"><span class="map-label">Anc</span><span class="map-val">0 0</span></div>
+            <div class="map-entry"><span class="map-label">Inf</span><span class="map-val">0 0</span></div>
+            <div class="map-entry"><span class="map-label">Anu</span><span class="map-val">0 0</span></div>
+            <div class="map-entry"><span class="map-label">Nuk</span><span class="map-val">0 0</span></div>
+            <div class="map-entry"><span class="map-label">Dus</span><span class="map-val">0 0</span></div>
+            <div class="map-entry"><span class="map-label">Ove</span><span class="map-val">0 0</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Performance Bar -->
+<div class="performance-bar">
+  <div class="perf-inner">
+    <div class="perf-stat">
+      <div class="perf-value">10</div>
+      <div class="perf-label">Players</div>
+    </div>
+    <div class="perf-stat">
+      <div class="perf-value">7</div>
+      <div class="perf-label">Maps</div>
+    </div>
+    <div class="perf-stat">
+      <div class="perf-value">2</div>
+      <div class="perf-label">Teams</div>
+    </div>
+    <div class="perf-stat">
+      <div class="perf-value">5v5</div>
+      <div class="perf-label">Format</div>
+    </div>
+  </div>
+</div>
+
+<!-- Action Buttons -->
+<div class="actions">
+  <button class="btn btn-primary">Lock Teams</button>
+  <button class="btn btn-secondary">New Draft</button>
+</div>
+
+</body>
+</html>

@@ -44,23 +44,23 @@ function TeamPickList({ picks, profiles, team }: {
               animate={{ opacity: 1, x: 0 }}
               className={`flex items-center gap-3 px-3 py-2 rounded-lg border ${
                 isCT
-                  ? 'bg-sky-500/10 border-sky-400/20'
-                  : 'bg-amber-500/10 border-amber-400/20'
+                  ? 'bg-[#6b8fc2]/10 border-[#6b8fc2]/15'
+                  : 'bg-[#c49a6c]/10 border-[#c49a6c]/15'
               }`}
             >
               <div className={`w-8 h-8 rounded-full overflow-hidden border flex-shrink-0 ${
-                isCT ? 'border-sky-400/40' : 'border-amber-400/40'
+                isCT ? 'border-[#6b8fc2]/25' : 'border-[#c49a6c]/25'
               }`}>
                 {profile?.photoUrl ? (
                   <img src={profile.photoUrl} alt={profile.name} className="w-full h-full object-cover" />
                 ) : (
-                  <div className="w-full h-full bg-white/10 flex items-center justify-center text-gray-500 text-xs font-bold">
+                  <div className="w-full h-full bg-white/[0.06] flex items-center justify-center text-gray-500 text-xs font-bold">
                     {(profile?.name || '?').charAt(0)}
                   </div>
                 )}
               </div>
 
-              <span className={`font-orbitron text-[10px] ${isCT ? 'text-sky-400' : 'text-amber-400'}`}>
+              <span className={`font-orbitron text-[10px] ${isCT ? 'text-[#8bafd4]' : 'text-[#d4a86a]'}`}>
                 #{pick.pickOrder}
               </span>
               <span className="text-white font-rajdhani font-semibold truncate">
@@ -177,8 +177,8 @@ export default function DraftDetail({ draft, onBack, onNavigateToDraft }: DraftD
         <p className="text-gray-400 font-rajdhani text-sm">{dateStr}</p>
         <span className={`text-xs font-orbitron px-2 py-0.5 rounded inline-block mt-2 ${
           draft.animationType === 'case'
-            ? 'bg-amber-500/10 text-amber-400 border border-amber-400/20'
-            : 'bg-emerald-500/10 text-emerald-400 border border-emerald-400/20'
+            ? 'bg-[#c49a6c]/10 text-[#d4a86a] border border-[#c49a6c]/15'
+            : 'bg-[#8b9bb4]/10 text-[#8b9bb4] border border-[#8b9bb4]/15'
         }`}>
           {draft.animationType === 'case' ? '📦 Case Opening' : '🎡 Spin Wheel'}
         </span>
@@ -214,7 +214,7 @@ export default function DraftDetail({ draft, onBack, onNavigateToDraft }: DraftD
           </div>
         </div>
       ) : (
-        <div className="text-center py-6 border border-dashed border-white/10 rounded-xl">
+        <div className="text-center py-6 border border-dashed border-white/[0.06] rounded-xl">
           <p className="text-gray-500 font-rajdhani mb-3">No match result recorded</p>
           <Button variant="primary" size="md" onClick={() => setShowMatchForm(true)}>
             Record Match Result
@@ -237,7 +237,7 @@ export default function DraftDetail({ draft, onBack, onNavigateToDraft }: DraftD
             Are you sure you want to delete this draft?
           </p>
           {match && (
-            <p className="text-amber-400/80 font-rajdhani text-sm mb-4">
+            <p className="text-[#d4a86a]/80 font-rajdhani text-sm mb-4">
               This will also delete the associated match result.
             </p>
           )}

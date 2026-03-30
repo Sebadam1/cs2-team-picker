@@ -89,7 +89,7 @@ export default function ProfileSelector() {
           Select {TOTAL_PLAYERS} players for the draft
         </p>
         <p className={`font-orbitron text-sm mt-2 ${
-          selected.size === TOTAL_PLAYERS ? 'text-emerald-400' : 'text-gray-500'
+          selected.size === TOTAL_PLAYERS ? 'text-[#4a8a4a]' : 'text-gray-600'
         }`}>
           {selected.size} / {TOTAL_PLAYERS} selected
         </p>
@@ -133,16 +133,16 @@ export default function ProfileSelector() {
           <button
             onClick={() => setAnimationType('wheel')}
             className={`
-              flex-1 max-w-[220px] px-4 py-4 rounded-xl border-2 transition-all duration-200 cursor-pointer
+              flex-1 max-w-[220px] px-4 py-4 rounded-lg border transition-all duration-200 cursor-pointer
               ${animationType === 'wheel'
-                ? 'border-emerald-400/60 bg-emerald-500/10 shadow-[0_0_20px_rgba(0,230,118,0.15)]'
-                : 'border-white/10 bg-white/[0.02] hover:border-white/20 hover:bg-white/5'
+                ? 'border-[#4a8a4a]/50 bg-[#3a7a3a]/10'
+                : 'border-white/[0.06] bg-white/[0.02] hover:border-white/[0.1] hover:bg-white/[0.04]'
               }
             `}
           >
             <div className="text-center">
               <div className="text-3xl mb-2">🎡</div>
-              <div className={`font-orbitron text-sm font-bold ${animationType === 'wheel' ? 'text-emerald-400' : 'text-gray-400'}`}>
+              <div className={`font-orbitron text-sm font-bold ${animationType === 'wheel' ? 'text-[#8b9bb4]' : 'text-gray-500'}`}>
                 SPIN WHEEL
               </div>
               <div className="text-gray-500 font-rajdhani text-xs mt-1">
@@ -153,16 +153,16 @@ export default function ProfileSelector() {
           <button
             onClick={() => setAnimationType('case')}
             className={`
-              flex-1 max-w-[220px] px-4 py-4 rounded-xl border-2 transition-all duration-200 cursor-pointer
+              flex-1 max-w-[220px] px-4 py-4 rounded-lg border transition-all duration-200 cursor-pointer
               ${animationType === 'case'
-                ? 'border-amber-400/60 bg-amber-500/10 shadow-[0_0_20px_rgba(255,179,0,0.15)]'
-                : 'border-white/10 bg-white/[0.02] hover:border-white/20 hover:bg-white/5'
+                ? 'border-[#c49a6c]/40 bg-[#c49a6c]/10'
+                : 'border-white/[0.06] bg-white/[0.02] hover:border-white/[0.1] hover:bg-white/[0.04]'
               }
             `}
           >
             <div className="text-center">
               <div className="text-3xl mb-2">📦</div>
-              <div className={`font-orbitron text-sm font-bold ${animationType === 'case' ? 'text-amber-400' : 'text-gray-400'}`}>
+              <div className={`font-orbitron text-sm font-bold ${animationType === 'case' ? 'text-[#d4a86a]' : 'text-gray-500'}`}>
                 CASE OPENING
               </div>
               <div className="text-gray-500 font-rajdhani text-xs mt-1">

@@ -25,7 +25,7 @@ function SortHeader({ label, sortKey, currentKey, currentDir, onSort }: {
       onClick={() => onSort(sortKey)}
       className={`font-orbitron text-xs cursor-pointer transition-colors select-none flex items-center gap-0.5 ${
         sortKey === 'name' ? 'justify-start' : 'justify-center'
-      } ${isActive ? 'text-emerald-400' : 'text-gray-400 hover:text-gray-200'}`}
+      } ${isActive ? 'text-[#8b9bb4]' : 'text-gray-500 hover:text-gray-300'}`}
     >
       {label}
       {isActive && (
@@ -112,10 +112,10 @@ export default function PlayerStatsPanel() {
       <div className="flex gap-2 flex-wrap mb-6">
         <button
           onClick={() => setMapFilter('all')}
-          className={`px-3 py-1.5 rounded-lg border text-xs font-rajdhani font-semibold transition-all cursor-pointer ${
+          className={`px-3 py-1.5 rounded-md border text-xs font-rajdhani font-semibold transition-all cursor-pointer ${
             mapFilter === 'all'
-              ? 'border-emerald-400/60 bg-emerald-500/10 text-emerald-400'
-              : 'border-white/10 text-gray-500 hover:border-white/20'
+              ? 'border-[#8b9bb4]/40 bg-[#8b9bb4]/10 text-[#8b9bb4]'
+              : 'border-white/[0.06] text-gray-600 hover:border-white/[0.1]'
           }`}
         >
           All Maps
@@ -124,10 +124,10 @@ export default function PlayerStatsPanel() {
           <button
             key={map}
             onClick={() => setMapFilter(map as CS2Map)}
-            className={`px-3 py-1.5 rounded-lg border text-xs font-rajdhani font-semibold transition-all cursor-pointer ${
+            className={`px-3 py-1.5 rounded-md border text-xs font-rajdhani font-semibold transition-all cursor-pointer ${
               mapFilter === map
-                ? 'border-emerald-400/60 bg-emerald-500/10 text-emerald-400'
-                : 'border-white/10 text-gray-500 hover:border-white/20'
+                ? 'border-[#8b9bb4]/40 bg-[#8b9bb4]/10 text-[#8b9bb4]'
+                : 'border-white/[0.06] text-gray-600 hover:border-white/[0.1]'
             }`}
           >
             {map}
@@ -136,14 +136,14 @@ export default function PlayerStatsPanel() {
       </div>
 
       {playerSummary.length === 0 ? (
-        <div className="text-center py-16 border border-dashed border-white/10 rounded-xl">
+        <div className="text-center py-16 border border-dashed border-white/[0.06] rounded-lg">
           <p className="text-gray-500 font-rajdhani text-lg mb-2">No stats yet</p>
           <p className="text-gray-600 font-rajdhani text-sm">Record match results to see statistics</p>
         </div>
       ) : (
-        <div className="border border-white/10 rounded-xl overflow-hidden">
+        <div className="border border-white/[0.06] rounded-lg overflow-hidden">
           {/* Header */}
-          <div className="grid grid-cols-[1fr_80px_80px_80px_120px] gap-2 px-4 py-3 bg-white/5 border-b border-white/10">
+          <div className="grid grid-cols-[1fr_80px_80px_80px_120px] gap-2 px-4 py-3 bg-white/[0.03] border-b border-white/[0.06]">
             <SortHeader label="PLAYER" sortKey="name" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
             <SortHeader label="W" sortKey="wins" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
             <SortHeader label="L" sortKey="losses" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
@@ -160,34 +160,34 @@ export default function PlayerStatsPanel() {
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.03 }}
-                className="grid grid-cols-[1fr_80px_80px_80px_120px] gap-2 px-4 py-3 border-b border-white/5 hover:bg-white/[0.02] transition-colors"
+                className="grid grid-cols-[1fr_80px_80px_80px_120px] gap-2 px-4 py-3 border-b border-white/[0.03] hover:bg-white/[0.02] transition-colors"
               >
                 <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-full overflow-hidden border border-white/10 flex-shrink-0">
+                  <div className="w-6 h-6 rounded-full overflow-hidden border border-white/[0.06] flex-shrink-0">
                     {profile?.photoUrl ? (
                       <img src={profile.photoUrl} alt={player.name} className="w-full h-full object-cover" />
                     ) : (
-                      <div className="w-full h-full bg-white/10 flex items-center justify-center text-gray-500 text-[8px] font-bold">
+                      <div className="w-full h-full bg-white/[0.06] flex items-center justify-center text-gray-600 text-[8px] font-bold">
                         {player.name.charAt(0)}
                       </div>
                     )}
                   </div>
-                  <span className="text-white font-rajdhani font-semibold text-sm truncate">{player.name}</span>
+                  <span className="text-[#c8ccd4] font-rajdhani font-semibold text-sm truncate">{player.name}</span>
                 </div>
-                <span className="text-emerald-400 font-rajdhani font-bold text-sm text-center">{player.wins}</span>
-                <span className="text-red-400 font-rajdhani font-bold text-sm text-center">{player.losses}</span>
+                <span className="text-emerald-400/80 font-rajdhani font-bold text-sm text-center">{player.wins}</span>
+                <span className="text-red-400/80 font-rajdhani font-bold text-sm text-center">{player.losses}</span>
                 <span className="text-gray-400 font-rajdhani text-sm text-center">{player.total}</span>
                 <div className="flex items-center gap-2">
-                  <div className="flex-1 h-2 bg-white/5 rounded-full overflow-hidden">
+                  <div className="flex-1 h-2 bg-white/[0.04] rounded-full overflow-hidden">
                     <div
                       className={`h-full rounded-full transition-all ${
-                        player.winRate >= 50 ? 'bg-emerald-400' : 'bg-red-400'
+                        player.winRate >= 50 ? 'bg-emerald-400/70' : 'bg-red-400/70'
                       }`}
                       style={{ width: `${player.winRate}%` }}
                     />
                   </div>
                   <span className={`font-orbitron text-xs font-bold w-10 text-right ${
-                    player.winRate >= 50 ? 'text-emerald-400' : 'text-red-400'
+                    player.winRate >= 50 ? 'text-emerald-400/80' : 'text-red-400/80'
                   }`}>
                     {player.winRate}%
                   </span>

@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Concept 13 / CS2 Scoreboard Tab</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #0a0c10;
+            --blue: #4fc3f7;
+            --blue-dark: #1565c0;
+            --blue-dim: rgba(79, 195, 247, 0.08);
+            --amber: #ffb300;
+            --amber-dark: #e65100;
+            --amber-dim: rgba(255, 179, 0, 0.08);
+            --row-dark: rgba(255, 255, 255, 0.02);
+            --row-light: rgba(255, 255, 255, 0.045);
+            --row-hover: rgba(255, 255, 255, 0.08);
+            --border: rgba(255, 255, 255, 0.06);
+            --text: #c8ccd0;
+            --text-dim: #6b7280;
+            --text-bright: #e8eaed;
+        }
+
+        body {
+            background: var(--bg);
+            font-family: 'Rajdhani', sans-serif;
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        /* ── Full-screen dark overlay feel ── */
+        .scoreboard-overlay {
+            position: relative;
+            width: 100%;
+            min-height: 100vh;
+            background:
+                radial-gradient(ellipse 80% 50% at 50% 0%, rgba(79, 195, 247, 0.03) 0%, transparent 60%),
+                radial-gradient(ellipse 80% 50% at 50% 100%, rgba(255, 179, 0, 0.02) 0%, transparent 60%),
+                linear-gradient(180deg, #0a0c10 0%, #0d0f14 50%, #0a0c10 100%);
+            backdrop-filter: blur(12px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 24px 0 48px;
+        }
+
+        /* Scanline overlay */
+        .scoreboard-overlay::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 0, 0, 0.03) 2px,
+                rgba(0, 0, 0, 0.03) 4px
+            );
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        /* ── Concept label ── */
+        .concept-label {
+            position: fixed;
+            bottom: 16px;
+            right: 20px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.2);
+            letter-spacing: 1px;
+            z-index: 200;
+        }
+
+        /* ── Tab Navigation ── */
+        .tab-nav {
+            display: flex;
+            gap: 0;
+            margin-bottom: 0;
+            width: 900px;
+            max-width: 96vw;
+        }
+
+        .tab-nav button {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            padding: 12px 28px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            color: var(--text-dim);
+            background: rgba(255, 255, 255, 0.02);
+            border-bottom: 2px solid transparent;
+        }
+
+        .tab-nav button.active {
+            color: var(--text-bright);
+            background: rgba(255, 255, 255, 0.05);
+            border-bottom: 2px solid var(--blue);
+        }
+
+        .tab-nav button:not(.active):hover {
+            color: var(--text);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        /* ── Title bar ── */
+        .title-bar {
+            width: 900px;
+            max-width: 96vw;
+            text-align: center;
+            padding: 18px 0 14px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.01) 100%);
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 20px;
+        }
+
+        .title-bar h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            color: var(--text-dim);
+        }
+
+        /* ── Teams container ── */
+        .teams-container {
+            width: 900px;
+            max-width: 96vw;
+            position: relative;
+        }
+
+        /* ── Team section ── */
+        .team-section {
+            margin-bottom: 6px;
+        }
+
+        /* Team header bar */
+        .team-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 16px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .team-header::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            opacity: 0.12;
+            z-index: 0;
+        }
+
+        .team-a .team-header {
+            background: linear-gradient(90deg, rgba(79, 195, 247, 0.15) 0%, rgba(79, 195, 247, 0.03) 100%);
+            border-left: 3px solid var(--blue);
+        }
+
+        .team-a .team-header::before {
+            background: linear-gradient(90deg, var(--blue) 0%, transparent 60%);
+        }
+
+        .team-b .team-header {
+            background: linear-gradient(90deg, rgba(255, 179, 0, 0.15) 0%, rgba(255, 179, 0, 0.03) 100%);
+            border-left: 3px solid var(--amber);
+        }
+
+        .team-b .team-header::before {
+            background: linear-gradient(90deg, var(--amber) 0%, transparent 60%);
+        }
+
+        .team-name {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            z-index: 1;
+        }
+
+        .team-a .team-name { color: var(--blue); }
+        .team-b .team-name { color: var(--amber); }
+
+        .team-record {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 13px;
+            z-index: 1;
+            color: var(--text-dim);
+        }
+
+        .team-record span {
+            color: var(--text-bright);
+        }
+
+        /* ── Column headers ── */
+        .col-headers {
+            display: grid;
+            grid-template-columns: 36px 1fr 52px 40px 40px 40px 40px 40px 40px 40px 40px 40px;
+            padding: 6px 16px;
+            background: rgba(255, 255, 255, 0.02);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .col-headers span {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 9px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            text-align: center;
+        }
+
+        .col-headers span:nth-child(2) {
+            text-align: left;
+            padding-left: 4px;
+        }
+
+        /* ── Player rows ── */
+        .player-row {
+            display: grid;
+            grid-template-columns: 36px 1fr 52px 40px 40px 40px 40px 40px 40px 40px 40px 40px;
+            padding: 0 16px;
+            align-items: center;
+            height: 38px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+            transition: background 0.15s;
+        }
+
+        .player-row:nth-child(odd) {
+            background: var(--row-dark);
+        }
+
+        .player-row:nth-child(even) {
+            background: var(--row-light);
+        }
+
+        .player-row:hover {
+            background: var(--row-hover);
+        }
+
+        /* Highlighted/active row */
+        .player-row.active {
+            background: rgba(255, 255, 255, 0.07);
+        }
+
+        .team-a .player-row.active {
+            background: rgba(79, 195, 247, 0.06);
+            box-shadow: inset 3px 0 0 var(--blue);
+        }
+
+        .team-b .player-row.active {
+            background: rgba(255, 179, 0, 0.06);
+            box-shadow: inset 3px 0 0 var(--amber);
+        }
+
+        /* Avatar */
+        .player-avatar {
+            width: 26px;
+            height: 26px;
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .team-a .player-avatar {
+            background: rgba(79, 195, 247, 0.12);
+            color: var(--blue);
+            border: 1px solid rgba(79, 195, 247, 0.2);
+        }
+
+        .team-b .player-avatar {
+            background: rgba(255, 179, 0, 0.12);
+            color: var(--amber);
+            border: 1px solid rgba(255, 179, 0, 0.2);
+        }
+
+        /* Player name */
+        .player-name {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-bright);
+            padding-left: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Stat cells */
+        .stat {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 13px;
+            text-align: center;
+            color: var(--text);
+        }
+
+        .stat.pick {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .team-a .stat.pick { color: rgba(79, 195, 247, 0.5); }
+        .team-b .stat.pick { color: rgba(255, 179, 0, 0.5); }
+
+        .stat.win { color: #66bb6a; }
+        .stat.loss { color: #ef5350; }
+
+        /* Map stats - dimmer */
+        .stat.map {
+            color: var(--text-dim);
+            font-size: 12px;
+        }
+
+        /* ── Summary/total row ── */
+        .summary-row {
+            display: grid;
+            grid-template-columns: 36px 1fr 52px 40px 40px 40px 40px 40px 40px 40px 40px 40px;
+            padding: 0 16px;
+            align-items: center;
+            height: 36px;
+            border-top: 1px solid var(--border);
+        }
+
+        .team-a .summary-row {
+            background: linear-gradient(90deg, rgba(79, 195, 247, 0.05) 0%, transparent 100%);
+        }
+
+        .team-b .summary-row {
+            background: linear-gradient(90deg, rgba(255, 179, 0, 0.05) 0%, transparent 100%);
+        }
+
+        .summary-row .stat {
+            font-weight: 700;
+            color: var(--text-bright);
+            font-size: 13px;
+        }
+
+        .summary-row .stat.map {
+            color: var(--text);
+            font-size: 12px;
+        }
+
+        .summary-label {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 9px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            grid-column: 1 / 3;
+            padding-left: 4px;
+        }
+
+        /* ── VS Badge ── */
+        .vs-badge {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            width: 52px;
+            height: 52px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: radial-gradient(circle, #1a1c22 60%, #0a0c10 100%);
+            border: 2px solid rgba(255, 255, 255, 0.08);
+            box-shadow:
+                0 0 20px rgba(0, 0, 0, 0.6),
+                0 0 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .vs-badge span {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 14px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, var(--blue) 0%, var(--amber) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* ── Action buttons ── */
+        .actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+            width: 900px;
+            max-width: 96vw;
+            justify-content: center;
+        }
+
+        .btn {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            padding: 14px 36px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.25s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--blue-dark) 0%, var(--blue) 100%);
+            color: #fff;
+            clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 0 24px rgba(79, 195, 247, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text-dim);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        /* ── TAB key hint ── */
+        .tab-hint {
+            position: fixed;
+            top: 16px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 200;
+        }
+
+        .tab-key {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 26px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.04);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 10px;
+            color: var(--text-dim);
+            letter-spacing: 1px;
+        }
+
+        .tab-hint-text {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.15);
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 920px) {
+            .teams-container,
+            .tab-nav,
+            .title-bar,
+            .actions {
+                width: 100%;
+            }
+
+            .col-headers,
+            .player-row,
+            .summary-row {
+                grid-template-columns: 30px 1fr 44px 34px 34px 34px 34px 34px 34px 34px 34px 34px;
+                padding: 0 8px;
+            }
+
+            .col-headers span,
+            .stat {
+                font-size: 10px;
+            }
+
+            .stat.map {
+                font-size: 9px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="scoreboard-overlay">
+
+        <!-- TAB key hint -->
+        <div class="tab-hint">
+            <div class="tab-key">TAB</div>
+            <span class="tab-hint-text">Scoreboard</span>
+        </div>
+
+        <!-- Tab Navigation -->
+        <nav class="tab-nav">
+            <button class="active">Draft</button>
+            <button>Profiles</button>
+            <button>History</button>
+            <button>Stats</button>
+        </nav>
+
+        <!-- Title Bar -->
+        <div class="title-bar">
+            <h1>Teams Drafted</h1>
+        </div>
+
+        <!-- Teams Container -->
+        <div class="teams-container">
+
+            <!-- VS Badge -->
+            <div class="vs-badge"><span>VS</span></div>
+
+            <!-- ═══ TEAM A ═══ -->
+            <div class="team-section team-a">
+                <div class="team-header">
+                    <span class="team-name">Team A</span>
+                    <span class="team-record"><span>0</span> W / <span>0</span> L</span>
+                </div>
+
+                <div class="col-headers">
+                    <span></span>
+                    <span>Player</span>
+                    <span>Pick</span>
+                    <span>W</span>
+                    <span>L</span>
+                    <span>Mir</span>
+                    <span>Inf</span>
+                    <span>Nuk</span>
+                    <span>Ove</span>
+                    <span>Anc</span>
+                    <span>Anu</span>
+                    <span>Dus</span>
+                </div>
+
+                <!-- Player 1 - highlighted -->
+                <div class="player-row active">
+                    <div class="player-avatar">P</div>
+                    <div class="player-name">Pepa</div>
+                    <div class="stat pick">1ST</div>
+                    <div class="stat win">0</div>
+                    <div class="stat loss">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                </div>
+
+                <!-- Player 2 -->
+                <div class="player-row">
+                    <div class="player-avatar">M</div>
+                    <div class="player-name">Martin</div>
+                    <div class="stat pick">3RD</div>
+                    <div class="stat win">0</div>
+                    <div class="stat loss">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                </div>
+
+                <!-- Player 3 -->
+                <div class="player-row">
+                    <div class="player-avatar">T</div>
+                    <div class="player-name">Tomas</div>
+                    <div class="stat pick">5TH</div>
+                    <div class="stat win">0</div>
+                    <div class="stat loss">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                </div>
+
+                <!-- Player 4 -->
+                <div class="player-row">
+                    <div class="player-avatar">D</div>
+                    <div class="player-name">David</div>
+                    <div class="stat pick">7TH</div>
+                    <div class="stat win">0</div>
+                    <div class="stat loss">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                </div>
+
+                <!-- Player 5 -->
+                <div class="player-row">
+                    <div class="player-avatar">J</div>
+                    <div class="player-name">Jakub</div>
+                    <div class="stat pick">9TH</div>
+                    <div class="stat win">0</div>
+                    <div class="stat loss">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                </div>
+
+                <!-- Summary row -->
+                <div class="summary-row">
+                    <span class="summary-label">Totals</span>
+                    <div class="stat pick"></div>
+                    <div class="stat win">0</div>
+                    <div class="stat loss">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                </div>
+            </div>
+
+            <!-- ═══ TEAM B ═══ -->
+            <div class="team-section team-b">
+                <div class="team-header">
+                    <span class="team-name">Team B</span>
+                    <span class="team-record"><span>0</span> W / <span>0</span> L</span>
+                </div>
+
+                <div class="col-headers">
+                    <span></span>
+                    <span>Player</span>
+                    <span>Pick</span>
+                    <span>W</span>
+                    <span>L</span>
+                    <span>Mir</span>
+                    <span>Inf</span>
+                    <span>Nuk</span>
+                    <span>Ove</span>
+                    <span>Anc</span>
+                    <span>Anu</span>
+                    <span>Dus</span>
+                </div>
+
+                <!-- Player 1 -->
+                <div class="player-row">
+                    <div class="player-avatar">A</div>
+                    <div class="player-name">Adam</div>
+                    <div class="stat pick">2ND</div>
+                    <div class="stat win">0</div>
+                    <div class="stat loss">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                </div>
+
+                <!-- Player 2 - highlighted -->
+                <div class="player-row active">
+                    <div class="player-avatar">O</div>
+                    <div class="player-name">Ondra</div>
+                    <div class="stat pick">4TH</div>
+                    <div class="stat win">0</div>
+                    <div class="stat loss">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                </div>
+
+                <!-- Player 3 -->
+                <div class="player-row">
+                    <div class="player-avatar">F</div>
+                    <div class="player-name">Filip</div>
+                    <div class="stat pick">6TH</div>
+                    <div class="stat win">0</div>
+                    <div class="stat loss">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                </div>
+
+                <!-- Player 4 -->
+                <div class="player-row">
+                    <div class="player-avatar">L</div>
+                    <div class="player-name">Lukas</div>
+                    <div class="stat pick">8TH</div>
+                    <div class="stat win">0</div>
+                    <div class="stat loss">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                </div>
+
+                <!-- Player 5 -->
+                <div class="player-row">
+                    <div class="player-avatar">V</div>
+                    <div class="player-name">Vojta</div>
+                    <div class="stat pick">10TH</div>
+                    <div class="stat win">0</div>
+                    <div class="stat loss">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                </div>
+
+                <!-- Summary row -->
+                <div class="summary-row">
+                    <span class="summary-label">Totals</span>
+                    <div class="stat pick"></div>
+                    <div class="stat win">0</div>
+                    <div class="stat loss">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                    <div class="stat map">0</div>
+                </div>
+            </div>
+
+        </div><!-- /teams-container -->
+
+        <!-- Action Buttons -->
+        <div class="actions">
+            <button class="btn btn-primary">Lock Teams</button>
+            <button class="btn btn-secondary">New Draft</button>
+        </div>
+
+    </div><!-- /scoreboard-overlay -->
+
+    <!-- Concept label -->
+    <div class="concept-label">Concept 13 / CS2 Scoreboard Tab</div>
+
+</body>
+</html>

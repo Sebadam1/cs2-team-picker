@@ -35,23 +35,23 @@ function DraftRow({ draft, onSelect, profileNames }: {
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ scale: 1.01 }}
       onClick={onSelect}
-      className="p-4 border border-white/10 rounded-xl bg-white/[0.02] hover:bg-white/5 hover:border-white/20 cursor-pointer transition-all"
+      className="p-4 border border-white/[0.06] rounded-lg bg-white/[0.015] hover:bg-white/[0.03] hover:border-white/[0.1] cursor-pointer transition-all"
     >
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-3">
           <span className="text-gray-500 font-rajdhani text-sm">{dateStr} {timeStr}</span>
           <span className={`text-xs font-orbitron px-2 py-0.5 rounded ${
             draft.animationType === 'case'
-              ? 'bg-amber-500/10 text-amber-400 border border-amber-400/20'
-              : 'bg-emerald-500/10 text-emerald-400 border border-emerald-400/20'
+              ? 'bg-[#c49a6c]/10 text-[#d4a86a] border border-[#c49a6c]/15'
+              : 'bg-[#8b9bb4]/10 text-[#8b9bb4] border border-[#8b9bb4]/15'
           }`}>
             {draft.animationType === 'case' ? '📦 Case' : '🎡 Wheel'}
           </span>
           {match && (
             <span className={`text-xs font-orbitron px-2 py-0.5 rounded ${
               match.winningTeam === 'CT'
-                ? 'bg-sky-500/10 text-sky-400 border border-sky-400/20'
-                : 'bg-amber-500/10 text-amber-400 border border-amber-400/20'
+                ? 'bg-[#6b8fc2]/10 text-[#8bafd4] border border-[#6b8fc2]/15'
+                : 'bg-[#c49a6c]/10 text-[#d4a86a] border border-[#c49a6c]/15'
             }`}>
               {match.mapName} - {match.winningTeam === 'CT' ? ctCaptainName : tCaptainName} won
             </span>
@@ -60,11 +60,11 @@ function DraftRow({ draft, onSelect, profileNames }: {
       </div>
       <div className="grid grid-cols-2 gap-4 text-sm">
         <div>
-          <span className="text-sky-400 font-orbitron text-xs">{ctCaptainName}&apos;s: </span>
+          <span className="text-[#8bafd4] font-orbitron text-xs">{ctCaptainName}&apos;s: </span>
           <span className="text-gray-400 font-rajdhani">{ctNames}</span>
         </div>
         <div>
-          <span className="text-amber-400 font-orbitron text-xs">{tCaptainName}&apos;s: </span>
+          <span className="text-[#d4a86a] font-orbitron text-xs">{tCaptainName}&apos;s: </span>
           <span className="text-gray-400 font-rajdhani">{tNames}</span>
         </div>
       </div>
@@ -123,7 +123,7 @@ export default function DraftHistory({ onNavigateToDraft }: DraftHistoryProps) {
       </div>
 
       {drafts.length === 0 ? (
-        <div className="text-center py-16 border border-dashed border-white/10 rounded-xl">
+        <div className="text-center py-16 border border-dashed border-white/[0.06] rounded-lg">
           <p className="text-gray-500 font-rajdhani text-lg mb-2">No drafts yet</p>
           <p className="text-gray-600 font-rajdhani text-sm">Completed drafts will appear here</p>
         </div>

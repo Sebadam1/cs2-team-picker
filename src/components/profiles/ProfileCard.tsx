@@ -33,19 +33,19 @@ export default function ProfileCard({ profile, onEdit, onDelete, selected, onTog
         relative group rounded-xl border p-4 transition-all duration-200
         ${selectable ? 'cursor-pointer' : ''}
         ${selected
-          ? 'border-emerald-400/60 bg-emerald-500/10 shadow-[0_0_20px_rgba(0,230,118,0.15)]'
-          : 'border-white/10 bg-white/[0.03] hover:border-white/20 hover:bg-white/5'
+          ? 'border-[#4a8a4a]/50 bg-[#3a7a3a]/10'
+          : 'border-white/[0.06] bg-white/[0.02] hover:border-white/[0.1] hover:bg-white/[0.04]'
         }
       `}
     >
       {/* Selection indicator */}
       {selectable && (
         <div className={`absolute top-2 right-2 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
-          selected ? 'border-emerald-400 bg-emerald-400' : 'border-white/20 bg-transparent'
+          selected ? 'border-[#4a8a4a] bg-[#4a8a4a]' : 'border-white/[0.12] bg-transparent'
         }`}>
           {selected && (
             <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
-              <path d="M1 4L3.5 6.5L9 1" stroke="#0a0a0f" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M1 4L3.5 6.5L9 1" stroke="#0d0f13" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           )}
         </div>
@@ -54,19 +54,19 @@ export default function ProfileCard({ profile, onEdit, onDelete, selected, onTog
       <div className="flex flex-col items-center gap-3">
         {/* Avatar */}
         <div className={`w-16 h-16 rounded-full overflow-hidden border-2 flex-shrink-0 ${
-          selected ? 'border-emerald-400/60' : 'border-white/10'
+          selected ? 'border-[#4a8a4a]/50' : 'border-white/[0.06]'
         }`}>
           {profile.photoUrl ? (
             <img src={profile.photoUrl} alt={profile.name} className="w-full h-full object-cover" />
           ) : (
-            <div className="w-full h-full bg-white/10 flex items-center justify-center text-gray-500 font-orbitron text-lg font-bold">
+            <div className="w-full h-full bg-white/[0.06] flex items-center justify-center text-gray-600 font-orbitron text-lg font-bold">
               {profile.name.charAt(0).toUpperCase()}
             </div>
           )}
         </div>
 
         {/* Name */}
-        <h3 className="font-rajdhani font-bold text-white text-sm text-center truncate w-full">
+        <h3 className="font-rajdhani font-bold text-[#c8ccd4] text-sm text-center truncate w-full">
           {profile.name}
         </h3>
 
@@ -74,7 +74,7 @@ export default function ProfileCard({ profile, onEdit, onDelete, selected, onTog
         {profile.soundUrl && (
           <button
             onClick={(e) => { e.stopPropagation(); playSound(); }}
-            className="text-gray-500 hover:text-emerald-400 transition-colors text-xs cursor-pointer"
+            className="text-gray-600 hover:text-[#8b9bb4] transition-colors text-xs cursor-pointer"
             title="Play catchphrase"
           >
             🔊
@@ -86,13 +86,13 @@ export default function ProfileCard({ profile, onEdit, onDelete, selected, onTog
           <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
             <button
               onClick={(e) => { e.stopPropagation(); onEdit(); }}
-              className="px-2 py-1 text-xs font-rajdhani text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 rounded border border-white/10 cursor-pointer transition-all"
+              className="px-2 py-1 text-xs font-rajdhani text-gray-500 hover:text-[#c8ccd4] bg-white/[0.03] hover:bg-white/[0.06] rounded border border-white/[0.06] cursor-pointer transition-all"
             >
               Edit
             </button>
             <button
               onClick={(e) => { e.stopPropagation(); onDelete(); }}
-              className="px-2 py-1 text-xs font-rajdhani text-red-400 hover:text-red-300 bg-red-500/5 hover:bg-red-500/10 rounded border border-red-400/20 cursor-pointer transition-all"
+              className="px-2 py-1 text-xs font-rajdhani text-[#d46a6a] hover:text-red-300 bg-[#5a2020]/20 hover:bg-[#5a2020]/30 rounded border border-[#8b3030]/20 cursor-pointer transition-all"
             >
               Delete
             </button>

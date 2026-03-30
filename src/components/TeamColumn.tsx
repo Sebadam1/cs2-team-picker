@@ -26,56 +26,47 @@ export default function TeamColumn({ team, players }: TeamColumnProps) {
   const teamConfig = isCT
     ? {
         color: 'ct' as const,
-        borderColor: 'border-sky-400/30',
-        bgHover: 'bg-sky-500/10',
-        shield: (
-          <svg viewBox="0 0 24 24" className="w-8 h-8 text-sky-400" fill="currentColor">
-            <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 2.18l7 3.12v4.7c0 4.67-3.13 9.06-7 10.2-3.87-1.14-7-5.53-7-10.2V6.3l7-3.12z" />
-          </svg>
-        ),
+        borderColor: 'border-[#6b8fc2]/15',
+        headerBg: 'bg-gradient-to-r from-[#6b8fc2]/10 to-transparent',
+        headerBorder: 'border-[#6b8fc2]/20',
       }
     : {
         color: 't' as const,
-        borderColor: 'border-amber-400/30',
-        bgHover: 'bg-amber-500/10',
-        shield: (
-          <svg viewBox="0 0 24 24" className="w-8 h-8 text-amber-400" fill="currentColor">
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
-          </svg>
-        ),
+        borderColor: 'border-[#c49a6c]/15',
+        headerBg: 'bg-gradient-to-r from-[#c49a6c]/10 to-transparent',
+        headerBorder: 'border-[#c49a6c]/20',
       };
 
   return (
     <div
       ref={setNodeRef}
       className={`
-        flex-1 min-w-[280px] p-4 rounded-xl border transition-all duration-200
-        bg-white/[0.02] backdrop-blur-sm
+        flex-1 min-w-[280px] p-4 rounded-lg border transition-all duration-200
+        bg-white/[0.015]
         ${teamConfig.borderColor}
-        ${isOver ? `${teamConfig.bgHover} border-opacity-60 scale-[1.01]` : ''}
+        ${isOver ? 'bg-white/[0.03] scale-[1.005]' : ''}
       `}
     >
       {/* Team header */}
-      <div className="flex items-center gap-3 mb-4 pb-3 border-b border-white/10">
-        {teamConfig.shield}
-        <div className="min-w-0">
-          <GlowText color={teamConfig.color} as="h2" className="text-lg truncate">
+      <div className={`flex items-center gap-3 mb-4 pb-3 border-b ${teamConfig.headerBorder} ${teamConfig.headerBg} -mx-4 -mt-4 px-4 pt-4 rounded-t-lg`}>
+        <div className="min-w-0 flex-1">
+          <GlowText color={teamConfig.color} as="h2" className="text-sm truncate uppercase tracking-wider">
             {teamName}
           </GlowText>
         </div>
-        <span className="ml-auto text-gray-500 font-orbitron text-sm flex-shrink-0">
+        <span className="text-gray-600 font-orbitron text-xs flex-shrink-0">
           {players.length}/5
         </span>
       </div>
 
       {/* Player cards */}
       <SortableContext items={players.map((p) => p.id)} strategy={verticalListSortingStrategy}>
-        <div className="space-y-2 min-h-[200px]">
+        <div className="space-y-1.5 min-h-[200px]">
           {players.map((player) => (
             <PlayerCard key={player.id} player={player} team={team} />
           ))}
           {players.length === 0 && (
-            <div className="flex items-center justify-center h-[200px] text-gray-600 font-rajdhani text-sm border border-dashed border-white/10 rounded-lg">
+            <div className="flex items-center justify-center h-[200px] text-gray-600 font-rajdhani text-sm border border-dashed border-white/[0.06] rounded-md">
               Drag players here
             </div>
           )}

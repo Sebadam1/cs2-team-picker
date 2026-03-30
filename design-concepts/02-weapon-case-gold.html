@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Concept 2: Weapon Case Gold</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Rajdhani', sans-serif;
+    background: #08080c;
+    color: #e0e0e0;
+    min-height: 100vh;
+  }
+
+  .bg {
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(circle at 50% 0%, rgba(212,175,55,0.07) 0%, transparent 60%),
+      radial-gradient(circle at 50% 100%, rgba(139,92,246,0.04) 0%, transparent 50%),
+      #08080c;
+  }
+
+  /* Gold particle lines */
+  .bg::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(0deg, transparent 49.5%, rgba(212,175,55,0.03) 50%, transparent 50.5%);
+    background-size: 100% 4px;
+  }
+
+  .container { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: 30px 20px; }
+
+  /* Nav with gold underline active */
+  .nav {
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    margin-bottom: 50px;
+    background: rgba(212,175,55,0.03);
+    border: 1px solid rgba(212,175,55,0.08);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .nav-item {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    padding: 14px 32px;
+    color: rgba(255,255,255,0.25);
+    cursor: pointer;
+    transition: all 0.3s;
+    border-right: 1px solid rgba(212,175,55,0.06);
+  }
+
+  .nav-item:last-child { border-right: none; }
+  .nav-item:hover { color: rgba(212,175,55,0.6); }
+
+  .nav-item.active {
+    color: #d4af37;
+    background: linear-gradient(180deg, rgba(212,175,55,0.1) 0%, transparent 100%);
+    box-shadow: inset 0 -2px 0 #d4af37;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  .header h1 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 36px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 8px;
+    background: linear-gradient(135deg, #d4af37 0%, #f5d870 40%, #d4af37 60%, #a17f1a 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 8px;
+  }
+
+  .header .sub {
+    color: rgba(212,175,55,0.3);
+    font-size: 13px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    font-family: 'Orbitron', sans-serif;
+  }
+
+  .teams {
+    display: grid;
+    grid-template-columns: 1fr 60px 1fr;
+    gap: 0;
+  }
+
+  .team {
+    border: 1px solid rgba(212,175,55,0.1);
+    background: rgba(212,175,55,0.02);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .team-head {
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(212,175,55,0.08);
+  }
+
+  .team-a .team-head {
+    background: linear-gradient(90deg, rgba(59,130,246,0.08), transparent);
+  }
+
+  .team-b .team-head {
+    background: linear-gradient(270deg, rgba(212,175,55,0.08), transparent);
+  }
+
+  .team-name {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 2px;
+  }
+
+  .team-a .team-name { color: #60a5fa; }
+  .team-b .team-name { color: #d4af37; }
+
+  .team-wl {
+    font-size: 12px;
+    color: rgba(255,255,255,0.3);
+  }
+
+  .player {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 20px;
+    border-bottom: 1px solid rgba(212,175,55,0.04);
+    transition: background 0.2s;
+  }
+
+  .player:hover { background: rgba(212,175,55,0.04); }
+
+  .team-b .player { flex-direction: row-reverse; text-align: right; }
+
+  .avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 4px;
+    background: rgba(212,175,55,0.06);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 18px;
+    font-weight: 900;
+    flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .team-a .avatar {
+    color: rgba(59,130,246,0.3);
+    border: 1px solid rgba(59,130,246,0.15);
+  }
+
+  .team-b .avatar {
+    color: rgba(212,175,55,0.3);
+    border: 1px solid rgba(212,175,55,0.15);
+  }
+
+  /* Rarity-style bottom glow on avatar */
+  .avatar::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+  }
+
+  .team-a .avatar::after { background: linear-gradient(90deg, transparent, #3b82f6, transparent); }
+  .team-b .avatar::after { background: linear-gradient(90deg, transparent, #d4af37, transparent); }
+
+  .pname { font-weight: 700; font-size: 15px; color: #fff; }
+  .pstats {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 10px;
+    color: rgba(255,255,255,0.3);
+    margin-top: 2px;
+  }
+  .pstats .w { color: #4ade80; }
+  .pstats .l { color: #f87171; }
+
+  .pick {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 10px;
+    color: rgba(212,175,55,0.3);
+    margin-left: auto;
+  }
+
+  .team-b .pick { margin-left: 0; margin-right: auto; }
+
+  .pinfo { flex: 1; }
+
+  /* Map stats mini */
+  .map-stats {
+    display: flex;
+    gap: 6px;
+    margin-top: 4px;
+  }
+
+  .map-stat {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 8px;
+    color: rgba(255,255,255,0.2);
+    padding: 1px 4px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 2px;
+  }
+
+  .vs {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding-top: 50px;
+  }
+
+  .vs span {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 16px;
+    font-weight: 900;
+    color: rgba(212,175,55,0.15);
+    letter-spacing: 4px;
+  }
+
+  .actions {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 40px;
+  }
+
+  .btn {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    padding: 14px 36px;
+    border: none;
+    border-radius: 2px;
+    cursor: pointer;
+  }
+
+  .btn-gold {
+    background: linear-gradient(135deg, #d4af37, #a17f1a);
+    color: #000;
+    box-shadow: 0 0 20px rgba(212,175,55,0.2);
+  }
+
+  .btn-outline {
+    background: transparent;
+    color: rgba(212,175,55,0.4);
+    border: 1px solid rgba(212,175,55,0.15);
+  }
+
+  /* Case strip */
+  .case-section {
+    margin-top: 60px;
+    position: relative;
+  }
+
+  .case-section h2 {
+    text-align: center;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 12px;
+    color: rgba(212,175,55,0.25);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .case-box {
+    position: relative;
+    height: 170px;
+    overflow: hidden;
+    border: 1px solid rgba(212,175,55,0.12);
+    border-radius: 4px;
+    background: rgba(0,0,0,0.4);
+  }
+
+  .case-line {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #d4af37;
+    z-index: 10;
+    box-shadow: 0 0 20px rgba(212,175,55,0.7), 0 0 40px rgba(212,175,55,0.3);
+    transform: translateX(-50%);
+  }
+
+  .case-line::before,
+  .case-line::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0; height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+  }
+
+  .case-line::before {
+    top: -8px;
+    border-top: 12px solid #d4af37;
+    filter: drop-shadow(0 0 8px rgba(212,175,55,0.8));
+  }
+
+  .case-line::after {
+    bottom: -8px;
+    border-bottom: 12px solid #d4af37;
+    filter: drop-shadow(0 0 8px rgba(212,175,55,0.8));
+  }
+
+  .case-items {
+    display: flex;
+    gap: 5px;
+    padding: 12px;
+    position: absolute;
+    left: 15%;
+  }
+
+  .case-item {
+    width: 140px;
+    height: 146px;
+    flex-shrink: 0;
+    border-radius: 4px;
+    background: rgba(212,175,55,0.03);
+    border: 1px solid rgba(212,175,55,0.08);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .case-item .big-letter {
+    position: absolute;
+    top: 45%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: 'Orbitron', sans-serif;
+    font-size: 48px;
+    font-weight: 900;
+    color: rgba(212,175,55,0.06);
+  }
+
+  .case-item .label {
+    width: 100%;
+    text-align: center;
+    padding: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.4);
+    background: rgba(0,0,0,0.5);
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Rarity glow at bottom of each case item */
+  .case-item::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 10%;
+    right: 10%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(212,175,55,0.4), transparent);
+  }
+
+  .case-item.highlight {
+    border-color: #d4af37;
+    box-shadow: 0 0 25px rgba(212,175,55,0.3), inset 0 0 20px rgba(212,175,55,0.05);
+  }
+
+  .case-item.highlight .label {
+    color: #d4af37;
+    background: rgba(212,175,55,0.1);
+  }
+
+  .concept-label {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 10px;
+    color: rgba(255,255,255,0.15);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    z-index: 100;
+    text-align: right;
+  }
+
+  .concept-name {
+    font-size: 22px;
+    font-weight: 900;
+    display: block;
+    letter-spacing: 0;
+    background: linear-gradient(135deg, #d4af37, #f5d870);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+</style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="concept-label">
+    Concept 02
+    <span class="concept-name">Weapon Case Gold</span>
+  </div>
+
+  <div class="container">
+    <nav class="nav">
+      <div class="nav-item active">Draft</div>
+      <div class="nav-item">Profiles</div>
+      <div class="nav-item">History</div>
+      <div class="nav-item">Stats</div>
+    </nav>
+
+    <div class="header">
+      <h1>Teams Locked</h1>
+      <div class="sub">Pepa's Team vs Adam's Team</div>
+    </div>
+
+    <div class="teams">
+      <div class="team team-a">
+        <div class="team-head">
+          <span class="team-name">Pepa's Team</span>
+          <span class="team-wl">12W / 8L</span>
+        </div>
+        <div class="player">
+          <div class="avatar">P</div>
+          <div class="pinfo">
+            <div class="pname">Pepa</div>
+            <div class="pstats"><span class="w">5W</span> / <span class="l">3L</span></div>
+            <div class="map-stats">
+              <span class="map-stat">Mir 2-1</span>
+              <span class="map-stat">Inf 1-0</span>
+              <span class="map-stat">Anu 2-2</span>
+            </div>
+          </div>
+          <span class="pick">#1</span>
+        </div>
+        <div class="player">
+          <div class="avatar">M</div>
+          <div class="pinfo">
+            <div class="pname">Martin</div>
+            <div class="pstats"><span class="w">3W</span> / <span class="l">2L</span></div>
+          </div>
+          <span class="pick">#3</span>
+        </div>
+        <div class="player">
+          <div class="avatar">T</div>
+          <div class="pinfo">
+            <div class="pname">Tomas</div>
+            <div class="pstats"><span class="w">2W</span> / <span class="l">1L</span></div>
+          </div>
+          <span class="pick">#5</span>
+        </div>
+        <div class="player">
+          <div class="avatar">D</div>
+          <div class="pinfo">
+            <div class="pname">David</div>
+            <div class="pstats"><span class="w">1W</span> / <span class="l">1L</span></div>
+          </div>
+          <span class="pick">#7</span>
+        </div>
+        <div class="player">
+          <div class="avatar">J</div>
+          <div class="pinfo">
+            <div class="pname">Jakub</div>
+            <div class="pstats"><span class="w">1W</span> / <span class="l">1L</span></div>
+          </div>
+          <span class="pick">#9</span>
+        </div>
+      </div>
+
+      <div class="vs"><span>VS</span></div>
+
+      <div class="team team-b">
+        <div class="team-head">
+          <span class="team-wl">10W / 10L</span>
+          <span class="team-name">Adam's Team</span>
+        </div>
+        <div class="player">
+          <div class="avatar">A</div>
+          <div class="pinfo">
+            <div class="pname">Adam</div>
+            <div class="pstats"><span class="w">4W</span> / <span class="l">4L</span></div>
+          </div>
+          <span class="pick">#2</span>
+        </div>
+        <div class="player">
+          <div class="avatar">O</div>
+          <div class="pinfo">
+            <div class="pname">Ondra</div>
+            <div class="pstats"><span class="w">3W</span> / <span class="l">2L</span></div>
+          </div>
+          <span class="pick">#4</span>
+        </div>
+        <div class="player">
+          <div class="avatar">F</div>
+          <div class="pinfo">
+            <div class="pname">Filip</div>
+            <div class="pstats"><span class="w">2W</span> / <span class="l">2L</span></div>
+          </div>
+          <span class="pick">#6</span>
+        </div>
+        <div class="player">
+          <div class="avatar">L</div>
+          <div class="pinfo">
+            <div class="pname">Lukas</div>
+            <div class="pstats"><span class="w">1W</span> / <span class="l">1L</span></div>
+          </div>
+          <span class="pick">#8</span>
+        </div>
+        <div class="player">
+          <div class="avatar">V</div>
+          <div class="pinfo">
+            <div class="pname">Vojta</div>
+            <div class="pstats"><span class="w">0W</span> / <span class="l">1L</span></div>
+          </div>
+          <span class="pick">#10</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-gold">Record Match</button>
+      <button class="btn btn-outline">New Draft</button>
+    </div>
+
+    <div class="case-section">
+      <h2>Case Opening</h2>
+      <div class="case-box">
+        <div class="case-line"></div>
+        <div class="case-items">
+          <div class="case-item"><span class="big-letter">M</span><span class="label">Martin</span></div>
+          <div class="case-item"><span class="big-letter">T</span><span class="label">Tomas</span></div>
+          <div class="case-item"><span class="big-letter">D</span><span class="label">David</span></div>
+          <div class="case-item highlight"><span class="big-letter">P</span><span class="label">Pepa</span></div>
+          <div class="case-item"><span class="big-letter">A</span><span class="label">Adam</span></div>
+          <div class="case-item"><span class="big-letter">O</span><span class="label">Ondra</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

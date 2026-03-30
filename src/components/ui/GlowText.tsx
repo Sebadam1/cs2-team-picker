@@ -10,9 +10,9 @@ interface GlowTextProps {
 }
 
 const glowColors = {
-  ct: 'text-sky-300 [text-shadow:0_0_20px_rgba(79,195,247,0.6),0_0_40px_rgba(79,195,247,0.3)]',
-  t: 'text-amber-300 [text-shadow:0_0_20px_rgba(255,179,0,0.6),0_0_40px_rgba(255,179,0,0.3)]',
-  green: 'text-emerald-400 [text-shadow:0_0_20px_rgba(0,230,118,0.6),0_0_40px_rgba(0,230,118,0.3)]',
+  ct: 'text-[#8bafd4] [text-shadow:0_0_8px_rgba(107,143,194,0.3)]',
+  t: 'text-[#d4a86a] [text-shadow:0_0_8px_rgba(196,154,108,0.3)]',
+  green: 'text-[#8b9bb4] [text-shadow:0_0_8px_rgba(139,155,180,0.25)]',
 };
 
 export default function GlowText({ children, color = 'green', as: Tag = 'h1', className = '' }: GlowTextProps) {

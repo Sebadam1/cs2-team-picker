@@ -27,11 +27,11 @@ function MiniTeamList({ players, team, max }: { players: Player[]; team: 'CT' | 
               animate={{ opacity: 1, x: 0, scale: 1 }}
               className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border text-sm ${
                 isCT
-                  ? 'bg-sky-500/10 border-sky-400/20'
-                  : 'bg-amber-500/10 border-amber-400/20'
+                  ? 'bg-[#6b8fc2]/10 border-[#6b8fc2]/15'
+                  : 'bg-[#c49a6c]/10 border-[#c49a6c]/15'
               }`}
             >
-              <span className={`font-orbitron text-[10px] ${isCT ? 'text-sky-400' : 'text-amber-400'}`}>
+              <span className={`font-orbitron text-[10px] ${isCT ? 'text-[#8bafd4]' : 'text-[#d4a86a]'}`}>
                 #{p.pickOrder}
               </span>
               <span className="text-white font-rajdhani font-semibold truncate">{p.name}</span>

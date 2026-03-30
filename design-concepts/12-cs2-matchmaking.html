@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CS2 Team Picker — Concept 12 / CS2 Matchmaking</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg-deep: #0d1117;
+    --bg-main: #111822;
+    --bg-panel: rgba(26, 31, 46, 0.85);
+    --bg-panel-solid: #1a1f2e;
+    --bg-card: rgba(22, 27, 40, 0.9);
+    --bg-row: rgba(18, 23, 34, 0.7);
+    --bg-row-hover: rgba(26, 31, 46, 0.9);
+    --border: rgba(50, 60, 80, 0.35);
+    --border-light: rgba(65, 75, 100, 0.25);
+    --text-primary: #c8d0dc;
+    --text-secondary: #6b7a8d;
+    --text-muted: #3e4a5a;
+    --accent-orange: #e8763a;
+    --accent-orange-hover: #f08a50;
+    --accent-orange-dim: rgba(232, 118, 58, 0.12);
+    --team-a: #4fc3f7;
+    --team-a-dim: rgba(79, 195, 247, 0.08);
+    --team-a-border: rgba(79, 195, 247, 0.3);
+    --team-a-glow: rgba(79, 195, 247, 0.15);
+    --team-b: #ffb300;
+    --team-b-dim: rgba(255, 179, 0, 0.08);
+    --team-b-border: rgba(255, 179, 0, 0.3);
+    --team-b-glow: rgba(255, 179, 0, 0.15);
+  }
+
+  html { font-size: 14px; }
+
+  body {
+    background: var(--bg-deep);
+    color: var(--text-primary);
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 500;
+    min-height: 100vh;
+    overflow-x: hidden;
+    background-image:
+      radial-gradient(ellipse at 15% 30%, rgba(79, 195, 247, 0.03) 0%, transparent 60%),
+      radial-gradient(ellipse at 85% 30%, rgba(255, 179, 0, 0.03) 0%, transparent 60%),
+      radial-gradient(ellipse at 50% 80%, rgba(232, 118, 58, 0.02) 0%, transparent 50%);
+  }
+
+  /* ── Concept Label ── */
+  .concept-label {
+    position: fixed;
+    bottom: 12px;
+    right: 16px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 400;
+    color: var(--text-muted);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    z-index: 100;
+    opacity: 0.6;
+  }
+
+  /* ── Top Nav Tabs ── */
+  .top-nav {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    background: rgba(14, 19, 28, 0.95);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+  }
+
+  .nav-tab {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    padding: 14px 24px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: color 0.2s, border-color 0.2s;
+    position: relative;
+  }
+
+  .nav-tab:hover {
+    color: var(--text-primary);
+  }
+
+  .nav-tab.active {
+    color: var(--accent-orange);
+    border-bottom-color: var(--accent-orange);
+  }
+
+  .nav-spacer {
+    flex: 1;
+  }
+
+  .nav-status {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+  }
+
+  .nav-status span {
+    color: var(--accent-orange);
+    font-weight: 600;
+  }
+
+  /* ── Header ── */
+  .header {
+    text-align: center;
+    padding: 28px 24px 18px;
+  }
+
+  .header-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--team-a);
+    text-shadow: 0 0 20px var(--team-a-glow), 0 0 40px rgba(79, 195, 247, 0.08);
+  }
+
+  .header-subtitle {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 400;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    margin-top: 6px;
+  }
+
+  .header-subtitle strong {
+    color: var(--text-primary);
+    font-weight: 600;
+  }
+
+  /* ── Main Layout ── */
+  .main-layout {
+    display: grid;
+    grid-template-columns: 240px 1fr 240px;
+    gap: 16px;
+    padding: 0 24px;
+    max-width: 1280px;
+    margin: 0 auto;
+  }
+
+  /* ── Team Roster Panels ── */
+  .roster-panel {
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .roster-header {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .roster-panel.team-a .roster-header {
+    color: var(--team-a);
+    background: var(--team-a-dim);
+  }
+
+  .roster-panel.team-b .roster-header {
+    color: var(--team-b);
+    background: var(--team-b-dim);
+  }
+
+  .roster-header .pick-count {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 400;
+    opacity: 0.6;
+  }
+
+  .roster-list {
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .roster-player {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 3px;
+    background: var(--bg-row);
+    transition: background 0.15s;
+  }
+
+  .roster-player:hover {
+    background: var(--bg-row-hover);
+  }
+
+  .roster-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.6rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .team-a .roster-avatar {
+    background: var(--team-a-dim);
+    border: 1px solid var(--team-a-border);
+    color: var(--team-a);
+  }
+
+  .team-b .roster-avatar {
+    background: var(--team-b-dim);
+    border: 1px solid var(--team-b-border);
+    color: var(--team-b);
+  }
+
+  .roster-pick-badge {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.5rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    padding: 2px 5px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  .team-a .roster-pick-badge {
+    background: var(--team-a-dim);
+    color: var(--team-a);
+    border: 1px solid rgba(79, 195, 247, 0.15);
+  }
+
+  .team-b .roster-pick-badge {
+    background: var(--team-b-dim);
+    color: var(--team-b);
+    border: 1px solid rgba(255, 179, 0, 0.15);
+  }
+
+  .roster-name {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .roster-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 10px;
+    border-radius: 3px;
+    border: 1px dashed var(--border);
+    height: 48px;
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    font-family: 'Orbitron', sans-serif;
+    letter-spacing: 1px;
+  }
+
+  .team-a .roster-empty {
+    border-color: rgba(79, 195, 247, 0.12);
+  }
+
+  .team-b .roster-empty {
+    border-color: rgba(255, 179, 0, 0.12);
+  }
+
+  /* ── Case Strip Section ── */
+  .case-section {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .case-strip-wrapper {
+    position: relative;
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 20px 0;
+    overflow: hidden;
+  }
+
+  .case-strip-label {
+    position: absolute;
+    top: 8px;
+    left: 14px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.55rem;
+    font-weight: 400;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  /* The strip container with mask */
+  .case-strip-container {
+    position: relative;
+    height: 160px;
+    overflow: hidden;
+  }
+
+  /* Gradient fade edges */
+  .case-strip-container::before,
+  .case-strip-container::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 120px;
+    z-index: 3;
+    pointer-events: none;
+  }
+
+  .case-strip-container::before {
+    left: 0;
+    background: linear-gradient(to right, var(--bg-panel-solid) 0%, transparent 100%);
+  }
+
+  .case-strip-container::after {
+    right: 0;
+    background: linear-gradient(to left, var(--bg-panel-solid) 0%, transparent 100%);
+  }
+
+  /* Center indicator */
+  .center-indicator {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--team-a);
+    transform: translateX(-50%);
+    z-index: 5;
+    box-shadow: 0 0 8px var(--team-a-glow);
+  }
+
+  .center-indicator::before,
+  .center-indicator::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+  }
+
+  .center-indicator::before {
+    top: -1px;
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+    border-top: 8px solid var(--team-a);
+  }
+
+  .center-indicator::after {
+    bottom: -1px;
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+    border-bottom: 8px solid var(--team-a);
+  }
+
+  /* Strip items */
+  .case-strip {
+    display: flex;
+    gap: 8px;
+    padding: 10px 60px;
+    /* Position so the winner lands near center */
+    transform: translateX(calc(50% - 520px));
+  }
+
+  .case-item {
+    width: 140px;
+    height: 140px;
+    flex-shrink: 0;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    transition: border-color 0.2s;
+  }
+
+  .case-item-initials {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    letter-spacing: 2px;
+    line-height: 1;
+    margin-bottom: auto;
+    margin-top: 30px;
+  }
+
+  .case-item-name {
+    width: 100%;
+    padding: 8px 6px;
+    text-align: center;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    background: rgba(14, 17, 23, 0.6);
+    border-top: 1px solid var(--border);
+    border-radius: 0 0 3px 3px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-top: auto;
+  }
+
+  /* Winner item */
+  .case-item.winner {
+    border-color: var(--team-a);
+    box-shadow: 0 0 12px var(--team-a-glow), inset 0 0 20px rgba(79, 195, 247, 0.04);
+  }
+
+  .case-item.winner .case-item-initials {
+    color: var(--team-a);
+  }
+
+  .case-item.winner .case-item-name {
+    color: var(--team-a);
+    background: rgba(79, 195, 247, 0.06);
+    border-top-color: var(--team-a-border);
+  }
+
+  /* ── Controls ── */
+  .controls-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    padding: 4px 0;
+  }
+
+  .btn-open-case {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 12px 36px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    background: var(--team-a);
+    color: var(--bg-deep);
+    transition: background 0.15s, box-shadow 0.15s;
+    box-shadow: 0 0 12px var(--team-a-glow);
+  }
+
+  .btn-open-case:hover {
+    background: #6fd0fa;
+    box-shadow: 0 0 20px var(--team-a-glow);
+  }
+
+  .control-toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+  }
+
+  .toggle-icon {
+    width: 18px;
+    height: 18px;
+    border: 1px solid var(--border-light);
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.6rem;
+    background: var(--bg-row);
+  }
+
+  .toggle-icon.on {
+    background: var(--accent-orange-dim);
+    border-color: rgba(232, 118, 58, 0.3);
+    color: var(--accent-orange);
+  }
+
+  .control-link {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    text-decoration: none;
+    transition: color 0.15s;
+    letter-spacing: 0.3px;
+  }
+
+  .control-link:hover {
+    color: var(--text-secondary);
+  }
+
+  /* ── Left to Draw ── */
+  .draw-pool-section {
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 14px;
+    max-width: 1280px;
+    margin: 16px auto 40px;
+    width: calc(100% - 48px);
+  }
+
+  .draw-pool-header {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.6rem;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .draw-pool-header .count-badge {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 600;
+    background: var(--accent-orange-dim);
+    color: var(--accent-orange);
+    padding: 1px 7px;
+    border-radius: 2px;
+    letter-spacing: 0;
+  }
+
+  .draw-pool-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .draw-chip {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 12px 5px 5px;
+    background: var(--bg-row);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+  }
+
+  .draw-chip:hover {
+    background: var(--bg-row-hover);
+    border-color: var(--border-light);
+  }
+
+  .draw-chip-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: rgba(200, 208, 220, 0.06);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.5rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+  }
+
+  .draw-chip-name {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  /* ── Scanline overlay for atmosphere ── */
+  body::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    z-index: 50;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 0, 0, 0.015) 2px,
+      rgba(0, 0, 0, 0.015) 4px
+    );
+  }
+
+  /* ── Subtle vignette ── */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    z-index: 49;
+    background: radial-gradient(ellipse at center, transparent 50%, rgba(0, 0, 0, 0.4) 100%);
+  }
+</style>
+</head>
+<body>
+
+<!-- Concept Label -->
+<div class="concept-label">Concept 12 / CS2 Matchmaking</div>
+
+<!-- Top Nav -->
+<nav class="top-nav">
+  <div class="nav-tab active">Draft</div>
+  <div class="nav-tab">Profiles</div>
+  <div class="nav-tab">History</div>
+  <div class="nav-tab">Stats</div>
+  <div class="nav-spacer"></div>
+  <div class="nav-status">Match <span>#2847</span></div>
+</nav>
+
+<!-- Header -->
+<div class="header">
+  <div class="header-title">TEAM A PICK</div>
+  <div class="header-subtitle">Pick <strong>4</strong> / 10</div>
+</div>
+
+<!-- Main 3-Column Layout -->
+<div class="main-layout">
+
+  <!-- Team A Roster (Left) -->
+  <div class="roster-panel team-a">
+    <div class="roster-header">
+      Team A
+      <span class="pick-count">2 / 5</span>
+    </div>
+    <div class="roster-list">
+      <div class="roster-player">
+        <div class="roster-avatar">AX</div>
+        <span class="roster-pick-badge">#1</span>
+        <span class="roster-name">AceXploit</span>
+      </div>
+      <div class="roster-player">
+        <div class="roster-avatar">FR</div>
+        <span class="roster-pick-badge">#3</span>
+        <span class="roster-name">Fr0stByte</span>
+      </div>
+      <div class="roster-empty">PICK 5</div>
+      <div class="roster-empty">PICK 7</div>
+      <div class="roster-empty">PICK 9</div>
+    </div>
+  </div>
+
+  <!-- Case Strip (Center) -->
+  <div class="case-section">
+    <div class="case-strip-wrapper">
+      <div class="case-strip-label">Case Opening</div>
+      <div class="case-strip-container">
+        <div class="center-indicator"></div>
+        <div class="case-strip">
+          <div class="case-item">
+            <span class="case-item-initials">VK</span>
+            <div class="case-item-name">VeNoM_King</div>
+          </div>
+          <div class="case-item">
+            <span class="case-item-initials">SH</span>
+            <div class="case-item-name">ShadowHawk</div>
+          </div>
+          <div class="case-item">
+            <span class="case-item-initials">NX</span>
+            <div class="case-item-name">NukeXpert</div>
+          </div>
+          <div class="case-item winner">
+            <span class="case-item-initials">BZ</span>
+            <div class="case-item-name">BlitzKrieg</div>
+          </div>
+          <div class="case-item">
+            <span class="case-item-initials">RP</span>
+            <div class="case-item-name">RapidFire</div>
+          </div>
+          <div class="case-item">
+            <span class="case-item-initials">CW</span>
+            <div class="case-item-name">ColdWar99</div>
+          </div>
+          <div class="case-item">
+            <span class="case-item-initials">DT</span>
+            <div class="case-item-name">D4rkTide</div>
+          </div>
+          <div class="case-item">
+            <span class="case-item-initials">ZR</span>
+            <div class="case-item-name">Zer0Rush</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls-bar">
+      <div class="control-toggle">
+        <div class="toggle-icon on">&#9834;</div>
+        Sound
+      </div>
+      <button class="btn-open-case">OPEN CASE</button>
+      <a class="control-link" href="#">Skip remaining &rarr;</a>
+    </div>
+  </div>
+
+  <!-- Team B Roster (Right) -->
+  <div class="roster-panel team-b">
+    <div class="roster-header">
+      Team B
+      <span class="pick-count">1 / 5</span>
+    </div>
+    <div class="roster-list">
+      <div class="roster-player">
+        <div class="roster-avatar">PX</div>
+        <span class="roster-pick-badge">#2</span>
+        <span class="roster-name">PhantomX</span>
+      </div>
+      <div class="roster-empty">PICK 4</div>
+      <div class="roster-empty">PICK 6</div>
+      <div class="roster-empty">PICK 8</div>
+      <div class="roster-empty">PICK 10</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Left to Draw -->
+<div class="draw-pool-section">
+  <div class="draw-pool-header">
+    Left to Draw
+    <span class="count-badge">6</span>
+  </div>
+  <div class="draw-pool-chips">
+    <div class="draw-chip">
+      <div class="draw-chip-avatar">BZ</div>
+      <span class="draw-chip-name">BlitzKrieg</span>
+    </div>
+    <div class="draw-chip">
+      <div class="draw-chip-avatar">SH</div>
+      <span class="draw-chip-name">ShadowHawk</span>
+    </div>
+    <div class="draw-chip">
+      <div class="draw-chip-avatar">NX</div>
+      <span class="draw-chip-name">NukeXpert</span>
+    </div>
+    <div class="draw-chip">
+      <div class="draw-chip-avatar">RP</div>
+      <span class="draw-chip-name">RapidFire</span>
+    </div>
+    <div class="draw-chip">
+      <div class="draw-chip-avatar">CW</div>
+      <span class="draw-chip-name">ColdWar99</span>
+    </div>
+    <div class="draw-chip">
+      <div class="draw-chip-avatar">DT</div>
+      <span class="draw-chip-name">D4rkTide</span>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

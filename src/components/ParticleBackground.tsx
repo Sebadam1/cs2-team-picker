@@ -40,7 +40,7 @@ export default function ParticleBackground() {
         vx: (Math.random() - 0.5) * 0.3,
         vy: (Math.random() - 0.5) * 0.3,
         size: Math.random() * 2 + 0.5,
-        opacity: Math.random() * 0.15 + 0.05,
+        opacity: Math.random() * 0.08 + 0.02,
       });
     }
 
@@ -58,7 +58,7 @@ export default function ParticleBackground() {
 
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(79, 195, 247, ${p.opacity})`;
+        ctx.fillStyle = `rgba(139, 155, 180, ${p.opacity})`;
         ctx.fill();
       });
 

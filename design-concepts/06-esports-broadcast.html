@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CS2 Team Picker - Esports Broadcast</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --blue: #3b82f6;
+            --blue-light: #60a5fa;
+            --amber: #f59e0b;
+            --amber-light: #fbbf24;
+            --bg: #0f1923;
+            --panel: rgba(15, 25, 40, 0.92);
+            --panel-light: rgba(25, 40, 60, 0.85);
+            --border: rgba(255, 255, 255, 0.06);
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-dim: #475569;
+            --green: #22c55e;
+            --red: #ef4444;
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: var(--bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Gradient accent bar at top */
+        .top-accent {
+            height: 4px;
+            background: linear-gradient(90deg, var(--blue), #8b5cf6, var(--amber));
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        /* Background pattern */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse at 20% 50%, rgba(59, 130, 246, 0.04) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 50%, rgba(245, 158, 11, 0.04) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        /* Concept label */
+        .concept-label {
+            position: fixed;
+            top: 20px;
+            right: 16px;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            padding: 8px 18px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            z-index: 1001;
+            border-radius: 4px;
+        }
+
+        .concept-label span {
+            color: var(--text-dim);
+            margin-right: 8px;
+        }
+
+        /* Nav bar */
+        .nav-bar {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 20px 24px 12px;
+            margin-top: 4px;
+        }
+
+        .nav-logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 15px;
+            font-weight: 800;
+            margin-right: 32px;
+            color: var(--text-primary);
+            letter-spacing: 3px;
+        }
+
+        .nav-logo .accent {
+            color: var(--blue);
+        }
+
+        .nav-tab {
+            padding: 8px 20px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-dim);
+            background: none;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-radius: 4px;
+        }
+
+        .nav-tab:hover {
+            color: var(--text-secondary);
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .nav-tab.active {
+            color: var(--text-primary);
+            background: rgba(59, 130, 246, 0.12);
+        }
+
+        /* Broadcast header */
+        .broadcast-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            padding: 20px 24px 8px;
+        }
+
+        .live-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            padding: 4px 14px;
+            border-radius: 3px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--red);
+            letter-spacing: 2px;
+        }
+
+        .live-badge::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--red);
+            animation: livePulse 1.5s ease-in-out infinite;
+        }
+
+        .format-badge {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--border);
+            padding: 4px 14px;
+            border-radius: 3px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            letter-spacing: 2px;
+        }
+
+        .event-name {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--text-dim);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* Main match HUD */
+        .match-hud {
+            max-width: 1200px;
+            margin: 24px auto;
+            padding: 0 24px;
+        }
+
+        .hud-container {
+            display: grid;
+            grid-template-columns: 1fr 200px 1fr;
+            gap: 0;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        /* Team sections */
+        .team-section {
+            padding: 0;
+        }
+
+        .team-bar {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 20px 24px;
+        }
+
+        .team-section.team-a .team-bar {
+            background: linear-gradient(90deg, rgba(59, 130, 246, 0.1), transparent);
+            border-bottom: 2px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .team-section.team-b .team-bar {
+            background: linear-gradient(-90deg, rgba(245, 158, 11, 0.1), transparent);
+            border-bottom: 2px solid rgba(245, 158, 11, 0.3);
+            flex-direction: row-reverse;
+        }
+
+        /* Hexagonal team logo */
+        .team-hex {
+            width: 52px;
+            height: 52px;
+            position: relative;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .team-hex svg {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .team-hex .hex-initial {
+            position: relative;
+            z-index: 2;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 18px;
+            font-weight: 800;
+        }
+
+        .team-a .hex-initial { color: var(--blue-light); }
+        .team-b .hex-initial { color: var(--amber-light); }
+
+        .team-info {
+            flex: 1;
+        }
+
+        .team-section.team-b .team-info {
+            text-align: right;
+        }
+
+        .team-name-broadcast {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text-primary);
+        }
+
+        .team-score {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        .team-score .w { color: var(--green); }
+        .team-score .l { color: var(--red); }
+
+        /* Player rows */
+        .player-rows {
+            padding: 4px 0;
+        }
+
+        .player-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 24px;
+            transition: background 0.2s;
+            border-left: 3px solid transparent;
+        }
+
+        .team-a .player-row:hover {
+            background: rgba(59, 130, 246, 0.04);
+            border-left-color: rgba(59, 130, 246, 0.3);
+        }
+
+        .team-b .player-row {
+            flex-direction: row-reverse;
+            border-left: none;
+            border-right: 3px solid transparent;
+        }
+
+        .team-b .player-row:hover {
+            background: rgba(245, 158, 11, 0.04);
+            border-right-color: rgba(245, 158, 11, 0.3);
+        }
+
+        .player-number {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 10px;
+            font-weight: 500;
+            color: var(--text-dim);
+            width: 20px;
+            text-align: center;
+        }
+
+        .team-b .player-number {
+            text-align: center;
+        }
+
+        .player-name-bc {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--text-primary);
+            flex: 1;
+        }
+
+        .team-b .player-name-bc {
+            text-align: right;
+        }
+
+        .player-role {
+            font-size: 11px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 2px 10px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text-dim);
+        }
+
+        /* Center match info */
+        .match-center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.3);
+            border-left: 1px solid var(--border);
+            border-right: 1px solid var(--border);
+            padding: 20px;
+        }
+
+        .match-vs {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 28px;
+            font-weight: 900;
+            color: var(--text-primary);
+            margin: 16px 0;
+        }
+
+        .match-map {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            background: rgba(255, 255, 255, 0.05);
+            padding: 6px 16px;
+            border-radius: 3px;
+            border: 1px solid var(--border);
+        }
+
+        .match-round {
+            font-size: 11px;
+            color: var(--text-dim);
+            margin-top: 12px;
+            font-weight: 500;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .score-display {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .score-num {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 32px;
+            font-weight: 900;
+        }
+
+        .score-num.blue { color: var(--blue-light); }
+        .score-num.amber { color: var(--amber-light); }
+
+        .score-sep {
+            color: var(--text-dim);
+            font-size: 20px;
+        }
+
+        /* Map veto */
+        .map-veto-section {
+            max-width: 1200px;
+            margin: 24px auto;
+            padding: 0 24px;
+        }
+
+        .section-label {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            margin-bottom: 12px;
+        }
+
+        .map-veto {
+            display: flex;
+            gap: 8px;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .map-card {
+            flex: 1;
+            text-align: center;
+            padding: 14px 8px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: rgba(255, 255, 255, 0.02);
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .map-card .map-name {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+        }
+
+        .map-card .map-status {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 6px;
+        }
+
+        .map-card.banned {
+            opacity: 0.35;
+            text-decoration: line-through;
+        }
+
+        .map-card.banned .map-status {
+            color: var(--red);
+        }
+
+        .map-card.picked {
+            border-color: rgba(34, 197, 94, 0.3);
+            background: rgba(34, 197, 94, 0.06);
+        }
+
+        .map-card.picked .map-name {
+            color: var(--text-primary);
+        }
+
+        .map-card.picked .map-status {
+            color: var(--green);
+        }
+
+        .map-card.decider {
+            border-color: rgba(168, 85, 247, 0.3);
+            background: rgba(168, 85, 247, 0.06);
+        }
+
+        .map-card.decider .map-status {
+            color: #a78bfa;
+        }
+
+        /* Case strip */
+        .case-section {
+            max-width: 1200px;
+            margin: 24px auto;
+            padding: 0 24px 100px;
+        }
+
+        .case-strip-bc {
+            display: flex;
+            gap: 6px;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 14px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .case-strip-bc::before,
+        .case-strip-bc::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 50px;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .case-strip-bc::before {
+            left: 0;
+            background: linear-gradient(90deg, var(--bg), transparent);
+        }
+
+        .case-strip-bc::after {
+            right: 0;
+            background: linear-gradient(-90deg, var(--bg), transparent);
+        }
+
+        .case-item-bc {
+            flex-shrink: 0;
+            width: 72px;
+            height: 72px;
+            border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            text-align: center;
+            line-height: 1.3;
+        }
+
+        .case-item-bc.mil { background: rgba(75, 139, 255, 0.08); border: 1px solid rgba(75, 139, 255, 0.2); color: #6ea4ff; }
+        .case-item-bc.rest { background: rgba(136, 71, 255, 0.08); border: 1px solid rgba(136, 71, 255, 0.2); color: #a87bff; }
+        .case-item-bc.class { background: rgba(211, 57, 203, 0.08); border: 1px solid rgba(211, 57, 203, 0.2); color: #d67bd4; }
+        .case-item-bc.cov { background: rgba(235, 75, 75, 0.08); border: 1px solid rgba(235, 75, 75, 0.2); color: #eb6b6b; }
+        .case-item-bc.rare { background: rgba(234, 179, 8, 0.08); border: 1px solid rgba(234, 179, 8, 0.2); color: #eab308; }
+
+        .strip-pointer {
+            position: absolute;
+            top: -1px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 2px;
+            height: calc(100% + 2px);
+            background: var(--text-primary);
+            opacity: 0.5;
+            z-index: 3;
+        }
+
+        /* Bottom action bar */
+        .bottom-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            background: var(--panel);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid var(--border);
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-bc {
+            padding: 10px 28px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-bc.primary {
+            background: var(--blue);
+            color: white;
+        }
+
+        .btn-bc.primary:hover {
+            background: var(--blue-light);
+        }
+
+        .btn-bc.secondary {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--amber-light);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .btn-bc.secondary:hover {
+            background: rgba(245, 158, 11, 0.25);
+        }
+
+        .btn-bc.ghost {
+            background: transparent;
+            color: var(--text-dim);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .btn-bc.ghost:hover {
+            color: var(--text-secondary);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        /* Animations */
+        @keyframes livePulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.8); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Top accent bar -->
+    <div class="top-accent"></div>
+
+    <!-- Concept Label -->
+    <div class="concept-label">
+        <span>#06</span> Esports Broadcast
+    </div>
+
+    <!-- Navigation -->
+    <nav class="nav-bar">
+        <div class="nav-logo">CS2<span class="accent"> PICK</span></div>
+        <button class="nav-tab active">Draft</button>
+        <button class="nav-tab">Profiles</button>
+        <button class="nav-tab">History</button>
+        <button class="nav-tab">Stats</button>
+    </nav>
+
+    <!-- Broadcast header -->
+    <div class="broadcast-header">
+        <span class="live-badge">LIVE</span>
+        <span class="format-badge">BO1</span>
+        <span class="event-name">Friday Night Session #47</span>
+    </div>
+
+    <!-- Match HUD -->
+    <div class="match-hud">
+        <div class="hud-container">
+            <!-- Team A -->
+            <div class="team-section team-a">
+                <div class="team-bar">
+                    <div class="team-hex">
+                        <svg viewBox="0 0 52 52" fill="none">
+                            <polygon points="26,2 49,15 49,37 26,50 3,37 3,15"
+                                stroke="rgba(59,130,246,0.4)" stroke-width="1.5"
+                                fill="rgba(59,130,246,0.06)"/>
+                        </svg>
+                        <span class="hex-initial">A</span>
+                    </div>
+                    <div class="team-info">
+                        <div class="team-name-broadcast">Team Alpha</div>
+                        <div class="team-score"><span class="w">12</span>W &mdash; <span class="l">8</span>L</div>
+                    </div>
+                </div>
+                <div class="player-rows">
+                    <div class="player-row">
+                        <span class="player-number">01</span>
+                        <span class="player-name-bc">Pepa</span>
+                        <span class="player-role">IGL</span>
+                    </div>
+                    <div class="player-row">
+                        <span class="player-number">02</span>
+                        <span class="player-name-bc">Martin</span>
+                        <span class="player-role">Rifle</span>
+                    </div>
+                    <div class="player-row">
+                        <span class="player-number">03</span>
+                        <span class="player-name-bc">Tomas</span>
+                        <span class="player-role">AWP</span>
+                    </div>
+                    <div class="player-row">
+                        <span class="player-number">04</span>
+                        <span class="player-name-bc">David</span>
+                        <span class="player-role">Entry</span>
+                    </div>
+                    <div class="player-row">
+                        <span class="player-number">05</span>
+                        <span class="player-name-bc">Jakub</span>
+                        <span class="player-role">Supp</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Match Center -->
+            <div class="match-center">
+                <div class="match-round">Draft Complete</div>
+                <div class="score-display">
+                    <span class="score-num blue">0</span>
+                    <span class="score-sep">:</span>
+                    <span class="score-num amber">0</span>
+                </div>
+                <div class="match-vs">VS</div>
+                <div class="match-map">Mirage</div>
+            </div>
+
+            <!-- Team B -->
+            <div class="team-section team-b">
+                <div class="team-bar">
+                    <div class="team-hex">
+                        <svg viewBox="0 0 52 52" fill="none">
+                            <polygon points="26,2 49,15 49,37 26,50 3,37 3,15"
+                                stroke="rgba(245,158,11,0.4)" stroke-width="1.5"
+                                fill="rgba(245,158,11,0.06)"/>
+                        </svg>
+                        <span class="hex-initial">B</span>
+                    </div>
+                    <div class="team-info">
+                        <div class="team-name-broadcast">Team Bravo</div>
+                        <div class="team-score"><span class="w">10</span>W &mdash; <span class="l">10</span>L</div>
+                    </div>
+                </div>
+                <div class="player-rows">
+                    <div class="player-row">
+                        <span class="player-role">IGL</span>
+                        <span class="player-name-bc">Adam</span>
+                        <span class="player-number">01</span>
+                    </div>
+                    <div class="player-row">
+                        <span class="player-role">Rifle</span>
+                        <span class="player-name-bc">Ondra</span>
+                        <span class="player-number">02</span>
+                    </div>
+                    <div class="player-row">
+                        <span class="player-role">AWP</span>
+                        <span class="player-name-bc">Filip</span>
+                        <span class="player-number">03</span>
+                    </div>
+                    <div class="player-row">
+                        <span class="player-role">Entry</span>
+                        <span class="player-name-bc">Lukas</span>
+                        <span class="player-number">04</span>
+                    </div>
+                    <div class="player-row">
+                        <span class="player-role">Supp</span>
+                        <span class="player-name-bc">Vojta</span>
+                        <span class="player-number">05</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Map Veto -->
+    <div class="map-veto-section">
+        <div class="section-label">Map Veto</div>
+        <div class="map-veto">
+            <div class="map-card banned">
+                <div class="map-name">Dust 2</div>
+                <div class="map-status">Ban A</div>
+            </div>
+            <div class="map-card banned">
+                <div class="map-name">Anubis</div>
+                <div class="map-status">Ban B</div>
+            </div>
+            <div class="map-card banned">
+                <div class="map-name">Vertigo</div>
+                <div class="map-status">Ban A</div>
+            </div>
+            <div class="map-card banned">
+                <div class="map-name">Ancient</div>
+                <div class="map-status">Ban B</div>
+            </div>
+            <div class="map-card picked">
+                <div class="map-name">Mirage</div>
+                <div class="map-status">Picked</div>
+            </div>
+            <div class="map-card banned">
+                <div class="map-name">Nuke</div>
+                <div class="map-status">Ban A</div>
+            </div>
+            <div class="map-card decider">
+                <div class="map-name">Inferno</div>
+                <div class="map-status">Decider</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Case Strip -->
+    <div class="case-section">
+        <div class="section-label">Case Opening Preview</div>
+        <div class="case-strip-bc">
+            <div class="strip-pointer"></div>
+            <div class="case-item-bc mil">AK-47<br>Slate</div>
+            <div class="case-item-bc mil">M4A4<br>Buzz Kill</div>
+            <div class="case-item-bc rest">USP-S<br>Cortex</div>
+            <div class="case-item-bc mil">Glock<br>Vogue</div>
+            <div class="case-item-bc class">AWP<br>Hyper B.</div>
+            <div class="case-item-bc mil">P250<br>Vino</div>
+            <div class="case-item-bc rest">Deagle<br>Kumicho</div>
+            <div class="case-item-bc cov">AK-47<br>Neon Rev</div>
+            <div class="case-item-bc mil">MP9<br>Mount</div>
+            <div class="case-item-bc rare">Knife<br>Doppler</div>
+            <div class="case-item-bc rest">M4A1-S<br>Hyper B.</div>
+            <div class="case-item-bc mil">Famas<br>Mecha</div>
+            <div class="case-item-bc mil">MAC-10<br>Neon</div>
+        </div>
+    </div>
+
+    <!-- Bottom Bar -->
+    <div class="bottom-bar">
+        <button class="btn-bc ghost">Back</button>
+        <button class="btn-bc primary">Redraft</button>
+        <button class="btn-bc secondary">Start Match</button>
+        <button class="btn-bc ghost">Share</button>
+    </div>
+</body>
+</html>

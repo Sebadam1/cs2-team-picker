@@ -31,7 +31,7 @@ export default function MatchDetail({ match }: MatchDetailProps) {
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="border border-white/10 rounded-xl p-4 bg-white/[0.02]"
+      className="border border-white/[0.06] rounded-lg p-4 bg-white/[0.015]"
     >
       <GlowText color={isCT ? 'ct' : 't'} as="h3" className="text-base mb-3">
         MATCH RESULT
@@ -40,12 +40,12 @@ export default function MatchDetail({ match }: MatchDetailProps) {
       <div className="flex items-center gap-4 mb-3">
         <div className="flex items-center gap-2">
           <span className="text-gray-400 font-rajdhani text-sm">Map:</span>
-          <span className="text-white font-orbitron text-sm font-bold">{match.mapName}</span>
+          <span className="text-[#c8ccd4] font-orbitron text-sm font-bold">{match.mapName}</span>
         </div>
         <div className="flex items-center gap-2">
           <span className="text-gray-400 font-rajdhani text-sm">Winner:</span>
           <span className={`font-orbitron text-sm font-bold ${
-            isCT ? 'text-sky-400' : 'text-amber-400'
+            isCT ? 'text-[#8bafd4]' : 'text-[#d4a86a]'
           }`}>
             {winnerLabel}
           </span>
@@ -60,7 +60,7 @@ export default function MatchDetail({ match }: MatchDetailProps) {
           <img
             src={match.screenshotUrl}
             alt="Scoreboard"
-            className="w-full rounded-lg border border-white/10 cursor-pointer hover:border-white/20 transition-all"
+            className="w-full rounded-lg border border-white/[0.06] cursor-pointer hover:border-white/[0.1] transition-all"
             onClick={() => setShowFullScreenshot(true)}
           />
           {showFullScreenshot && (

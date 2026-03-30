@@ -29,10 +29,10 @@ export default function WinnerPopup({ player, team, isVisible, onDismiss }: Winn
 
   const isCT = team === 'CT';
   const teamColor = isCT ? 'ct' : 't';
-  const borderColor = isCT ? 'border-sky-400' : 'border-amber-400';
+  const borderColor = isCT ? 'border-[#6b8fc2]' : 'border-[#c49a6c]';
   const glowColor = isCT
-    ? 'shadow-[0_0_40px_rgba(79,195,247,0.5),0_0_80px_rgba(79,195,247,0.2)]'
-    : 'shadow-[0_0_40px_rgba(255,179,0,0.5),0_0_80px_rgba(255,179,0,0.2)]';
+    ? 'shadow-[0_0_30px_rgba(107,143,194,0.3),0_0_60px_rgba(107,143,194,0.1)]'
+    : 'shadow-[0_0_30px_rgba(196,154,108,0.3),0_0_60px_rgba(196,154,108,0.1)]';
 
   return (
     <AnimatePresence>
@@ -80,7 +80,7 @@ export default function WinnerPopup({ player, team, isVisible, onDismiss }: Winn
                 }}
                 transition={{ duration: 1.5, ease: 'easeOut', delay: Math.random() * 0.3 }}
                 className={`absolute w-2 h-2 rounded-full ${
-                  isCT ? 'bg-sky-400' : 'bg-amber-400'
+                  isCT ? 'bg-[#6b8fc2]' : 'bg-[#c49a6c]'
                 }`}
                 style={{ top: '50%', left: '50%' }}
               />
@@ -96,7 +96,7 @@ export default function WinnerPopup({ player, team, isVisible, onDismiss }: Winn
               {player.photoUrl ? (
                 <img src={player.photoUrl} alt={player.name} className="w-full h-full object-cover" />
               ) : (
-                <div className="w-full h-full bg-white/10 flex items-center justify-center">
+                <div className="w-full h-full bg-white/[0.06] flex items-center justify-center">
                   <span className="font-orbitron text-4xl font-bold text-gray-400">
                     {player.name.charAt(0).toUpperCase()}
                   </span>
@@ -115,7 +115,7 @@ export default function WinnerPopup({ player, team, isVisible, onDismiss }: Winn
                 {player.name}
               </GlowText>
               <p className="text-gray-400 font-rajdhani text-lg">
-                joins <span className={`font-orbitron font-bold ${isCT ? 'text-sky-400' : 'text-amber-400'}`}>{isCT ? 'Team A' : 'Team B'}</span>!
+                joins <span className={`font-orbitron font-bold ${isCT ? 'text-[#8bafd4]' : 'text-[#d4a86a]'}`}>{isCT ? 'Team A' : 'Team B'}</span>!
               </p>
             </motion.div>
           </motion.div>

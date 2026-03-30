@@ -40,12 +40,12 @@ export default function Modal({ isOpen, onClose, title, children, maxWidth = 'ma
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
             transition={{ type: 'spring', duration: 0.4 }}
-            className={`relative ${maxWidth} w-full bg-[#12121a] border border-white/10 rounded-2xl shadow-2xl overflow-hidden`}
+            className={`relative ${maxWidth} w-full bg-[#12141a] border border-white/[0.06] rounded-xl shadow-2xl overflow-hidden`}
             onClick={(e) => e.stopPropagation()}
           >
             {title && (
-              <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
-                <h2 className="font-orbitron font-bold text-white text-lg">{title}</h2>
+              <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.06]">
+                <h2 className="font-orbitron font-bold text-[#c8ccd4] text-sm uppercase tracking-wider">{title}</h2>
                 <button
                   onClick={onClose}
                   className="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-gray-400 hover:text-white transition-colors cursor-pointer"

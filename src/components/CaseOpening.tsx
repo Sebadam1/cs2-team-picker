@@ -35,23 +35,23 @@ function MiniTeamList({ players, team, max }: { players: Player[]; team: 'CT' | 
               animate={{ opacity: 1, x: 0, scale: 1 }}
               className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border text-sm ${
                 isCT
-                  ? 'bg-sky-500/10 border-sky-400/20'
-                  : 'bg-amber-500/10 border-amber-400/20'
+                  ? 'bg-[#6b8fc2]/10 border-[#6b8fc2]/15'
+                  : 'bg-[#c49a6c]/10 border-[#c49a6c]/15'
               }`}
             >
               {/* Mini photo */}
               <div className={`w-6 h-6 rounded-full overflow-hidden border flex-shrink-0 ${
-                isCT ? 'border-sky-400/30' : 'border-amber-400/30'
+                isCT ? 'border-[#6b8fc2]/20' : 'border-[#c49a6c]/20'
               }`}>
                 {p.photoUrl ? (
                   <img src={p.photoUrl} alt={p.name} className="w-full h-full object-cover" />
                 ) : (
-                  <div className="w-full h-full bg-white/10 flex items-center justify-center text-[8px] text-gray-500 font-bold">
+                  <div className="w-full h-full bg-white/[0.06] flex items-center justify-center text-[8px] text-gray-500 font-bold">
                     {p.name.charAt(0)}
                   </div>
                 )}
               </div>
-              <span className={`font-orbitron text-[10px] ${isCT ? 'text-sky-400' : 'text-amber-400'}`}>
+              <span className={`font-orbitron text-[10px] ${isCT ? 'text-[#8bafd4]' : 'text-[#d4a86a]'}`}>
                 #{p.pickOrder}
               </span>
               <span className="text-white font-rajdhani font-semibold truncate">{p.name}</span>
@@ -111,12 +111,12 @@ export default function CaseOpening() {
   const isCT = state.currentTurn === 'CT';
 
   // Team-colored indicator
-  const indicatorColor = isCT ? 'bg-sky-400' : 'bg-amber-400';
+  const indicatorColor = isCT ? 'bg-[#6b8fc2]' : 'bg-[#c49a6c]';
   const indicatorGlow = isCT
     ? 'shadow-[0_0_12px_rgba(79,195,247,0.9),0_0_30px_rgba(79,195,247,0.4)]'
     : 'shadow-[0_0_12px_rgba(255,179,0,0.9),0_0_30px_rgba(255,179,0,0.4)]';
-  const indicatorBorder = isCT ? 'border-t-sky-400' : 'border-t-amber-400';
-  const indicatorBorderBottom = isCT ? 'border-b-sky-400' : 'border-b-amber-400';
+  const indicatorBorder = isCT ? 'border-t-[#6b8fc2]' : 'border-t-[#c49a6c]';
+  const indicatorBorderBottom = isCT ? 'border-b-[#6b8fc2]' : 'border-b-[#c49a6c]';
   const indicatorDropShadow = isCT
     ? `drop-shadow(0 0 8px ${COLORS.ctGlow})`
     : `drop-shadow(0 0 8px ${COLORS.tGlow})`;
@@ -330,9 +330,9 @@ export default function CaseOpening() {
                 ref={containerRef}
                 className={`overflow-hidden rounded-xl border bg-[#0d0d15] transition-colors duration-500 ${
                   isRolling
-                    ? (isCT ? 'border-sky-400/30' : 'border-amber-400/30')
+                    ? (isCT ? 'border-[#6b8fc2]/20' : 'border-[#c49a6c]/20')
                     : winnerRevealed
-                      ? (isCT ? 'border-sky-400/50' : 'border-amber-400/50')
+                      ? (isCT ? 'border-[#6b8fc2]/40' : 'border-[#c49a6c]/40')
                       : 'border-white/10'
                 }`}
               >
@@ -361,7 +361,7 @@ export default function CaseOpening() {
                           flex-shrink-0 flex flex-col items-center justify-end rounded-lg
                           font-rajdhani font-bold transition-all duration-300 overflow-hidden relative
                           ${isWinner
-                            ? `border-2 ${isCT ? 'border-sky-400 shadow-[0_0_30px_rgba(79,195,247,0.5)]' : 'border-amber-400 shadow-[0_0_30px_rgba(255,179,0,0.5)]'} scale-[1.03]`
+                            ? `border-2 ${isCT ? 'border-[#6b8fc2] shadow-[0_0_20px_rgba(107,143,194,0.3)]' : 'border-[#c49a6c] shadow-[0_0_20px_rgba(196,154,108,0.3)]'} scale-[1.03]`
                             : 'border border-white/10'
                           }
                         `}
@@ -391,7 +391,7 @@ export default function CaseOpening() {
                         ) : (
                           <div className={`absolute inset-0 ${
                             isWinner
-                              ? (isCT ? 'bg-sky-500/20' : 'bg-amber-500/20')
+                              ? (isCT ? 'bg-[#6b8fc2]/15' : 'bg-[#c49a6c]/15')
                               : 'bg-white/5'
                           }`} />
                         )}
@@ -400,7 +400,7 @@ export default function CaseOpening() {
                         {!hasPhoto && (
                           <span className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 font-orbitron text-3xl font-bold ${
                             isWinner
-                              ? (isCT ? 'text-sky-400/40' : 'text-amber-400/40')
+                              ? (isCT ? 'text-[#8bafd4]/40' : 'text-[#d4a86a]/40')
                               : 'text-white/10'
                           }`}>
                             {item.player.name.charAt(0).toUpperCase()}
@@ -428,7 +428,7 @@ export default function CaseOpening() {
                             animate={{ opacity: [0.4, 1, 0.4] }}
                             transition={{ duration: 0.8, repeat: Infinity }}
                             className={`absolute inset-0 border-2 rounded-lg ${
-                              isCT ? 'border-sky-400' : 'border-amber-400'
+                              isCT ? 'border-[#6b8fc2]' : 'border-[#c49a6c]'
                             }`}
                           />
                         )}
@@ -482,14 +482,14 @@ export default function CaseOpening() {
                       className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 bg-white/5 transition-all group ${
                         isRolling
                           ? 'opacity-40 cursor-not-allowed'
-                          : 'hover:bg-white/10 hover:border-white/20 cursor-pointer'
+                          : 'hover:bg-white/[0.06] hover:border-white/20 cursor-pointer'
                       }`}
                     >
                       <div className="w-5 h-5 rounded-full overflow-hidden border border-white/20 flex-shrink-0">
                         {p.photoUrl ? (
                           <img src={p.photoUrl} alt={p.name} className="w-full h-full object-cover" />
                         ) : (
-                          <div className="w-full h-full bg-white/10 flex items-center justify-center text-[7px] text-gray-500 font-bold">
+                          <div className="w-full h-full bg-white/[0.06] flex items-center justify-center text-[7px] text-gray-500 font-bold">
                             {p.name.charAt(0)}
                           </div>
                         )}

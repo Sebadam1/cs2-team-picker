@@ -174,9 +174,9 @@ export default function TeamDisplay() {
           </div>
 
           <div className="flex md:flex-col items-center justify-center gap-2 py-2">
-            <div className="w-12 h-[1px] md:w-[1px] md:h-12 bg-white/10" />
-            <span className="font-orbitron text-xl font-bold text-gray-500">VS</span>
-            <div className="w-12 h-[1px] md:w-[1px] md:h-12 bg-white/10" />
+            <div className="w-12 h-[1px] md:w-[1px] md:h-12 bg-white/[0.06]" />
+            <span className="font-orbitron text-xl font-bold text-gray-600">VS</span>
+            <div className="w-12 h-[1px] md:w-[1px] md:h-12 bg-white/[0.06]" />
           </div>
 
           <div className="flex-1">
@@ -212,7 +212,7 @@ export default function TeamDisplay() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 50 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-5 py-3 rounded-xl border border-white/15 bg-[#1a1a2e]/95 backdrop-blur-md shadow-[0_8px_32px_rgba(0,0,0,0.5)]"
+            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-5 py-3 rounded-lg border border-white/[0.06] bg-[#12141a]/95 backdrop-blur-md shadow-[0_8px_32px_rgba(0,0,0,0.5)]"
           >
             <span className="text-white font-rajdhani font-semibold">
               {selectedPlayer.name}

@@ -18,8 +18,8 @@ interface PlayerCardProps {
 function MapWL({ wins, losses }: { wins: number; losses: number }) {
   return (
     <span className="text-[9px] font-orbitron font-bold leading-none inline-flex gap-[4px]">
-      <span className="text-emerald-400">{wins}</span>
-      <span className="text-red-400">{losses}</span>
+      <span className="text-emerald-400/80">{wins}</span>
+      <span className="text-red-400/80">{losses}</span>
     </span>
   );
 }
@@ -69,16 +69,21 @@ export default function PlayerCard({ player, team }: PlayerCardProps) {
   const totalWins = mapStats.reduce((sum, s) => sum + s.wins, 0);
   const totalLosses = mapStats.reduce((sum, s) => sum + s.losses, 0);
 
-  const teamColors = team === 'CT'
+  const isCT = team === 'CT';
+  const teamColors = isCT
     ? {
-        bg: 'bg-sky-500/10 hover:bg-sky-500/20',
-        border: isSelected ? 'border-sky-400 shadow-[0_0_15px_rgba(79,195,247,0.4)]' : 'border-sky-400/20 hover:border-sky-400/40',
-        badge: 'bg-sky-500/20 text-sky-300',
+        leftBorder: 'border-l-[#6b8fc2]',
+        bg: isSelected ? 'bg-[#6b8fc2]/10' : 'bg-white/[0.02] hover:bg-white/[0.04]',
+        border: isSelected ? 'border-[#6b8fc2]/40 shadow-[0_0_10px_rgba(107,143,194,0.15)]' : 'border-white/[0.04] hover:border-white/[0.08]',
+        badge: 'bg-[#6b8fc2]/15 text-[#8bafd4]',
+        photo: 'border-[#6b8fc2]/20',
       }
     : {
-        bg: 'bg-amber-500/10 hover:bg-amber-500/20',
-        border: isSelected ? 'border-amber-400 shadow-[0_0_15px_rgba(255,179,0,0.4)]' : 'border-amber-400/20 hover:border-amber-400/40',
-        badge: 'bg-amber-500/20 text-amber-300',
+        leftBorder: 'border-l-[#c49a6c]',
+        bg: isSelected ? 'bg-[#c49a6c]/10' : 'bg-white/[0.02] hover:bg-white/[0.04]',
+        border: isSelected ? 'border-[#c49a6c]/40 shadow-[0_0_10px_rgba(196,154,108,0.15)]' : 'border-white/[0.04] hover:border-white/[0.08]',
+        badge: 'bg-[#c49a6c]/15 text-[#d4a86a]',
+        photo: 'border-[#c49a6c]/20',
       };
 
   const handleClick = () => {
@@ -115,46 +120,44 @@ export default function PlayerCard({ player, team }: PlayerCardProps) {
       {...listeners}
       onClick={handleClick}
       className={`
-        flex items-center gap-3 px-4 py-2.5 rounded-lg border
+        flex items-center gap-3 px-4 py-2.5 rounded-md border border-l-[3px]
         cursor-grab active:cursor-grabbing
         transition-colors duration-200 select-none touch-none
-        ${teamColors.bg} ${teamColors.border}
-        ${isSelected ? 'ring-2 ring-white/20' : ''}
-        ${isDragging ? 'shadow-lg shadow-black/40 ring-1 ring-white/10' : ''}
+        ${teamColors.leftBorder} ${teamColors.bg} ${teamColors.border}
+        ${isSelected ? 'ring-1 ring-white/10' : ''}
+        ${isDragging ? 'shadow-lg shadow-black/40' : ''}
       `}
     >
       {/* Left side: handle + photo + badge + name */}
       <div className="flex items-center gap-3 pointer-events-none flex-shrink-0">
         <div className="flex flex-col gap-0.5 flex-shrink-0">
-          <div className="w-4 h-0.5 bg-gray-500 rounded" />
-          <div className="w-4 h-0.5 bg-gray-500 rounded" />
-          <div className="w-4 h-0.5 bg-gray-500 rounded" />
+          <div className="w-4 h-0.5 bg-gray-700 rounded" />
+          <div className="w-4 h-0.5 bg-gray-700 rounded" />
+          <div className="w-4 h-0.5 bg-gray-700 rounded" />
         </div>
 
-        <div className={`w-8 h-8 rounded-full overflow-hidden border flex-shrink-0 ${
-          team === 'CT' ? 'border-sky-400/30' : 'border-amber-400/30'
-        }`}>
+        <div className={`w-8 h-8 rounded-full overflow-hidden border flex-shrink-0 ${teamColors.photo}`}>
           {player.photoUrl ? (
             <img src={player.photoUrl} alt={player.name} className="w-full h-full object-cover" draggable={false} />
           ) : (
-            <div className="w-full h-full bg-white/10 flex items-center justify-center text-gray-500 text-xs font-bold">
+            <div className="w-full h-full bg-white/[0.06] flex items-center justify-center text-gray-600 text-xs font-bold">
               {player.name.charAt(0)}
             </div>
           )}
         </div>
 
-        <span className={`text-xs font-orbitron font-bold px-2 py-0.5 rounded ${teamColors.badge}`}>
+        <span className={`text-[10px] font-orbitron font-bold px-2 py-0.5 rounded ${teamColors.badge}`}>
           #{player.pickOrder}
         </span>
 
-        <span className="text-white font-rajdhani font-semibold text-base whitespace-nowrap">
+        <span className="text-[#c8ccd4] font-rajdhani font-semibold text-base whitespace-nowrap">
           {player.name}
         </span>
 
         <span className="text-[10px] font-orbitron font-bold leading-none inline-flex items-center gap-[3px]">
-          <span className="text-emerald-400">{totalWins}W</span>
-          <span className="text-gray-600">/</span>
-          <span className="text-red-400">{totalLosses}L</span>
+          <span className="text-emerald-400/80">{totalWins}W</span>
+          <span className="text-gray-700">/</span>
+          <span className="text-red-400/80">{totalLosses}L</span>
         </span>
       </div>
 
@@ -165,7 +168,7 @@ export default function PlayerCard({ player, team }: PlayerCardProps) {
             <div key={ci} className="flex flex-col gap-[3px]">
               {col.map((s) => (
                 <div key={s.short} className="flex items-center gap-1.5">
-                  <span className="text-gray-500 font-rajdhani text-[9px] leading-none w-[18px]">{s.short}</span>
+                  <span className="text-gray-600 font-rajdhani text-[9px] leading-none w-[18px]">{s.short}</span>
                   <MapWL wins={s.wins} losses={s.losses} />
                 </div>
               ))}

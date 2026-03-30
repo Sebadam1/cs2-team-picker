@@ -61,8 +61,8 @@ export default function FileUpload({ accept, label, hint, currentUrl, onFileSele
         className={`
           relative border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition-all
           ${dragOver
-            ? 'border-emerald-400/60 bg-emerald-500/10'
-            : 'border-white/10 bg-white/[0.02] hover:border-white/20 hover:bg-white/5'
+            ? 'border-[#8b9bb4]/40 bg-[#8b9bb4]/10'
+            : 'border-white/[0.06] bg-white/[0.02] hover:border-white/[0.1] hover:bg-white/[0.04]'
           }
         `}
       >
@@ -76,13 +76,13 @@ export default function FileUpload({ accept, label, hint, currentUrl, onFileSele
 
         {previewType === 'image' && displayUrl ? (
           <div className="flex flex-col items-center gap-2">
-            <img src={displayUrl} alt="Preview" className="w-20 h-20 rounded-full object-cover border-2 border-white/10" />
+            <img src={displayUrl} alt="Preview" className="w-20 h-20 rounded-full object-cover border-2 border-white/[0.06]" />
             <span className="text-gray-400 text-xs font-rajdhani">{fileName || 'Current photo'}</span>
           </div>
         ) : fileName ? (
           <div className="flex flex-col items-center gap-2">
-            <div className="w-12 h-12 rounded-full bg-emerald-500/10 flex items-center justify-center">
-              <span className="text-emerald-400 text-xl">{previewType === 'audio' ? '🔊' : '📁'}</span>
+            <div className="w-12 h-12 rounded-full bg-[#8b9bb4]/10 flex items-center justify-center">
+              <span className="text-[#8b9bb4] text-xl">{previewType === 'audio' ? '🔊' : '📁'}</span>
             </div>
             <span className="text-gray-300 text-sm font-rajdhani">{fileName}</span>
           </div>
@@ -90,7 +90,7 @@ export default function FileUpload({ accept, label, hint, currentUrl, onFileSele
           <div className="flex flex-col items-center gap-2 py-2">
             <div className="text-gray-500 text-2xl">{previewType === 'image' ? '📷' : '🔊'}</div>
             <p className="text-gray-400 text-sm font-rajdhani">
-              Drag & drop or <span className="text-emerald-400">click to browse</span>
+              Drag & drop or <span className="text-[#8b9bb4]">click to browse</span>
             </p>
             {hint && <p className="text-gray-600 text-xs font-rajdhani">{hint}</p>}
           </div>
