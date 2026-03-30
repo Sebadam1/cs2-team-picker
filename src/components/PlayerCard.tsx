@@ -15,11 +15,14 @@ interface PlayerCardProps {
   team: TeamSide;
 }
 
-function MapDots({ wins, losses }: { wins: number; losses: number }) {
-  const dots = [];
-  for (let i = 0; i < wins; i++) dots.push(<span key={`w${i}`} className="w-[6px] h-[6px] rounded-full bg-emerald-400 inline-block" />);
-  for (let i = 0; i < losses; i++) dots.push(<span key={`l${i}`} className="w-[6px] h-[6px] rounded-full bg-red-400 inline-block" />);
-  return <div className="flex gap-[2px] items-center">{dots}</div>;
+function MapWL({ wins, losses }: { wins: number; losses: number }) {
+  return (
+    <span className="text-[9px] font-orbitron font-bold leading-none">
+      <span className="text-emerald-400">{wins}</span>
+      <span className="text-gray-600">:</span>
+      <span className="text-red-400">{losses}</span>
+    </span>
+  );
 }
 
 export default function PlayerCard({ player, team }: PlayerCardProps) {
@@ -153,7 +156,7 @@ export default function PlayerCard({ player, team }: PlayerCardProps) {
               {col.map((s) => (
                 <div key={s.short} className="flex items-center gap-1.5">
                   <span className="text-gray-500 font-rajdhani text-[9px] leading-none w-[18px]">{s.short}</span>
-                  <MapDots wins={s.wins} losses={s.losses} />
+                  <MapWL wins={s.wins} losses={s.losses} />
                 </div>
               ))}
             </div>
