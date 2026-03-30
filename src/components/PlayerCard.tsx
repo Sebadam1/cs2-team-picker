@@ -15,6 +15,13 @@ interface PlayerCardProps {
   team: TeamSide;
 }
 
+function MapDots({ wins, losses }: { wins: number; losses: number }) {
+  const dots = [];
+  for (let i = 0; i < wins; i++) dots.push(<span key={`w${i}`} className="w-[6px] h-[6px] rounded-full bg-emerald-400 inline-block" />);
+  for (let i = 0; i < losses; i++) dots.push(<span key={`l${i}`} className="w-[6px] h-[6px] rounded-full bg-red-400 inline-block" />);
+  return <div className="flex gap-[2px] items-center">{dots}</div>;
+}
+
 export default function PlayerCard({ player, team }: PlayerCardProps) {
   const { state, dispatch } = useGame();
   const { drafts, matches } = useHistory();
@@ -41,7 +48,6 @@ export default function PlayerCard({ player, team }: PlayerCardProps) {
     position: 'relative' as const,
   };
 
-  // Per-map W/L for this player
   const mapStats = useMemo(() => {
     if (!player.profileId || matches.length === 0) return [];
     const allStats = computePlayerStats(profiles, drafts, matches);
@@ -70,7 +76,6 @@ export default function PlayerCard({ player, team }: PlayerCardProps) {
 
   const handleClick = () => {
     if (isDragging) return;
-
     if (state.selectedForSwap === null) {
       dispatch({ type: 'SELECT_FOR_SWAP', payload: player.id });
     } else if (state.selectedForSwap === player.id) {
@@ -90,6 +95,11 @@ export default function PlayerCard({ player, team }: PlayerCardProps) {
     }
   };
 
+  // Split stats into 2 columns for compact grid
+  const mid = Math.ceil(mapStats.length / 2);
+  const col1 = mapStats.slice(0, mid);
+  const col2 = mapStats.slice(mid);
+
   return (
     <div
       ref={setNodeRef}
@@ -98,7 +108,7 @@ export default function PlayerCard({ player, team }: PlayerCardProps) {
       {...listeners}
       onClick={handleClick}
       className={`
-        flex items-center gap-3 px-4 py-3 rounded-lg border
+        flex items-center gap-3 px-4 py-2.5 rounded-lg border
         cursor-grab active:cursor-grabbing
         transition-colors duration-200 select-none touch-none
         ${teamColors.bg} ${teamColors.border}
@@ -106,15 +116,14 @@ export default function PlayerCard({ player, team }: PlayerCardProps) {
         ${isDragging ? 'shadow-lg shadow-black/40 ring-1 ring-white/10' : ''}
       `}
     >
+      {/* Left side: handle + photo + badge + name */}
       <div className="flex items-center gap-3 pointer-events-none flex-shrink-0">
-        {/* Drag handle indicator */}
         <div className="flex flex-col gap-0.5 flex-shrink-0">
           <div className="w-4 h-0.5 bg-gray-500 rounded" />
           <div className="w-4 h-0.5 bg-gray-500 rounded" />
           <div className="w-4 h-0.5 bg-gray-500 rounded" />
         </div>
 
-        {/* Photo */}
         <div className={`w-8 h-8 rounded-full overflow-hidden border flex-shrink-0 ${
           team === 'CT' ? 'border-sky-400/30' : 'border-amber-400/30'
         }`}>
@@ -127,31 +136,26 @@ export default function PlayerCard({ player, team }: PlayerCardProps) {
           )}
         </div>
 
-        {/* Pick order badge */}
         <span className={`text-xs font-orbitron font-bold px-2 py-0.5 rounded ${teamColors.badge}`}>
           #{player.pickOrder}
         </span>
 
-        {/* Player name */}
         <span className="text-white font-rajdhani font-semibold text-base whitespace-nowrap">
           {player.name}
         </span>
       </div>
 
-      {/* Mini stats table inline */}
+      {/* Right side: 2-column mini map grid with dots */}
       {hasStats && (
-        <div className="flex items-center gap-1.5 ml-auto pointer-events-none flex-shrink-0">
-          {mapStats.map((s) => (
-            <div
-              key={s.short}
-              className="flex flex-col items-center px-1 py-0.5 rounded bg-white/5 min-w-[28px]"
-            >
-              <span className="text-gray-500 font-rajdhani text-[8px] leading-none">{s.short}</span>
-              <span className="text-[9px] font-orbitron font-bold leading-tight">
-                <span className="text-emerald-400">{s.wins}</span>
-                <span className="text-gray-600">:</span>
-                <span className="text-red-400">{s.losses}</span>
-              </span>
+        <div className="flex gap-3 ml-auto pointer-events-none flex-shrink-0">
+          {[col1, col2].map((col, ci) => (
+            <div key={ci} className="flex flex-col gap-[3px]">
+              {col.map((s) => (
+                <div key={s.short} className="flex items-center gap-1.5">
+                  <span className="text-gray-500 font-rajdhani text-[9px] leading-none w-[18px]">{s.short}</span>
+                  <MapDots wins={s.wins} losses={s.losses} />
+                </div>
+              ))}
             </div>
           ))}
         </div>
