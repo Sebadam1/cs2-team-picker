@@ -150,9 +150,10 @@ export default function PlayerCard({ player, team }: PlayerCardProps) {
         </span>
 
         {hasStats && (
-          <span className="text-[10px] font-orbitron font-bold leading-none inline-flex gap-[4px]">
-            <span className="text-emerald-400">{totalWins}</span>
-            <span className="text-red-400">{totalLosses}</span>
+          <span className="text-[10px] font-orbitron font-bold leading-none inline-flex items-center gap-[3px]">
+            <span className="text-emerald-400">{totalWins}W</span>
+            <span className="text-gray-600">/</span>
+            <span className="text-red-400">{totalLosses}L</span>
           </span>
         )}
       </div>
