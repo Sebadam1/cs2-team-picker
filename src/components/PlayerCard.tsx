@@ -54,6 +54,10 @@ export default function PlayerCard({ player, team }: PlayerCardProps) {
       }));
   }, [player.profileId, profiles, drafts, matches]);
 
+  const totalWins = mapStats.reduce((sum, s) => sum + s.wins, 0);
+  const totalLosses = mapStats.reduce((sum, s) => sum + s.losses, 0);
+  const hasStats = mapStats.length > 0;
+
   const teamColors = team === 'CT'
     ? {
         bg: 'bg-sky-500/10 hover:bg-sky-500/20',
@@ -131,10 +135,17 @@ export default function PlayerCard({ player, team }: PlayerCardProps) {
           #{player.pickOrder}
         </span>
 
-        {/* Player name */}
+        {/* Player name + total W/L */}
         <span className="text-white font-rajdhani font-semibold text-base flex-1">
           {player.name}
         </span>
+        {hasStats && (
+          <span className="text-[10px] font-orbitron font-bold flex-shrink-0">
+            <span className="text-emerald-400">{totalWins}W</span>
+            <span className="text-gray-600">/</span>
+            <span className="text-red-400">{totalLosses}L</span>
+          </span>
+        )}
       </div>
 
       {/* Bottom row: per-map W/L stats */}

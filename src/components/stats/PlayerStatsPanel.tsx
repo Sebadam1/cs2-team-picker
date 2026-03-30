@@ -9,17 +9,53 @@ import { computePlayerStats } from '@/lib/utils';
 import type { CS2Map } from '@/lib/types';
 import GlowText from '../ui/GlowText';
 
+type SortKey = 'name' | 'wins' | 'losses' | 'total' | 'winRate';
+type SortDir = 'asc' | 'desc';
+
+function SortHeader({ label, sortKey, currentKey, currentDir, onSort }: {
+  label: string;
+  sortKey: SortKey;
+  currentKey: SortKey;
+  currentDir: SortDir;
+  onSort: (key: SortKey) => void;
+}) {
+  const isActive = currentKey === sortKey;
+  return (
+    <button
+      onClick={() => onSort(sortKey)}
+      className={`font-orbitron text-xs cursor-pointer transition-colors select-none flex items-center gap-0.5 ${
+        sortKey === 'name' ? 'justify-start' : 'justify-center'
+      } ${isActive ? 'text-emerald-400' : 'text-gray-400 hover:text-gray-200'}`}
+    >
+      {label}
+      {isActive && (
+        <span className="text-[10px]">{currentDir === 'asc' ? '▲' : '▼'}</span>
+      )}
+    </button>
+  );
+}
+
 export default function PlayerStatsPanel() {
   const { profiles } = useProfiles();
   const { drafts, matches, loading } = useHistory();
   const [mapFilter, setMapFilter] = useState<CS2Map | 'all'>('all');
+  const [sortKey, setSortKey] = useState<SortKey>('winRate');
+  const [sortDir, setSortDir] = useState<SortDir>('desc');
 
   const allStats = useMemo(
     () => computePlayerStats(profiles, drafts, matches),
     [profiles, drafts, matches]
   );
 
-  // Aggregate stats per player (across maps or filtered by map)
+  const handleSort = (key: SortKey) => {
+    if (sortKey === key) {
+      setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortKey(key);
+      setSortDir(key === 'name' ? 'asc' : 'desc');
+    }
+  };
+
   const playerSummary = useMemo(() => {
     const filtered = mapFilter === 'all' ? allStats : allStats.filter((s) => s.mapName === mapFilter);
 
@@ -36,10 +72,20 @@ export default function PlayerStatsPanel() {
       p.total += stat.totalGames;
     }
 
-    return Array.from(byPlayer.values())
-      .map((p) => ({ ...p, winRate: p.total > 0 ? Math.round((p.wins / p.total) * 100) : 0 }))
-      .sort((a, b) => b.winRate - a.winRate || b.total - a.total);
-  }, [allStats, mapFilter]);
+    const rows = Array.from(byPlayer.values())
+      .map((p) => ({ ...p, winRate: p.total > 0 ? Math.round((p.wins / p.total) * 100) : 0 }));
+
+    const dir = sortDir === 'asc' ? 1 : -1;
+    rows.sort((a, b) => {
+      if (sortKey === 'name') {
+        return dir * a.name.localeCompare(b.name);
+      }
+      const diff = (a[sortKey] - b[sortKey]) * dir;
+      return diff !== 0 ? diff : b.total - a.total;
+    });
+
+    return rows;
+  }, [allStats, mapFilter, sortKey, sortDir]);
 
   if (loading) {
     return (
@@ -98,11 +144,11 @@ export default function PlayerStatsPanel() {
         <div className="border border-white/10 rounded-xl overflow-hidden">
           {/* Header */}
           <div className="grid grid-cols-[1fr_80px_80px_80px_120px] gap-2 px-4 py-3 bg-white/5 border-b border-white/10">
-            <span className="text-gray-400 font-orbitron text-xs">PLAYER</span>
-            <span className="text-gray-400 font-orbitron text-xs text-center">W</span>
-            <span className="text-gray-400 font-orbitron text-xs text-center">L</span>
-            <span className="text-gray-400 font-orbitron text-xs text-center">TOTAL</span>
-            <span className="text-gray-400 font-orbitron text-xs text-center">WINRATE</span>
+            <SortHeader label="PLAYER" sortKey="name" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
+            <SortHeader label="W" sortKey="wins" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
+            <SortHeader label="L" sortKey="losses" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
+            <SortHeader label="TOTAL" sortKey="total" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
+            <SortHeader label="WINRATE" sortKey="winRate" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
           </div>
 
           {/* Rows */}
