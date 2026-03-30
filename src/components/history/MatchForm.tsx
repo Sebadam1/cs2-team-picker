@@ -26,8 +26,8 @@ export default function MatchForm({ draftId, onComplete, onCancel, ctTeamName, t
   const [error, setError] = useState<string | null>(null);
 
   // Resolve team names from draft if not provided as props
-  let ctLabel = ctTeamName || 'CT';
-  let tLabel = tTeamName || 'T';
+  let ctLabel = ctTeamName || 'Team A';
+  let tLabel = tTeamName || 'Team B';
   if (!ctTeamName || !tTeamName) {
     const draft = drafts.find((d) => d.id === draftId);
     if (draft) {

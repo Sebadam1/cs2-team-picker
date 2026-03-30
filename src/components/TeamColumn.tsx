@@ -21,7 +21,7 @@ export default function TeamColumn({ team, players }: TeamColumnProps) {
 
   // Dynamic team name: first player's name + "'s Team"
   const captain = players[0];
-  const teamName = captain ? `${captain.name}'s Team` : (isCT ? 'Team 1' : 'Team 2');
+  const teamName = captain ? `${captain.name}'s Team` : (isCT ? 'Team A' : 'Team B');
 
   const teamConfig = isCT
     ? {

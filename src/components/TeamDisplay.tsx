@@ -135,8 +135,8 @@ export default function TeamDisplay() {
   // Dynamic team names for the header
   const ctCaptain = state.teamCT[0];
   const tCaptain = state.teamT[0];
-  const ctTeamName = ctCaptain ? `${ctCaptain.name}'s Team` : 'Team 1';
-  const tTeamName = tCaptain ? `${tCaptain.name}'s Team` : 'Team 2';
+  const ctTeamName = ctCaptain ? `${ctCaptain.name}'s Team` : 'Team A';
+  const tTeamName = tCaptain ? `${tCaptain.name}'s Team` : 'Team B';
 
   // Find selected player name for the toast
   const selectedPlayer = state.selectedForSwap

@@ -115,7 +115,7 @@ export default function WinnerPopup({ player, team, isVisible, onDismiss }: Winn
                 {player.name}
               </GlowText>
               <p className="text-gray-400 font-rajdhani text-lg">
-                joins <span className={`font-orbitron font-bold ${isCT ? 'text-sky-400' : 'text-amber-400'}`}>{team}</span>!
+                joins <span className={`font-orbitron font-bold ${isCT ? 'text-sky-400' : 'text-amber-400'}`}>{isCT ? 'Team A' : 'Team B'}</span>!
               </p>
             </motion.div>
           </motion.div>

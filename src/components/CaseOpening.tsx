@@ -11,17 +11,16 @@ import GlowText from './ui/GlowText';
 import WinnerPopup from './case-opening/WinnerPopup';
 import type { Player } from '@/lib/types';
 
-const ITEM_WIDTH = 180;
+const ITEM_SIZE = 140;
 const ITEM_GAP = 5;
-const ITEM_TOTAL = ITEM_WIDTH + ITEM_GAP;
+const ITEM_TOTAL = ITEM_SIZE + ITEM_GAP;
 const VISIBLE_ITEMS = 40;
 const WINNER_INDEX = 30;
-const ITEM_HEIGHT = 110;
 
 function MiniTeamList({ players, team, max }: { players: Player[]; team: 'CT' | 'T'; max: number }) {
   const isCT = team === 'CT';
   const captain = players[0];
-  const teamName = captain ? `${captain.name}'s` : (isCT ? 'Team 1' : 'Team 2');
+  const teamName = captain ? `${captain.name}'s` : (isCT ? 'Team A' : 'Team B');
   return (
     <div className="w-full lg:w-[200px] lg:min-w-[180px]">
       <div className="text-center mb-2">
@@ -97,7 +96,6 @@ export default function CaseOpening() {
   const [winnerRevealed, setWinnerRevealed] = useState(false);
   const [currentWinner, setCurrentWinner] = useState<Player | null>(null);
   const [showWinnerPopup, setShowWinnerPopup] = useState(false);
-  const [screenShake, setScreenShake] = useState(false);
   const [dimBackground, setDimBackground] = useState(false);
   const [indicatorPulse, setIndicatorPulse] = useState(false);
   const [nearEnd, setNearEnd] = useState(false);
@@ -107,10 +105,9 @@ export default function CaseOpening() {
   const animRef = useRef<number>(0);
   const startTimeRef = useRef(0);
   const lastTickIndexRef = useRef(-1);
-  const durationRef = useRef(6000);
 
   const turnColor = state.currentTurn === 'CT' ? 'ct' : 't';
-  const turnLabel = state.currentTurn === 'CT' ? 'COUNTER-TERRORISTS' : 'TERRORISTS';
+  const turnLabel = state.currentTurn === 'CT' ? 'TEAM A' : 'TEAM B';
   const isCT = state.currentTurn === 'CT';
 
   // Team-colored indicator
@@ -142,18 +139,14 @@ export default function CaseOpening() {
     setStripScale(1);
     dispatch({ type: 'START_SPIN' });
 
-    // Screen shake + case open sound
-    setScreenShake(true);
     playCaseOpen();
-    setTimeout(() => setScreenShake(false), 300);
 
     const containerWidth = containerRef.current?.offsetWidth || 700;
-    const targetOffset = WINNER_INDEX * ITEM_TOTAL + ITEM_WIDTH / 2 - containerWidth / 2;
-    const finalTarget = targetOffset + (Math.random() - 0.5) * (ITEM_WIDTH * 0.6);
+    const targetOffset = WINNER_INDEX * ITEM_TOTAL + ITEM_SIZE / 2 - containerWidth / 2;
+    const finalTarget = targetOffset + (Math.random() - 0.5) * (ITEM_SIZE * 0.6);
 
     // Random duration between 3s and 10s
     const DURATION = 3000 + Math.random() * 7000;
-    durationRef.current = DURATION;
     startTimeRef.current = performance.now();
     lastTickIndexRef.current = -1;
 
@@ -168,7 +161,6 @@ export default function CaseOpening() {
       // "Nearly there" zoom effect — scale up strip in last 15%
       if (progress > 0.85) {
         const zoomPhase = (progress - 0.85) / 0.15;
-        // Smooth zoom from 1.0 to 1.06
         const scale = 1 + 0.06 * Math.sin(zoomPhase * Math.PI * 0.5);
         setStripScale(scale);
       }
@@ -192,7 +184,6 @@ export default function CaseOpening() {
       if (progress < 1) {
         animRef.current = requestAnimationFrame(animate);
       } else {
-        // Done - dramatic pause then reveal
         setIsRolling(false);
         setIndicatorPulse(false);
         setWinnerRevealed(true);
@@ -267,11 +258,7 @@ export default function CaseOpening() {
 
       <motion.div
         initial={{ opacity: 0 }}
-        animate={{
-          opacity: 1,
-          x: screenShake ? [0, -4, 4, -3, 3, -1, 0] : 0,
-        }}
-        transition={screenShake ? { duration: 0.35 } : undefined}
+        animate={{ opacity: 1 }}
         className="w-full max-w-6xl mx-auto flex flex-col items-center gap-4 relative z-10"
       >
         {/* Header */}
@@ -285,7 +272,7 @@ export default function CaseOpening() {
         </div>
 
         <div className="w-full flex flex-col lg:flex-row items-center lg:items-start gap-4 lg:gap-6">
-          {/* CT - desktop only */}
+          {/* Team A - desktop only */}
           <div className="hidden lg:block">
             <MiniTeamList players={state.teamCT} team="CT" max={5} />
           </div>
@@ -316,7 +303,7 @@ export default function CaseOpening() {
                   style={{ filter: indicatorDropShadow }} />
               </div>
 
-              {/* Gradient edges - wider for bigger strip */}
+              {/* Gradient edges */}
               <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-[#0a0a0f] to-transparent z-10 pointer-events-none" />
               <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-[#0a0a0f] to-transparent z-10 pointer-events-none" />
               {/* Top/bottom vignette */}
@@ -381,8 +368,8 @@ export default function CaseOpening() {
                           }
                         `}
                         style={{
-                          width: `${ITEM_WIDTH}px`,
-                          height: `${ITEM_HEIGHT}px`,
+                          width: `${ITEM_SIZE}px`,
+                          height: `${ITEM_SIZE}px`,
                         }}
                       >
                         {/* Photo background */}
@@ -413,7 +400,7 @@ export default function CaseOpening() {
 
                         {/* Initials for non-photo */}
                         {!hasPhoto && (
-                          <span className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 font-orbitron text-2xl font-bold ${
+                          <span className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 font-orbitron text-3xl font-bold ${
                             isWinner
                               ? (isCT ? 'text-sky-400/40' : 'text-amber-400/40')
                               : 'text-white/10'
@@ -423,7 +410,7 @@ export default function CaseOpening() {
                         )}
 
                         {/* Name bar at bottom */}
-                        <div className={`relative z-10 w-full px-3 py-2 ${
+                        <div className={`relative z-10 w-full px-2 py-2 ${
                           isWinner
                             ? (isCT ? 'bg-sky-950/60' : 'bg-amber-950/60')
                             : 'bg-black/40'
@@ -482,8 +469,8 @@ export default function CaseOpening() {
               </div>
             </div>
 
-            {/* Remaining players list */}
-            {!isRolling && state.availablePlayers.length > 0 && (
+            {/* Remaining players list - always visible */}
+            {state.availablePlayers.length > 0 && (
               <div className="w-full max-w-[750px]">
                 <p className="text-gray-500 font-orbitron text-[10px] uppercase tracking-wider text-center mb-2">
                   Left to draw ({state.availablePlayers.length})
@@ -493,7 +480,12 @@ export default function CaseOpening() {
                     <button
                       key={p.id}
                       onClick={() => handleDirectPick(p)}
-                      className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/20 transition-all cursor-pointer group"
+                      disabled={isRolling}
+                      className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 bg-white/5 transition-all group ${
+                        isRolling
+                          ? 'opacity-40 cursor-not-allowed'
+                          : 'hover:bg-white/10 hover:border-white/20 cursor-pointer'
+                      }`}
                     >
                       <div className="w-5 h-5 rounded-full overflow-hidden border border-white/20 flex-shrink-0">
                         {p.photoUrl ? (
@@ -504,7 +496,9 @@ export default function CaseOpening() {
                           </div>
                         )}
                       </div>
-                      <span className="text-gray-400 group-hover:text-white font-rajdhani font-semibold text-sm transition-colors">
+                      <span className={`font-rajdhani font-semibold text-sm transition-colors ${
+                        isRolling ? 'text-gray-600' : 'text-gray-400 group-hover:text-white'
+                      }`}>
                         {p.name}
                       </span>
                     </button>
@@ -514,7 +508,7 @@ export default function CaseOpening() {
             )}
           </div>
 
-          {/* T - desktop only */}
+          {/* Team B - desktop only */}
           <div className="hidden lg:block">
             <MiniTeamList players={state.teamT} team="T" max={5} />
           </div>

@@ -18,7 +18,7 @@ export default function MatchDetail({ match }: MatchDetailProps) {
   const isCT = match.winningTeam === 'CT';
 
   // Resolve winning team captain name
-  let winnerLabel: string = match.winningTeam;
+  let winnerLabel: string = isCT ? 'Team A' : 'Team B';
   const draft = drafts.find((d) => d.id === match.draftId);
   if (draft) {
     const winningPicks = match.winningTeam === 'CT' ? draft.teamCT : draft.teamT;

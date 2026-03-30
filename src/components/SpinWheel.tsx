@@ -12,7 +12,7 @@ import type { Player } from '@/lib/types';
 function MiniTeamList({ players, team, max }: { players: Player[]; team: 'CT' | 'T'; max: number }) {
   const isCT = team === 'CT';
   const captain = players[0];
-  const teamName = captain ? `${captain.name}'s` : (isCT ? 'Team 1' : 'Team 2');
+  const teamName = captain ? `${captain.name}'s` : (isCT ? 'Team A' : 'Team B');
   return (
     <div className="w-full lg:w-[200px] lg:min-w-[180px]">
       <div className="text-center mb-2">
@@ -88,7 +88,7 @@ export default function SpinWheel() {
   }, [state.isSpinning, state.availablePlayers, dispatch, spin]);
 
   const turnColor = state.currentTurn === 'CT' ? 'ct' : 't';
-  const turnLabel = state.currentTurn === 'CT' ? 'COUNTER-TERRORISTS' : 'TERRORISTS';
+  const turnLabel = state.currentTurn === 'CT' ? 'TEAM A' : 'TEAM B';
 
   return (
     <motion.div

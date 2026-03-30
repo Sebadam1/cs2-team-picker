@@ -27,7 +27,7 @@ function TeamPickList({ picks, profiles, team }: {
   const isCT = team === 'CT';
   const sorted = [...picks].sort((a, b) => a.pickOrder - b.pickOrder);
   const captain = sorted[0] ? profiles.get(sorted[0].profileId) : null;
-  const teamName = captain ? `${captain.name}'s Team` : (isCT ? 'Team 1' : 'Team 2');
+  const teamName = captain ? `${captain.name}'s Team` : (isCT ? 'Team A' : 'Team B');
 
   return (
     <div className="flex-1">
