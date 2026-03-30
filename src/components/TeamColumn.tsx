@@ -17,10 +17,14 @@ export default function TeamColumn({ team, players }: TeamColumnProps) {
     data: { team },
   });
 
-  const teamConfig = team === 'CT'
+  const isCT = team === 'CT';
+
+  // Dynamic team name: first player's name + "'s Team"
+  const captain = players[0];
+  const teamName = captain ? `${captain.name}'s Team` : (isCT ? 'Team 1' : 'Team 2');
+
+  const teamConfig = isCT
     ? {
-        label: 'COUNTER-TERRORISTS',
-        shortLabel: 'CT',
         color: 'ct' as const,
         borderColor: 'border-sky-400/30',
         bgHover: 'bg-sky-500/10',
@@ -31,8 +35,6 @@ export default function TeamColumn({ team, players }: TeamColumnProps) {
         ),
       }
     : {
-        label: 'TERRORISTS',
-        shortLabel: 'T',
         color: 't' as const,
         borderColor: 'border-amber-400/30',
         bgHover: 'bg-amber-500/10',
@@ -56,15 +58,12 @@ export default function TeamColumn({ team, players }: TeamColumnProps) {
       {/* Team header */}
       <div className="flex items-center gap-3 mb-4 pb-3 border-b border-white/10">
         {teamConfig.shield}
-        <div>
-          <GlowText color={teamConfig.color} as="h2" className="text-xl">
-            {teamConfig.shortLabel}
+        <div className="min-w-0">
+          <GlowText color={teamConfig.color} as="h2" className="text-lg truncate">
+            {teamName}
           </GlowText>
-          <p className="text-gray-500 text-xs font-rajdhani uppercase tracking-wider">
-            {teamConfig.label}
-          </p>
         </div>
-        <span className="ml-auto text-gray-500 font-orbitron text-sm">
+        <span className="ml-auto text-gray-500 font-orbitron text-sm flex-shrink-0">
           {players.length}/5
         </span>
       </div>

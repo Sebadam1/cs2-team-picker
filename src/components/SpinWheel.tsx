@@ -11,10 +11,12 @@ import type { Player } from '@/lib/types';
 
 function MiniTeamList({ players, team, max }: { players: Player[]; team: 'CT' | 'T'; max: number }) {
   const isCT = team === 'CT';
+  const captain = players[0];
+  const teamName = captain ? `${captain.name}'s` : (isCT ? 'Team 1' : 'Team 2');
   return (
     <div className="w-full lg:w-[200px] lg:min-w-[180px]">
       <div className="text-center mb-2">
-        <GlowText color={isCT ? 'ct' : 't'} as="h3" className="text-base">{team}</GlowText>
+        <GlowText color={isCT ? 'ct' : 't'} as="h3" className="text-sm truncate">{teamName}</GlowText>
       </div>
       <div className="space-y-1.5">
         <AnimatePresence>

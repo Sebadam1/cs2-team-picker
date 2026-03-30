@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { motion } from 'motion/react';
+import { useHistory } from '@/context/HistoryContext';
+import { useProfiles } from '@/context/ProfileContext';
 import type { Match } from '@/lib/types';
 import GlowText from '../ui/GlowText';
 
@@ -11,7 +13,19 @@ interface MatchDetailProps {
 
 export default function MatchDetail({ match }: MatchDetailProps) {
   const [showFullScreenshot, setShowFullScreenshot] = useState(false);
+  const { drafts } = useHistory();
+  const { profiles } = useProfiles();
   const isCT = match.winningTeam === 'CT';
+
+  // Resolve winning team captain name
+  let winnerLabel: string = match.winningTeam;
+  const draft = drafts.find((d) => d.id === match.draftId);
+  if (draft) {
+    const winningPicks = match.winningTeam === 'CT' ? draft.teamCT : draft.teamT;
+    const sorted = [...winningPicks].sort((a, b) => a.pickOrder - b.pickOrder);
+    const captain = profiles.find((p) => p.id === sorted[0]?.profileId);
+    if (captain) winnerLabel = `${captain.name}'s Team`;
+  }
 
   return (
     <motion.div
@@ -33,7 +47,7 @@ export default function MatchDetail({ match }: MatchDetailProps) {
           <span className={`font-orbitron text-sm font-bold ${
             isCT ? 'text-sky-400' : 'text-amber-400'
           }`}>
-            {match.winningTeam}
+            {winnerLabel}
           </span>
         </div>
         <span className="text-gray-500 font-rajdhani text-xs">

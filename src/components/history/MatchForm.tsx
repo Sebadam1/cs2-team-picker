@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { useHistory } from '@/context/HistoryContext';
+import { useProfiles } from '@/context/ProfileContext';
 import { CS2_MAPS } from '@/lib/constants';
 import type { CS2Map, TeamSide } from '@/lib/types';
 import Button from '../ui/Button';
@@ -11,15 +12,33 @@ interface MatchFormProps {
   draftId: string;
   onComplete: () => void;
   onCancel: () => void;
+  ctTeamName?: string;
+  tTeamName?: string;
 }
 
-export default function MatchForm({ draftId, onComplete, onCancel }: MatchFormProps) {
-  const { saveMatch } = useHistory();
+export default function MatchForm({ draftId, onComplete, onCancel, ctTeamName, tTeamName }: MatchFormProps) {
+  const { saveMatch, drafts } = useHistory();
+  const { profiles } = useProfiles();
   const [mapName, setMapName] = useState<CS2Map>('Mirage');
   const [winningTeam, setWinningTeam] = useState<TeamSide>('CT');
   const [screenshot, setScreenshot] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Resolve team names from draft if not provided as props
+  let ctLabel = ctTeamName || 'CT';
+  let tLabel = tTeamName || 'T';
+  if (!ctTeamName || !tTeamName) {
+    const draft = drafts.find((d) => d.id === draftId);
+    if (draft) {
+      const ctSorted = [...draft.teamCT].sort((a, b) => a.pickOrder - b.pickOrder);
+      const tSorted = [...draft.teamT].sort((a, b) => a.pickOrder - b.pickOrder);
+      const ctCaptain = profiles.find((p) => p.id === ctSorted[0]?.profileId);
+      const tCaptain = profiles.find((p) => p.id === tSorted[0]?.profileId);
+      if (!ctTeamName && ctCaptain) ctLabel = `${ctCaptain.name}'s`;
+      if (!tTeamName && tCaptain) tLabel = `${tCaptain.name}'s`;
+    }
+  }
 
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
@@ -73,27 +92,27 @@ export default function MatchForm({ draftId, onComplete, onCancel }: MatchFormPr
             type="button"
             onClick={() => setWinningTeam('CT')}
             className={`
-              flex-1 px-4 py-3 rounded-xl border-2 font-orbitron font-bold transition-all cursor-pointer
+              flex-1 px-4 py-3 rounded-xl border-2 font-orbitron font-bold text-sm transition-all cursor-pointer
               ${winningTeam === 'CT'
                 ? 'border-sky-400/60 bg-sky-500/10 text-sky-400 shadow-[0_0_20px_rgba(79,195,247,0.2)]'
                 : 'border-white/10 bg-white/[0.02] text-gray-500 hover:border-white/20'
               }
             `}
           >
-            CT
+            {ctLabel}
           </button>
           <button
             type="button"
             onClick={() => setWinningTeam('T')}
             className={`
-              flex-1 px-4 py-3 rounded-xl border-2 font-orbitron font-bold transition-all cursor-pointer
+              flex-1 px-4 py-3 rounded-xl border-2 font-orbitron font-bold text-sm transition-all cursor-pointer
               ${winningTeam === 'T'
                 ? 'border-amber-400/60 bg-amber-500/10 text-amber-400 shadow-[0_0_20px_rgba(255,179,0,0.2)]'
                 : 'border-white/10 bg-white/[0.02] text-gray-500 hover:border-white/20'
               }
             `}
           >
-            T
+            {tLabel}
           </button>
         </div>
       </div>

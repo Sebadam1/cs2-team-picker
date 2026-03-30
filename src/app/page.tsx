@@ -1,8 +1,7 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import { GameProvider, useGame } from '@/context/GameContext';
-import { useHistory } from '@/context/HistoryContext';
 import ParticleBackground from '@/components/ParticleBackground';
 import ProfileSelector from '@/components/profiles/ProfileSelector';
 import PlayerInput from '@/components/PlayerInput';
@@ -23,51 +22,8 @@ const TABS = [
 ];
 
 function DraftContent() {
-  const { state, dispatch } = useGame();
-  const { saveDraft } = useHistory();
+  const { state } = useGame();
   const [useProfiles, setUseProfiles] = useState(true);
-  const [draftSaved, setDraftSaved] = useState(false);
-
-  // Auto-save draft when results phase is reached
-  const handleDraftSave = useCallback(async () => {
-    if (draftSaved || state.phase !== 'results' || state.draftId) return;
-
-    // Only save if players have profile IDs (profile-based draft)
-    const hasProfiles = state.teamCT.some((p) => p.profileId);
-    if (!hasProfiles) return;
-
-    try {
-      const teamCT = state.teamCT.map((p) => ({
-        profileId: p.profileId!,
-        pickOrder: p.pickOrder!,
-      }));
-      const teamT = state.teamT.map((p) => ({
-        profileId: p.profileId!,
-        pickOrder: p.pickOrder!,
-      }));
-
-      const draftId = await saveDraft({
-        animationType: state.animationType,
-        teamCT,
-        teamT,
-      });
-
-      dispatch({ type: 'SET_DRAFT_ID', payload: draftId });
-      setDraftSaved(true);
-    } catch (err) {
-      console.error('Failed to save draft:', err);
-    }
-  }, [state, draftSaved, saveDraft, dispatch]);
-
-  // Trigger save when phase changes to results
-  if (state.phase === 'results' && !draftSaved && !state.draftId) {
-    handleDraftSave();
-  }
-
-  // Reset saved state when going back to input
-  if (state.phase === 'input' && draftSaved) {
-    setDraftSaved(false);
-  }
 
   return (
     <AnimatePresence mode="wait">

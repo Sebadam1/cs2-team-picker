@@ -16,14 +16,12 @@ function DraftRow({ draft, onSelect, profileNames }: {
   const { getMatchForDraft } = useHistory();
   const match = getMatchForDraft(draft.id);
 
-  const ctNames = draft.teamCT
-    .sort((a, b) => a.pickOrder - b.pickOrder)
-    .map((p) => profileNames.get(p.profileId) || '???')
-    .join(', ');
-  const tNames = draft.teamT
-    .sort((a, b) => a.pickOrder - b.pickOrder)
-    .map((p) => profileNames.get(p.profileId) || '???')
-    .join(', ');
+  const ctSorted = [...draft.teamCT].sort((a, b) => a.pickOrder - b.pickOrder);
+  const tSorted = [...draft.teamT].sort((a, b) => a.pickOrder - b.pickOrder);
+  const ctCaptainName = profileNames.get(ctSorted[0]?.profileId) || '???';
+  const tCaptainName = profileNames.get(tSorted[0]?.profileId) || '???';
+  const ctNames = ctSorted.map((p) => profileNames.get(p.profileId) || '???').join(', ');
+  const tNames = tSorted.map((p) => profileNames.get(p.profileId) || '???').join(', ');
 
   const date = new Date(draft.date);
   const dateStr = date.toLocaleDateString('cs-CZ', {
@@ -55,18 +53,18 @@ function DraftRow({ draft, onSelect, profileNames }: {
                 ? 'bg-sky-500/10 text-sky-400 border border-sky-400/20'
                 : 'bg-amber-500/10 text-amber-400 border border-amber-400/20'
             }`}>
-              {match.mapName} - {match.winningTeam} won
+              {match.mapName} - {match.winningTeam === 'CT' ? ctCaptainName : tCaptainName} won
             </span>
           )}
         </div>
       </div>
       <div className="grid grid-cols-2 gap-4 text-sm">
         <div>
-          <span className="text-sky-400 font-orbitron text-xs">CT: </span>
+          <span className="text-sky-400 font-orbitron text-xs">{ctCaptainName}&apos;s: </span>
           <span className="text-gray-400 font-rajdhani">{ctNames}</span>
         </div>
         <div>
-          <span className="text-amber-400 font-orbitron text-xs">T: </span>
+          <span className="text-amber-400 font-orbitron text-xs">{tCaptainName}&apos;s: </span>
           <span className="text-gray-400 font-rajdhani">{tNames}</span>
         </div>
       </div>

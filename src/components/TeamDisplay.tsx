@@ -13,6 +13,7 @@ import {
 import { arrayMove } from '@dnd-kit/sortable';
 import { motion } from 'motion/react';
 import { useGame } from '@/context/GameContext';
+import { useHistory } from '@/context/HistoryContext';
 import { useSound } from '@/hooks/useSound';
 import TeamColumn from './TeamColumn';
 import TeamStatsOverlay from './stats/TeamStatsOverlay';
@@ -24,8 +25,10 @@ import type { TeamSide } from '@/lib/types';
 
 export default function TeamDisplay() {
   const { state, dispatch } = useGame();
+  const { saveDraft } = useHistory();
   const { playSwoosh } = useSound();
   const [showMatchForm, setShowMatchForm] = useState(false);
+  const [locking, setLocking] = useState(false);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -94,9 +97,45 @@ export default function TeamDisplay() {
     dispatch({ type: 'RESET' });
   };
 
+  const handleLockTeams = async () => {
+    const hasProfiles = state.teamCT.some((p) => p.profileId);
+    if (!hasProfiles) return;
+
+    setLocking(true);
+    try {
+      const teamCT = state.teamCT.map((p) => ({
+        profileId: p.profileId!,
+        pickOrder: p.pickOrder!,
+      }));
+      const teamT = state.teamT.map((p) => ({
+        profileId: p.profileId!,
+        pickOrder: p.pickOrder!,
+      }));
+
+      const draftId = await saveDraft({
+        animationType: state.animationType,
+        teamCT,
+        teamT,
+      });
+
+      dispatch({ type: 'SET_DRAFT_ID', payload: draftId });
+    } catch (err) {
+      console.error('Failed to save draft:', err);
+    } finally {
+      setLocking(false);
+    }
+  };
+
   const ctProfileIds = state.teamCT.filter((p) => p.profileId).map((p) => p.profileId!);
   const tProfileIds = state.teamT.filter((p) => p.profileId).map((p) => p.profileId!);
   const hasProfiles = ctProfileIds.length > 0;
+  const isLocked = !!state.draftId;
+
+  // Dynamic team names for the header
+  const ctCaptain = state.teamCT[0];
+  const tCaptain = state.teamT[0];
+  const ctTeamName = ctCaptain ? `${ctCaptain.name}'s Team` : 'Team 1';
+  const tTeamName = tCaptain ? `${tCaptain.name}'s Team` : 'Team 2';
 
   return (
     <motion.div
@@ -107,10 +146,13 @@ export default function TeamDisplay() {
     >
       <div className="text-center mb-6">
         <GlowText color="green" className="text-2xl md:text-3xl mb-2">
-          TEAMS DRAFTED
+          {isLocked ? 'TEAMS LOCKED' : 'TEAMS DRAFTED'}
         </GlowText>
         <p className="text-gray-400 font-rajdhani text-sm">
-          Drag players to reorder or click to swap between teams
+          {isLocked
+            ? `${ctTeamName} vs ${tTeamName}`
+            : 'Drag players to reorder or click to swap between teams'
+          }
         </p>
       </div>
 
@@ -161,11 +203,20 @@ export default function TeamDisplay() {
       )}
 
       <div className="flex justify-center gap-3 mt-6">
-        {hasProfiles && state.draftId && (
+        {/* Lock Teams button — only if profile-based and not yet locked */}
+        {hasProfiles && !isLocked && (
+          <Button variant="primary" size="md" onClick={handleLockTeams} disabled={locking}>
+            {locking ? 'Saving...' : '🔒 Lock Teams'}
+          </Button>
+        )}
+
+        {/* Record Match — only after locked */}
+        {isLocked && (
           <Button variant="primary" size="md" onClick={() => setShowMatchForm(true)}>
             Record Match Result
           </Button>
         )}
+
         <Button variant="danger" size="md" onClick={handleReset}>
           New Draft
         </Button>
@@ -178,6 +229,8 @@ export default function TeamDisplay() {
             draftId={state.draftId}
             onComplete={() => setShowMatchForm(false)}
             onCancel={() => setShowMatchForm(false)}
+            ctTeamName={ctTeamName}
+            tTeamName={tTeamName}
           />
         </Modal>
       )}
