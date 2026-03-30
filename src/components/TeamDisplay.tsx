@@ -148,7 +148,7 @@ export default function TeamDisplay() {
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.5 }}
-      className="w-full max-w-5xl mx-auto"
+      className="w-full max-w-6xl mx-auto"
     >
       <div className="text-center mb-6">
         <GlowText color="green" className="text-2xl md:text-3xl mb-2">

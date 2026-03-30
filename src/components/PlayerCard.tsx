@@ -54,8 +54,6 @@ export default function PlayerCard({ player, team }: PlayerCardProps) {
       }));
   }, [player.profileId, profiles, drafts, matches]);
 
-  const totalWins = mapStats.reduce((sum, s) => sum + s.wins, 0);
-  const totalLosses = mapStats.reduce((sum, s) => sum + s.losses, 0);
   const hasStats = mapStats.length > 0;
 
   const teamColors = team === 'CT'
@@ -100,7 +98,7 @@ export default function PlayerCard({ player, team }: PlayerCardProps) {
       {...listeners}
       onClick={handleClick}
       className={`
-        flex flex-col gap-1 px-4 py-2.5 rounded-lg border
+        flex items-center gap-3 px-4 py-3 rounded-lg border
         cursor-grab active:cursor-grabbing
         transition-colors duration-200 select-none touch-none
         ${teamColors.bg} ${teamColors.border}
@@ -108,8 +106,7 @@ export default function PlayerCard({ player, team }: PlayerCardProps) {
         ${isDragging ? 'shadow-lg shadow-black/40 ring-1 ring-white/10' : ''}
       `}
     >
-      {/* Top row: drag handle, photo, badge, name */}
-      <div className="flex items-center gap-3 pointer-events-none">
+      <div className="flex items-center gap-3 pointer-events-none flex-shrink-0">
         {/* Drag handle indicator */}
         <div className="flex flex-col gap-0.5 flex-shrink-0">
           <div className="w-4 h-0.5 bg-gray-500 rounded" />
@@ -135,30 +132,27 @@ export default function PlayerCard({ player, team }: PlayerCardProps) {
           #{player.pickOrder}
         </span>
 
-        {/* Player name + total W/L */}
-        <span className="text-white font-rajdhani font-semibold text-base flex-1">
+        {/* Player name */}
+        <span className="text-white font-rajdhani font-semibold text-base whitespace-nowrap">
           {player.name}
         </span>
-        {hasStats && (
-          <span className="text-[10px] font-orbitron font-bold flex-shrink-0">
-            <span className="text-emerald-400">{totalWins}W</span>
-            <span className="text-gray-600">/</span>
-            <span className="text-red-400">{totalLosses}L</span>
-          </span>
-        )}
       </div>
 
-      {/* Bottom row: per-map W/L stats */}
-      {mapStats.length > 0 && (
-        <div className="flex flex-wrap gap-x-2 gap-y-0.5 pl-[68px] pointer-events-none">
+      {/* Mini stats table inline */}
+      {hasStats && (
+        <div className="flex items-center gap-1.5 ml-auto pointer-events-none flex-shrink-0">
           {mapStats.map((s) => (
-            <span key={s.short} className="text-[9px] font-rajdhani leading-tight">
-              <span className="text-gray-500">{s.short}</span>
-              {' '}
-              <span className="text-emerald-400/80">{s.wins}W</span>
-              <span className="text-gray-600">/</span>
-              <span className="text-red-400/80">{s.losses}L</span>
-            </span>
+            <div
+              key={s.short}
+              className="flex flex-col items-center px-1 py-0.5 rounded bg-white/5 min-w-[28px]"
+            >
+              <span className="text-gray-500 font-rajdhani text-[8px] leading-none">{s.short}</span>
+              <span className="text-[9px] font-orbitron font-bold leading-tight">
+                <span className="text-emerald-400">{s.wins}</span>
+                <span className="text-gray-600">:</span>
+                <span className="text-red-400">{s.losses}</span>
+              </span>
+            </div>
           ))}
         </div>
       )}
