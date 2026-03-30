@@ -302,13 +302,12 @@ export default function CaseOpening() {
                     return (
                       <div
                         key={item.key}
-                        onClick={() => !isRolling && handleDirectPick(item.player)}
                         className={`
                           flex-shrink-0 flex flex-col items-center justify-center rounded-lg
                           font-rajdhani font-bold text-sm transition-all duration-300 overflow-hidden relative
                           ${isWinner
                             ? 'border-2 border-amber-400 shadow-[0_0_20px_rgba(255,179,0,0.4)] scale-105'
-                            : 'border border-white/10 hover:bg-white/10 cursor-pointer'
+                            : 'border border-white/10'
                           }
                         `}
                         style={{
@@ -362,9 +361,6 @@ export default function CaseOpening() {
 
             {/* Controls */}
             <div className="flex flex-col items-center gap-2">
-              <p className="text-gray-500 font-rajdhani text-xs">
-                Click a name to pick directly
-              </p>
               <Button
                 variant={state.currentTurn === 'CT' ? 'ct' : 't'}
                 size="lg"
@@ -390,6 +386,37 @@ export default function CaseOpening() {
                 )}
               </div>
             </div>
+
+            {/* Remaining players list */}
+            {!isRolling && state.availablePlayers.length > 0 && (
+              <div className="w-full max-w-[600px]">
+                <p className="text-gray-500 font-orbitron text-[10px] uppercase tracking-wider text-center mb-2">
+                  Left to draw ({state.availablePlayers.length})
+                </p>
+                <div className="flex flex-wrap justify-center gap-2">
+                  {state.availablePlayers.map((p) => (
+                    <button
+                      key={p.id}
+                      onClick={() => handleDirectPick(p)}
+                      className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/20 transition-all cursor-pointer group"
+                    >
+                      <div className="w-5 h-5 rounded-full overflow-hidden border border-white/20 flex-shrink-0">
+                        {p.photoUrl ? (
+                          <img src={p.photoUrl} alt={p.name} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full bg-white/10 flex items-center justify-center text-[7px] text-gray-500 font-bold">
+                            {p.name.charAt(0)}
+                          </div>
+                        )}
+                      </div>
+                      <span className="text-gray-400 group-hover:text-white font-rajdhani font-semibold text-sm transition-colors">
+                        {p.name}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* T - desktop only */}
