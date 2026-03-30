@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useHistory } from '@/context/HistoryContext';
 import { useProfiles } from '@/context/ProfileContext';
 import type { Draft } from '@/lib/types';
 import DraftDetail from './DraftDetail';
+import Button from '../ui/Button';
 import GlowText from '../ui/GlowText';
 
 function DraftRow({ draft, onSelect, profileNames }: {
@@ -77,11 +78,75 @@ interface DraftHistoryProps {
 }
 
 export default function DraftHistory({ onNavigateToDraft }: DraftHistoryProps) {
-  const { drafts, loading, error } = useHistory();
+  const { drafts, matches, loading, error } = useHistory();
   const { profiles } = useProfiles();
   const [selectedDraft, setSelectedDraft] = useState<Draft | null>(null);
 
   const profileNames = new Map(profiles.map((p) => [p.id, p.name]));
+
+  const handleExportCSV = useCallback(() => {
+    // Only export drafts that have a match result
+    const rows: string[][] = [];
+    rows.push([
+      'Date',
+      'Map',
+      'Winner',
+      'Team A Captain',
+      'Team A Player 2',
+      'Team A Player 3',
+      'Team A Player 4',
+      'Team A Player 5',
+      'Team B Captain',
+      'Team B Player 2',
+      'Team B Player 3',
+      'Team B Player 4',
+      'Team B Player 5',
+    ]);
+
+    for (const draft of drafts) {
+      const match = matches.find((m) => m.draftId === draft.id);
+      if (!match) continue;
+
+      const ctSorted = [...draft.teamCT].sort((a, b) => a.pickOrder - b.pickOrder);
+      const tSorted = [...draft.teamT].sort((a, b) => a.pickOrder - b.pickOrder);
+
+      const ctNames = ctSorted.map((p) => profileNames.get(p.profileId) || '???');
+      const tNames = tSorted.map((p) => profileNames.get(p.profileId) || '???');
+
+      // Pad to 5 if needed
+      while (ctNames.length < 5) ctNames.push('');
+      while (tNames.length < 5) tNames.push('');
+
+      const ctCaptain = ctNames[0];
+      const tCaptain = tNames[0];
+      const winnerLabel = match.winningTeam === 'CT' ? `${ctCaptain}'s Team` : `${tCaptain}'s Team`;
+
+      const date = new Date(match.playedAt).toLocaleDateString('cs-CZ', {
+        day: 'numeric', month: 'numeric', year: 'numeric',
+        hour: '2-digit', minute: '2-digit',
+      });
+
+      rows.push([
+        date,
+        match.mapName,
+        winnerLabel,
+        ...ctNames,
+        ...tNames,
+      ]);
+    }
+
+    const csvContent = rows.map((row) =>
+      row.map((cell) => `"${cell.replace(/"/g, '""')}"`).join(',')
+    ).join('\n');
+
+    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `cs2-matches-${new Date().toISOString().slice(0, 10)}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  }, [drafts, matches, profileNames]);
 
   if (loading) {
     return (
@@ -115,11 +180,18 @@ export default function DraftHistory({ onNavigateToDraft }: DraftHistoryProps) {
       animate={{ opacity: 1, y: 0 }}
       className="w-full max-w-4xl mx-auto"
     >
-      <div className="mb-6">
-        <GlowText color="green" as="h2" className="text-2xl mb-1">
-          DRAFT HISTORY
-        </GlowText>
-        <p className="text-gray-400 font-rajdhani text-sm">{drafts.length} drafts recorded</p>
+      <div className="flex items-start justify-between mb-6">
+        <div>
+          <GlowText color="green" as="h2" className="text-2xl mb-1">
+            DRAFT HISTORY
+          </GlowText>
+          <p className="text-gray-400 font-rajdhani text-sm">{drafts.length} drafts recorded</p>
+        </div>
+        {matches.length > 0 && (
+          <Button variant="ghost" size="sm" onClick={handleExportCSV}>
+            📥 Export CSV
+          </Button>
+        )}
       </div>
 
       {drafts.length === 0 ? (
