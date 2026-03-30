@@ -41,8 +41,6 @@ export default function TeamStatsOverlay({ profileIds, team }: TeamStatsOverlayP
       });
   }, [profileIds, profiles, drafts, matches]);
 
-  if (teamMapStats.length === 0) return null;
-
   const isCT = team === 'CT';
 
   // Total across all maps
@@ -67,19 +65,21 @@ export default function TeamStatsOverlay({ profileIds, team }: TeamStatsOverlayP
           <span className="text-red-400">{totalLosses}L</span>
         </span>
       </div>
-      <div className="flex flex-wrap gap-1 justify-center">
-        {teamMapStats.map((stat) => (
-          <div
-            key={stat.map}
-            className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-white/5 text-[10px]"
-          >
-            <span className="text-gray-400 font-rajdhani">{stat.map}</span>
-            <span className="font-orbitron font-bold text-emerald-400">{stat.wins}W</span>
-            <span className="text-gray-600">/</span>
-            <span className="font-orbitron font-bold text-red-400">{stat.losses}L</span>
-          </div>
-        ))}
-      </div>
+      {teamMapStats.length > 0 && (
+        <div className="flex flex-wrap gap-1 justify-center">
+          {teamMapStats.map((stat) => (
+            <div
+              key={stat.map}
+              className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-white/5 text-[10px]"
+            >
+              <span className="text-gray-400 font-rajdhani">{stat.map}</span>
+              <span className="font-orbitron font-bold text-emerald-400">{stat.wins}W</span>
+              <span className="text-gray-600">/</span>
+              <span className="font-orbitron font-bold text-red-400">{stat.losses}L</span>
+            </div>
+          ))}
+        </div>
+      )}
     </motion.div>
   );
 }
