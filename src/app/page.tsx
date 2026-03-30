@@ -73,6 +73,8 @@ function DraftContent() {
 export default function Home() {
   const [activeTab, setActiveTab] = useState('draft');
 
+  const navigateToDraft = () => setActiveTab('draft');
+
   return (
     <GameProvider>
       {/* Top nav */}
@@ -96,7 +98,7 @@ export default function Home() {
           )}
           {activeTab === 'history' && (
             <motion.div key="history" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="w-full flex justify-center">
-              <DraftHistory />
+              <DraftHistory onNavigateToDraft={navigateToDraft} />
             </motion.div>
           )}
           {activeTab === 'stats' && (

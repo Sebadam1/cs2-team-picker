@@ -142,6 +142,24 @@ function gameReducer(state: GameState, action: GameAction): GameState {
       };
     }
 
+    case 'LOAD_TEAMS': {
+      // Load pre-built teams directly into results phase (for redraft)
+      return {
+        ...state,
+        phase: 'results',
+        animationType: action.payload.animationType,
+        players: [...action.payload.teamCT, ...action.payload.teamT],
+        availablePlayers: [],
+        teamCT: action.payload.teamCT,
+        teamT: action.payload.teamT,
+        currentTurn: 'CT',
+        pickNumber: action.payload.teamCT.length + action.payload.teamT.length,
+        isSpinning: false,
+        selectedForSwap: null,
+        draftId: null,
+      };
+    }
+
     case 'SWAP_PLAYERS': {
       const { playerA, playerB } = action.payload;
       const pA = [...state.teamCT, ...state.teamT].find((p) => p.id === playerA);

@@ -4,7 +4,9 @@ import { useState } from 'react';
 import { motion } from 'motion/react';
 import { useHistory } from '@/context/HistoryContext';
 import { useProfiles } from '@/context/ProfileContext';
-import type { Draft, PlayerProfile } from '@/lib/types';
+import { useGame } from '@/context/GameContext';
+import { generateId } from '@/lib/utils';
+import type { Draft, PlayerProfile, Player } from '@/lib/types';
 import MatchForm from './MatchForm';
 import MatchDetail from './MatchDetail';
 import Button from '../ui/Button';
@@ -14,6 +16,7 @@ import Modal from '../ui/Modal';
 interface DraftDetailProps {
   draft: Draft;
   onBack: () => void;
+  onNavigateToDraft?: () => void;
 }
 
 function TeamPickList({ picks, profiles, team }: {
@@ -45,7 +48,6 @@ function TeamPickList({ picks, profiles, team }: {
                   : 'bg-amber-500/10 border-amber-400/20'
               }`}
             >
-              {/* Photo */}
               <div className={`w-8 h-8 rounded-full overflow-hidden border flex-shrink-0 ${
                 isCT ? 'border-sky-400/40' : 'border-amber-400/40'
               }`}>
@@ -72,9 +74,10 @@ function TeamPickList({ picks, profiles, team }: {
   );
 }
 
-export default function DraftDetail({ draft, onBack }: DraftDetailProps) {
+export default function DraftDetail({ draft, onBack, onNavigateToDraft }: DraftDetailProps) {
   const { profiles } = useProfiles();
   const { getMatchForDraft, deleteDraft, deleteMatch } = useHistory();
+  const { dispatch } = useGame();
   const [showMatchForm, setShowMatchForm] = useState(false);
   const [confirmDeleteDraft, setConfirmDeleteDraft] = useState(false);
   const [confirmDeleteMatch, setConfirmDeleteMatch] = useState(false);
@@ -113,6 +116,37 @@ export default function DraftDetail({ draft, onBack }: DraftDetailProps) {
       setDeleting(false);
       setConfirmDeleteMatch(false);
     }
+  };
+
+  const handleRedraft = () => {
+    // Build Player objects from the saved draft picks
+    const buildPlayers = (picks: { profileId: string; pickOrder: number }[], team: 'CT' | 'T'): Player[] => {
+      return [...picks]
+        .sort((a, b) => a.pickOrder - b.pickOrder)
+        .map((pick, i) => {
+          const profile = profileMap.get(pick.profileId);
+          return {
+            id: generateId(),
+            name: profile?.name || 'Unknown',
+            team,
+            pickOrder: i + 1,
+            profileId: pick.profileId,
+            photoUrl: profile?.photoUrl || null,
+            soundUrl: profile?.soundUrl || null,
+          };
+        });
+    };
+
+    const teamCT = buildPlayers(draft.teamCT, 'CT');
+    const teamT = buildPlayers(draft.teamT, 'T');
+
+    dispatch({
+      type: 'LOAD_TEAMS',
+      payload: { teamCT, teamT, animationType: draft.animationType },
+    });
+
+    // Navigate to the draft tab
+    onNavigateToDraft?.();
   };
 
   return (
@@ -157,6 +191,13 @@ export default function DraftDetail({ draft, onBack }: DraftDetailProps) {
           <span className="text-gray-600 font-orbitron text-2xl">VS</span>
         </div>
         <TeamPickList picks={draft.teamT} profiles={profileMap} team="T" />
+      </div>
+
+      {/* Redraft button */}
+      <div className="text-center mb-6">
+        <Button variant="ghost" size="md" onClick={handleRedraft}>
+          🔄 Redraft with same teams
+        </Button>
       </div>
 
       {/* Match result */}

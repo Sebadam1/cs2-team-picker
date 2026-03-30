@@ -72,7 +72,11 @@ function DraftRow({ draft, onSelect, profileNames }: {
   );
 }
 
-export default function DraftHistory() {
+interface DraftHistoryProps {
+  onNavigateToDraft?: () => void;
+}
+
+export default function DraftHistory({ onNavigateToDraft }: DraftHistoryProps) {
   const { drafts, loading, error } = useHistory();
   const { profiles } = useProfiles();
   const [selectedDraft, setSelectedDraft] = useState<Draft | null>(null);
@@ -100,6 +104,7 @@ export default function DraftHistory() {
       <DraftDetail
         draft={selectedDraft}
         onBack={() => setSelectedDraft(null)}
+        onNavigateToDraft={onNavigateToDraft}
       />
     );
   }

@@ -86,6 +86,7 @@ export type GameAction =
   | { type: 'REORDER_TEAM'; payload: { team: TeamSide; playerIds: string[] } }
   | { type: 'MOVE_PLAYER'; payload: { playerId: string; fromTeam: TeamSide; toTeam: TeamSide; toIndex: number } }
   | { type: 'SKIP_DRAFT' }
+  | { type: 'LOAD_TEAMS'; payload: { teamCT: Player[]; teamT: Player[]; animationType: AnimationType } }
   | { type: 'SELECT_FOR_SWAP'; payload: string }
   | { type: 'CLEAR_SWAP_SELECTION' }
   | { type: 'SET_DRAFT_ID'; payload: string }
