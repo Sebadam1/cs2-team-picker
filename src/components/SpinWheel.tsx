@@ -50,18 +50,22 @@ function MiniTeamList({ players, team, max }: { players: Player[]; team: 'CT' | 
 
 export default function SpinWheel() {
   const { state, dispatch } = useGame();
-  const { playTick, playWinner, playSwoosh, muted, setMuted } = useSound();
+  const { playTick, playWinner, playSwoosh, playProfileSound, muted, setMuted } = useSound();
 
   const onTick = useCallback(() => {
     playTick();
   }, [playTick]);
 
   const onComplete = useCallback((player: Player) => {
-    playWinner();
+    if (player.soundUrl) {
+      playProfileSound(player.soundUrl);
+    } else {
+      playWinner();
+    }
     setTimeout(() => {
       dispatch({ type: 'SPIN_COMPLETE', payload: { playerId: player.id } });
     }, 1500);
-  }, [dispatch, playWinner]);
+  }, [dispatch, playWinner, playProfileSound]);
 
   const onSegmentClick = useCallback((player: Player) => {
     if (state.isSpinning) return;

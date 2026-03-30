@@ -19,12 +19,6 @@ export default function WinnerPopup({ player, team, isVisible, onDismiss }: Winn
   useEffect(() => {
     if (!isVisible || !player) return;
 
-    // Play sound
-    if (player.soundUrl && audioRef.current) {
-      audioRef.current.src = player.soundUrl;
-      audioRef.current.play().catch(() => {});
-    }
-
     // Auto-dismiss after 3 seconds
     timeoutRef.current = setTimeout(onDismiss, 3000);
 

@@ -186,11 +186,12 @@ export default function CaseOpening() {
 
         // 600ms dramatic pause before popup
         setTimeout(() => {
-          playWinner();
-          setShowWinnerPopup(true);
           if (winner.soundUrl) {
-            setTimeout(() => playProfileSound(winner.soundUrl!), 500);
+            playProfileSound(winner.soundUrl!);
+          } else {
+            playWinner();
           }
+          setShowWinnerPopup(true);
         }, 600);
       }
     };
