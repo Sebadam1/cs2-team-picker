@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { GameProvider, useGame } from '@/context/GameContext';
+import AuthGate from '@/components/AuthGate';
 import ParticleBackground from '@/components/ParticleBackground';
 import ProfileSelector from '@/components/profiles/ProfileSelector';
 import PlayerInput from '@/components/PlayerInput';
@@ -76,6 +77,7 @@ export default function Home() {
   const navigateToDraft = () => setActiveTab('draft');
 
   return (
+    <AuthGate>
     <GameProvider>
       {/* Top nav */}
       <div className="relative z-20 px-4 pt-4 pb-2 flex justify-center">
@@ -110,5 +112,6 @@ export default function Home() {
       </main>
       <ParticleBackground />
     </GameProvider>
+    </AuthGate>
   );
 }
