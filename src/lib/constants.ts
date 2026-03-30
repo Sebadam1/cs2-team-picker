@@ -32,3 +32,13 @@ export const DEFAULT_NAMES = [
 export const CS2_MAPS = [
   'Mirage', 'Inferno', 'Nuke', 'Overpass', 'Ancient', 'Anubis', 'Dust2',
 ] as const;
+
+export const MAP_SHORT: Record<string, string> = {
+  Mirage: 'Mir',
+  Inferno: 'Inf',
+  Nuke: 'Nuk',
+  Overpass: 'Ove',
+  Ancient: 'Anc',
+  Anubis: 'Anu',
+  Dust2: 'Dus',
+};
