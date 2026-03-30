@@ -17,9 +17,8 @@ interface PlayerCardProps {
 
 function MapWL({ wins, losses }: { wins: number; losses: number }) {
   return (
-    <span className="text-[9px] font-orbitron font-bold leading-none">
+    <span className="text-[9px] font-orbitron font-bold leading-none inline-flex gap-[4px]">
       <span className="text-emerald-400">{wins}</span>
-      <span className="text-gray-600">:</span>
       <span className="text-red-400">{losses}</span>
     </span>
   );
@@ -64,6 +63,9 @@ export default function PlayerCard({ player, team }: PlayerCardProps) {
   }, [player.profileId, profiles, drafts, matches]);
 
   const hasStats = mapStats.length > 0;
+
+  const totalWins = mapStats.reduce((sum, s) => sum + s.wins, 0);
+  const totalLosses = mapStats.reduce((sum, s) => sum + s.losses, 0);
 
   const teamColors = team === 'CT'
     ? {
@@ -146,6 +148,13 @@ export default function PlayerCard({ player, team }: PlayerCardProps) {
         <span className="text-white font-rajdhani font-semibold text-base whitespace-nowrap">
           {player.name}
         </span>
+
+        {hasStats && (
+          <span className="text-[10px] font-orbitron font-bold leading-none inline-flex gap-[4px]">
+            <span className="text-emerald-400">{totalWins}</span>
+            <span className="text-red-400">{totalLosses}</span>
+          </span>
+        )}
       </div>
 
       {/* Right side: 2-column mini map grid with dots */}
