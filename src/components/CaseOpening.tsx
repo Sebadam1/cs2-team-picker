@@ -11,11 +11,12 @@ import GlowText from './ui/GlowText';
 import WinnerPopup from './case-opening/WinnerPopup';
 import type { Player } from '@/lib/types';
 
-const ITEM_WIDTH = 140;
-const ITEM_GAP = 4;
+const ITEM_WIDTH = 180;
+const ITEM_GAP = 5;
 const ITEM_TOTAL = ITEM_WIDTH + ITEM_GAP;
 const VISIBLE_ITEMS = 40;
 const WINNER_INDEX = 30;
+const ITEM_HEIGHT = 110;
 
 function MiniTeamList({ players, team, max }: { players: Player[]; team: 'CT' | 'T'; max: number }) {
   const isCT = team === 'CT';
@@ -98,6 +99,8 @@ export default function CaseOpening() {
   const [showWinnerPopup, setShowWinnerPopup] = useState(false);
   const [screenShake, setScreenShake] = useState(false);
   const [dimBackground, setDimBackground] = useState(false);
+  const [indicatorPulse, setIndicatorPulse] = useState(false);
+  const [nearEnd, setNearEnd] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const animRef = useRef<number>(0);
@@ -106,6 +109,18 @@ export default function CaseOpening() {
 
   const turnColor = state.currentTurn === 'CT' ? 'ct' : 't';
   const turnLabel = state.currentTurn === 'CT' ? 'COUNTER-TERRORISTS' : 'TERRORISTS';
+  const isCT = state.currentTurn === 'CT';
+
+  // Team-colored indicator
+  const indicatorColor = isCT ? 'bg-sky-400' : 'bg-amber-400';
+  const indicatorGlow = isCT
+    ? 'shadow-[0_0_12px_rgba(79,195,247,0.9),0_0_30px_rgba(79,195,247,0.4)]'
+    : 'shadow-[0_0_12px_rgba(255,179,0,0.9),0_0_30px_rgba(255,179,0,0.4)]';
+  const indicatorBorder = isCT ? 'border-t-sky-400' : 'border-t-amber-400';
+  const indicatorBorderBottom = isCT ? 'border-b-sky-400' : 'border-b-amber-400';
+  const indicatorDropShadow = isCT
+    ? `drop-shadow(0 0 8px ${COLORS.ctGlow})`
+    : `drop-shadow(0 0 8px ${COLORS.tGlow})`;
 
   const handleOpen = useCallback(() => {
     if (isRolling || state.availablePlayers.length === 0) return;
@@ -120,6 +135,8 @@ export default function CaseOpening() {
     setShowWinnerPopup(false);
     setIsRolling(true);
     setDimBackground(true);
+    setIndicatorPulse(true);
+    setNearEnd(false);
     dispatch({ type: 'START_SPIN' });
 
     // Screen shake + case open sound
@@ -127,11 +144,11 @@ export default function CaseOpening() {
     playCaseOpen();
     setTimeout(() => setScreenShake(false), 300);
 
-    const containerWidth = containerRef.current?.offsetWidth || 600;
+    const containerWidth = containerRef.current?.offsetWidth || 700;
     const targetOffset = WINNER_INDEX * ITEM_TOTAL + ITEM_WIDTH / 2 - containerWidth / 2;
     const finalTarget = targetOffset + (Math.random() - 0.5) * (ITEM_WIDTH * 0.6);
 
-    const DURATION = 5500; // slightly longer for drama
+    const DURATION = 6000;
     startTimeRef.current = performance.now();
     lastTickIndexRef.current = -1;
 
@@ -139,19 +156,20 @@ export default function CaseOpening() {
       const elapsed = now - startTimeRef.current;
       const progress = Math.min(elapsed / DURATION, 1);
 
-      // Quartic ease-out for more dramatic slowdown
+      // Quartic ease-out for dramatic slowdown
       const eased = 1 - Math.pow(1 - progress, 4);
       let currentOffset = eased * finalTarget;
 
-      // Micro-wobble near the end
-      if (progress > 0.95) {
-        const wobblePhase = (progress - 0.95) / 0.05;
-        currentOffset += Math.sin(wobblePhase * Math.PI * 4) * 3 * (1 - wobblePhase);
+      // Slow suspense wobble near end
+      if (progress > 0.92) {
+        if (!nearEnd) setNearEnd(true);
+        const wobblePhase = (progress - 0.92) / 0.08;
+        currentOffset += Math.sin(wobblePhase * Math.PI * 5) * 4 * (1 - wobblePhase);
       }
 
       setOffset(currentOffset);
 
-      // Tick sound with increasing pitch as it slows
+      // Tick sound
       const currentItemIndex = Math.floor(currentOffset / ITEM_TOTAL);
       if (currentItemIndex !== lastTickIndexRef.current) {
         lastTickIndexRef.current = currentItemIndex;
@@ -163,26 +181,28 @@ export default function CaseOpening() {
       } else {
         // Done - dramatic pause then reveal
         setIsRolling(false);
+        setIndicatorPulse(false);
         setWinnerRevealed(true);
 
-        // 500ms dramatic pause before popup
+        // 600ms dramatic pause before popup
         setTimeout(() => {
           playWinner();
           setShowWinnerPopup(true);
           if (winner.soundUrl) {
             setTimeout(() => playProfileSound(winner.soundUrl!), 500);
           }
-        }, 500);
+        }, 600);
       }
     };
 
     animRef.current = requestAnimationFrame(animate);
-  }, [isRolling, state.availablePlayers, dispatch, playTick, playWinner, playCaseOpen, playProfileSound]);
+  }, [isRolling, state.availablePlayers, dispatch, playTick, playWinner, playCaseOpen, playProfileSound, nearEnd]);
 
   const handleWinnerDismiss = useCallback(() => {
     if (!currentWinner) return;
     setShowWinnerPopup(false);
     setDimBackground(false);
+    setNearEnd(false);
 
     setTimeout(() => {
       dispatch({ type: 'SPIN_COMPLETE', payload: { playerId: currentWinner.id } });
@@ -221,9 +241,10 @@ export default function CaseOpening() {
         {dimBackground && !showWinnerPopup && (
           <motion.div
             initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            animate={{ opacity: nearEnd ? 0.6 : 0.35 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/30 z-0 pointer-events-none"
+            transition={{ duration: 0.5 }}
+            className="fixed inset-0 bg-black z-0 pointer-events-none"
           />
         )}
       </AnimatePresence>
@@ -232,14 +253,14 @@ export default function CaseOpening() {
         initial={{ opacity: 0 }}
         animate={{
           opacity: 1,
-          x: screenShake ? [0, -3, 3, -2, 2, 0] : 0,
+          x: screenShake ? [0, -4, 4, -3, 3, -1, 0] : 0,
         }}
-        transition={screenShake ? { duration: 0.3 } : undefined}
-        className="w-full max-w-5xl mx-auto flex flex-col items-center gap-4 relative z-10"
+        transition={screenShake ? { duration: 0.35 } : undefined}
+        className="w-full max-w-6xl mx-auto flex flex-col items-center gap-4 relative z-10"
       >
         {/* Header */}
         <div className="text-center">
-          <GlowText color={turnColor} className="text-xl md:text-2xl mb-1">
+          <GlowText color={turnColor} className="text-2xl md:text-3xl mb-1">
             {turnLabel} PICK
           </GlowText>
           <p className="text-gray-400 font-rajdhani text-sm">
@@ -255,31 +276,61 @@ export default function CaseOpening() {
 
           {/* Case Opening Strip */}
           <div className="flex-1 flex flex-col items-center gap-4 w-full min-w-0">
-            <div className="w-full max-w-[600px] relative">
-              {/* Center indicator line */}
-              <div className="absolute left-1/2 -translate-x-[1px] top-0 bottom-0 w-[2px] bg-amber-400 z-20 shadow-[0_0_10px_rgba(255,179,0,0.8)]" />
+            <div className="w-full max-w-[750px] relative">
+              {/* Center indicator line - pulsing during roll */}
+              <motion.div
+                animate={indicatorPulse ? {
+                  opacity: [0.7, 1, 0.7],
+                  scaleX: [1, 1.5, 1],
+                } : { opacity: 1, scaleX: 1 }}
+                transition={indicatorPulse ? { duration: 0.4, repeat: Infinity } : undefined}
+                className={`absolute left-1/2 -translate-x-[1.5px] top-0 bottom-0 w-[3px] ${indicatorColor} z-20 ${indicatorGlow} rounded-full`}
+              />
               {/* Top triangle indicator */}
-              <div className="absolute left-1/2 -translate-x-[8px] -top-3 z-20">
-                <div className="w-0 h-0 border-l-[8px] border-r-[8px] border-t-[10px] border-l-transparent border-r-transparent border-t-amber-400"
-                  style={{ filter: `drop-shadow(0 0 6px ${COLORS.tGlow})` }} />
+              <div className="absolute left-1/2 -translate-x-[10px] -top-4 z-20">
+                <div className={`w-0 h-0 border-l-[10px] border-r-[10px] border-t-[13px] border-l-transparent border-r-transparent ${indicatorBorder}`}
+                  style={{ filter: indicatorDropShadow }} />
               </div>
               {/* Bottom triangle indicator */}
-              <div className="absolute left-1/2 -translate-x-[8px] -bottom-3 z-20">
-                <div className="w-0 h-0 border-l-[8px] border-r-[8px] border-b-[10px] border-l-transparent border-r-transparent border-b-amber-400"
-                  style={{ filter: `drop-shadow(0 0 6px ${COLORS.tGlow})` }} />
+              <div className="absolute left-1/2 -translate-x-[10px] -bottom-4 z-20">
+                <div className={`w-0 h-0 border-l-[10px] border-r-[10px] border-b-[13px] border-l-transparent border-r-transparent ${indicatorBorderBottom}`}
+                  style={{ filter: indicatorDropShadow }} />
               </div>
 
-              {/* Gradient edges */}
-              <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-[#0a0a0f] to-transparent z-10 pointer-events-none" />
-              <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-[#0a0a0f] to-transparent z-10 pointer-events-none" />
+              {/* Gradient edges - wider for bigger strip */}
+              <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-[#0a0a0f] to-transparent z-10 pointer-events-none" />
+              <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-[#0a0a0f] to-transparent z-10 pointer-events-none" />
               {/* Top/bottom vignette */}
-              <div className="absolute left-0 right-0 top-0 h-4 bg-gradient-to-b from-[#0d0d15] to-transparent z-10 pointer-events-none rounded-t-xl" />
-              <div className="absolute left-0 right-0 bottom-0 h-4 bg-gradient-to-t from-[#0d0d15] to-transparent z-10 pointer-events-none rounded-b-xl" />
+              <div className="absolute left-0 right-0 top-0 h-6 bg-gradient-to-b from-[#0d0d15] to-transparent z-10 pointer-events-none rounded-t-xl" />
+              <div className="absolute left-0 right-0 bottom-0 h-6 bg-gradient-to-t from-[#0d0d15] to-transparent z-10 pointer-events-none rounded-b-xl" />
+
+              {/* Outer glow border during roll */}
+              <AnimatePresence>
+                {isRolling && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: [0.3, 0.6, 0.3] }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 1.5, repeat: Infinity }}
+                    className={`absolute -inset-[2px] rounded-xl z-0 pointer-events-none ${
+                      isCT
+                        ? 'shadow-[0_0_20px_rgba(79,195,247,0.3),inset_0_0_20px_rgba(79,195,247,0.1)]'
+                        : 'shadow-[0_0_20px_rgba(255,179,0,0.3),inset_0_0_20px_rgba(255,179,0,0.1)]'
+                    }`}
+                  />
+                )}
+              </AnimatePresence>
 
               {/* Strip container */}
               <div
                 ref={containerRef}
-                className="overflow-hidden rounded-xl border border-white/10 bg-[#0d0d15]"
+                className={`overflow-hidden rounded-xl border bg-[#0d0d15] transition-colors duration-500 ${
+                  isRolling
+                    ? (isCT ? 'border-sky-400/30' : 'border-amber-400/30')
+                    : winnerRevealed
+                      ? (isCT ? 'border-sky-400/50' : 'border-amber-400/50')
+                      : 'border-white/10'
+                }`}
               >
                 {/* Scan-line overlay */}
                 <div className="absolute inset-0 z-10 pointer-events-none opacity-[0.03]"
@@ -289,7 +340,7 @@ export default function CaseOpening() {
                 />
 
                 <div
-                  className="flex py-3 transition-none"
+                  className="flex py-4 transition-none"
                   style={{
                     transform: `translateX(-${offset}px)`,
                     gap: `${ITEM_GAP}px`,
@@ -303,16 +354,16 @@ export default function CaseOpening() {
                       <div
                         key={item.key}
                         className={`
-                          flex-shrink-0 flex flex-col items-center justify-center rounded-lg
-                          font-rajdhani font-bold text-sm transition-all duration-300 overflow-hidden relative
+                          flex-shrink-0 flex flex-col items-center justify-end rounded-lg
+                          font-rajdhani font-bold transition-all duration-300 overflow-hidden relative
                           ${isWinner
-                            ? 'border-2 border-amber-400 shadow-[0_0_20px_rgba(255,179,0,0.4)] scale-105'
+                            ? `border-2 ${isCT ? 'border-sky-400 shadow-[0_0_30px_rgba(79,195,247,0.5)]' : 'border-amber-400 shadow-[0_0_30px_rgba(255,179,0,0.5)]'} scale-[1.03]`
                             : 'border border-white/10'
                           }
                         `}
                         style={{
                           width: `${ITEM_WIDTH}px`,
-                          height: '70px',
+                          height: `${ITEM_HEIGHT}px`,
                         }}
                       >
                         {/* Photo background */}
@@ -321,35 +372,60 @@ export default function CaseOpening() {
                             <img
                               src={item.player.photoUrl!}
                               alt=""
-                              className={`absolute inset-0 w-full h-full object-cover ${
-                                isWinner ? 'opacity-70' : 'opacity-30'
+                              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${
+                                isWinner ? 'opacity-80' : 'opacity-30'
                               }`}
                             />
                             <div className={`absolute inset-0 ${
                               isWinner
-                                ? 'bg-gradient-to-t from-amber-900/80 to-transparent'
-                                : 'bg-gradient-to-t from-[#0d0d15]/90 to-[#0d0d15]/40'
+                                ? (isCT
+                                    ? 'bg-gradient-to-t from-sky-900/80 via-transparent to-sky-900/20'
+                                    : 'bg-gradient-to-t from-amber-900/80 via-transparent to-amber-900/20')
+                                : 'bg-gradient-to-t from-[#0d0d15]/90 via-[#0d0d15]/50 to-[#0d0d15]/30'
                             }`} />
                           </>
                         ) : (
                           <div className={`absolute inset-0 ${
-                            isWinner ? 'bg-amber-500/30' : 'bg-white/5'
+                            isWinner
+                              ? (isCT ? 'bg-sky-500/20' : 'bg-amber-500/20')
+                              : 'bg-white/5'
                           }`} />
                         )}
 
-                        {/* Name */}
-                        <span className={`relative z-10 truncate px-2 mt-auto mb-2 ${
-                          isWinner ? 'text-amber-200' : 'text-gray-300'
+                        {/* Initials for non-photo */}
+                        {!hasPhoto && (
+                          <span className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 font-orbitron text-2xl font-bold ${
+                            isWinner
+                              ? (isCT ? 'text-sky-400/40' : 'text-amber-400/40')
+                              : 'text-white/10'
+                          }`}>
+                            {item.player.name.charAt(0).toUpperCase()}
+                          </span>
+                        )}
+
+                        {/* Name bar at bottom */}
+                        <div className={`relative z-10 w-full px-3 py-2 ${
+                          isWinner
+                            ? (isCT ? 'bg-sky-950/60' : 'bg-amber-950/60')
+                            : 'bg-black/40'
                         }`}>
-                          {item.player.name}
-                        </span>
+                          <span className={`block truncate text-center text-sm ${
+                            isWinner
+                              ? (isCT ? 'text-sky-200' : 'text-amber-200')
+                              : 'text-gray-300'
+                          }`}>
+                            {item.player.name}
+                          </span>
+                        </div>
 
                         {/* Winner glow ring */}
                         {isWinner && (
                           <motion.div
-                            animate={{ opacity: [0.5, 1, 0.5] }}
-                            transition={{ duration: 1, repeat: Infinity }}
-                            className="absolute inset-0 border-2 border-amber-400 rounded-lg"
+                            animate={{ opacity: [0.4, 1, 0.4] }}
+                            transition={{ duration: 0.8, repeat: Infinity }}
+                            className={`absolute inset-0 border-2 rounded-lg ${
+                              isCT ? 'border-sky-400' : 'border-amber-400'
+                            }`}
                           />
                         )}
                       </div>
@@ -389,7 +465,7 @@ export default function CaseOpening() {
 
             {/* Remaining players list */}
             {!isRolling && state.availablePlayers.length > 0 && (
-              <div className="w-full max-w-[600px]">
+              <div className="w-full max-w-[750px]">
                 <p className="text-gray-500 font-orbitron text-[10px] uppercase tracking-wider text-center mb-2">
                   Left to draw ({state.availablePlayers.length})
                 </p>
