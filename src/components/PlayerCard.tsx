@@ -2,7 +2,6 @@
 
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { motion } from 'motion/react';
 import type { Player, TeamSide } from '@/lib/types';
 import { useGame } from '@/context/GameContext';
 
@@ -29,9 +28,10 @@ export default function PlayerCard({ player, team }: PlayerCardProps) {
 
   const style = {
     transform: CSS.Transform.toString(transform),
-    transition,
+    transition: transition || undefined,
     opacity: isDragging ? 0.5 : 1,
-    zIndex: isDragging ? 50 : 'auto' as const,
+    zIndex: isDragging ? 50 : undefined,
+    position: 'relative' as const,
   };
 
   const teamColors = team === 'CT'
@@ -56,7 +56,6 @@ export default function PlayerCard({ player, team }: PlayerCardProps) {
     } else if (state.selectedForSwap === player.id) {
       dispatch({ type: 'CLEAR_SWAP_SELECTION' });
     } else {
-      // Check if they're on different teams
       const selectedPlayer = [...state.teamCT, ...state.teamT].find(
         (p) => p.id === state.selectedForSwap
       );
@@ -66,25 +65,21 @@ export default function PlayerCard({ player, team }: PlayerCardProps) {
           payload: { playerA: state.selectedForSwap, playerB: player.id },
         });
       } else {
-        // Same team - just change selection
         dispatch({ type: 'SELECT_FOR_SWAP', payload: player.id });
       }
     }
   };
 
   return (
-    <motion.div
+    <div
       ref={setNodeRef}
       style={style}
-      initial={{ opacity: 0, scale: 0.8 }}
-      animate={{ opacity: 1, scale: 1 }}
-      layout={!isDragging}
       onClick={handleClick}
       className={`
-        relative flex items-center gap-3 px-4 py-3 rounded-lg border cursor-pointer
-        transition-all duration-200 select-none
+        flex items-center gap-3 px-4 py-3 rounded-lg border cursor-pointer
+        transition-colors duration-200 select-none
         ${teamColors.bg} ${teamColors.border}
-        ${isSelected ? 'ring-2 ring-white/20 scale-[1.02]' : ''}
+        ${isSelected ? 'ring-2 ring-white/20' : ''}
       `}
     >
       {/* Drag handle */}
@@ -120,17 +115,6 @@ export default function PlayerCard({ player, team }: PlayerCardProps) {
       <span className="text-white font-rajdhani font-semibold text-base flex-1">
         {player.name}
       </span>
-
-      {/* Swap hint */}
-      {isSelected && (
-        <motion.span
-          initial={{ opacity: 0, scale: 0 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="text-xs text-gray-400 font-rajdhani"
-        >
-          Pick from {team === 'CT' ? 'T' : 'CT'}
-        </motion.span>
-      )}
-    </motion.div>
+    </div>
   );
 }

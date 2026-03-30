@@ -11,7 +11,7 @@ import {
   type DragEndEvent,
 } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { useGame } from '@/context/GameContext';
 import { useHistory } from '@/context/HistoryContext';
 import { useSound } from '@/hooks/useSound';
@@ -103,13 +103,14 @@ export default function TeamDisplay() {
 
     setLocking(true);
     try {
-      const teamCT = state.teamCT.map((p) => ({
+      // Save current team composition at time of lock (index = order)
+      const teamCT = state.teamCT.map((p, i) => ({
         profileId: p.profileId!,
-        pickOrder: p.pickOrder!,
+        pickOrder: i + 1,
       }));
-      const teamT = state.teamT.map((p) => ({
+      const teamT = state.teamT.map((p, i) => ({
         profileId: p.profileId!,
-        pickOrder: p.pickOrder!,
+        pickOrder: i + 1,
       }));
 
       const draftId = await saveDraft({
@@ -137,6 +138,11 @@ export default function TeamDisplay() {
   const ctTeamName = ctCaptain ? `${ctCaptain.name}'s Team` : 'Team 1';
   const tTeamName = tCaptain ? `${tCaptain.name}'s Team` : 'Team 2';
 
+  // Find selected player name for the toast
+  const selectedPlayer = state.selectedForSwap
+    ? [...state.teamCT, ...state.teamT].find((p) => p.id === state.selectedForSwap)
+    : null;
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
@@ -163,7 +169,6 @@ export default function TeamDisplay() {
       >
         <div className="flex flex-col md:flex-row gap-4 mb-6">
           <div className="flex-1">
-            {/* Team stats overlay */}
             {hasProfiles && <TeamStatsOverlay profileIds={ctProfileIds} team="CT" />}
             <TeamColumn team="CT" players={state.teamCT} />
           </div>
@@ -175,42 +180,19 @@ export default function TeamDisplay() {
           </div>
 
           <div className="flex-1">
-            {/* Team stats overlay */}
             {hasProfiles && <TeamStatsOverlay profileIds={tProfileIds} team="T" />}
             <TeamColumn team="T" players={state.teamT} />
           </div>
         </div>
       </DndContext>
 
-      {state.selectedForSwap && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-4"
-        >
-          <p className="text-gray-400 font-rajdhani text-sm">
-            Player selected — click a player from the other team to swap
-          </p>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => dispatch({ type: 'CLEAR_SWAP_SELECTION' })}
-            className="mt-2"
-          >
-            Cancel Selection
-          </Button>
-        </motion.div>
-      )}
-
       <div className="flex justify-center gap-3 mt-6">
-        {/* Lock Teams button — only if profile-based and not yet locked */}
         {hasProfiles && !isLocked && (
           <Button variant="primary" size="md" onClick={handleLockTeams} disabled={locking}>
             {locking ? 'Saving...' : '🔒 Lock Teams'}
           </Button>
         )}
 
-        {/* Record Match — only after locked */}
         {isLocked && (
           <Button variant="primary" size="md" onClick={() => setShowMatchForm(true)}>
             Record Match Result
@@ -221,6 +203,32 @@ export default function TeamDisplay() {
           New Draft
         </Button>
       </div>
+
+      {/* Fixed bottom toast for swap selection */}
+      <AnimatePresence>
+        {selectedPlayer && (
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 50 }}
+            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-5 py-3 rounded-xl border border-white/15 bg-[#1a1a2e]/95 backdrop-blur-md shadow-[0_8px_32px_rgba(0,0,0,0.5)]"
+          >
+            <span className="text-white font-rajdhani font-semibold">
+              {selectedPlayer.name}
+            </span>
+            <span className="text-gray-400 font-rajdhani text-sm">
+              selected — click a player from the other team to swap
+            </span>
+            <button
+              onClick={() => dispatch({ type: 'CLEAR_SWAP_SELECTION' })}
+              className="ml-2 text-gray-500 hover:text-white transition-colors text-lg cursor-pointer leading-none"
+            >
+              &times;
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Match Form Modal */}
       {state.draftId && (
