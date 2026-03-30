@@ -111,6 +111,37 @@ function gameReducer(state: GameState, action: GameAction): GameState {
       };
     }
 
+    case 'SKIP_DRAFT': {
+      // Instantly assign all remaining available players alternating CT/T
+      let ct = [...state.teamCT];
+      let t = [...state.teamT];
+      let turn = state.currentTurn;
+      let pickNum = state.pickNumber;
+
+      const remaining = shuffleArray(state.availablePlayers);
+      for (const player of remaining) {
+        pickNum += 1;
+        const assigned: Player = { ...player, team: turn, pickOrder: pickNum };
+        if (turn === 'CT') {
+          ct = [...ct, assigned];
+        } else {
+          t = [...t, assigned];
+        }
+        turn = turn === 'CT' ? 'T' : 'CT';
+      }
+
+      return {
+        ...state,
+        availablePlayers: [],
+        teamCT: ct,
+        teamT: t,
+        currentTurn: turn,
+        pickNumber: pickNum,
+        isSpinning: false,
+        phase: 'results',
+      };
+    }
+
     case 'SWAP_PLAYERS': {
       const { playerA, playerB } = action.payload;
       const pA = [...state.teamCT, ...state.teamT].find((p) => p.id === playerA);

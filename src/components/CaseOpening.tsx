@@ -371,12 +371,22 @@ export default function CaseOpening() {
               >
                 {isRolling ? 'Opening...' : 'OPEN CASE'}
               </Button>
-              <button
-                onClick={() => setMuted(!muted)}
-                className="text-gray-500 hover:text-gray-300 transition-colors text-xs font-rajdhani cursor-pointer"
-              >
-                {muted ? '🔇 Sound off' : '🔊 Sound on'}
-              </button>
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={() => setMuted(!muted)}
+                  className="text-gray-500 hover:text-gray-300 transition-colors text-xs font-rajdhani cursor-pointer"
+                >
+                  {muted ? '🔇 Sound off' : '🔊 Sound on'}
+                </button>
+                {!isRolling && state.availablePlayers.length > 0 && (
+                  <button
+                    onClick={() => dispatch({ type: 'SKIP_DRAFT' })}
+                    className="text-gray-600 hover:text-gray-400 transition-colors text-xs font-rajdhani cursor-pointer"
+                  >
+                    Skip remaining &raquo;
+                  </button>
+                )}
+              </div>
             </div>
           </div>
 

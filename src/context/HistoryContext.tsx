@@ -22,6 +22,8 @@ interface HistoryContextValue {
     winningTeam: TeamSide;
     screenshot?: File;
   }) => Promise<Match>;
+  deleteDraft: (draftId: string) => Promise<void>;
+  deleteMatch: (matchId: string) => Promise<void>;
   getMatchForDraft: (draftId: string) => Match | undefined;
 }
 
@@ -150,6 +152,45 @@ export function HistoryProvider({ children }: { children: ReactNode }) {
     return match;
   }, []);
 
+  const deleteDraft = useCallback(async (draftId: string): Promise<void> => {
+    const { supabase } = await import('@/lib/supabase');
+
+    // Delete associated match first (cascade)
+    const match = matches.find((m) => m.draftId === draftId);
+    if (match) {
+      if (match.screenshotUrl) {
+        try {
+          const { deleteFile } = await import('@/lib/storage');
+          await deleteFile('cs2picker-screenshots', match.screenshotUrl);
+        } catch { /* ignore storage errors */ }
+      }
+      await supabase.from('cs2picker_matches').delete().eq('draft_id', draftId);
+      setMatches((prev) => prev.filter((m) => m.draftId !== draftId));
+    }
+
+    const { error: err } = await supabase.from('cs2picker_drafts').delete().eq('id', draftId);
+    if (err) throw err;
+
+    setDrafts((prev) => prev.filter((d) => d.id !== draftId));
+  }, [matches]);
+
+  const deleteMatch = useCallback(async (matchId: string): Promise<void> => {
+    const { supabase } = await import('@/lib/supabase');
+    const match = matches.find((m) => m.id === matchId);
+
+    if (match?.screenshotUrl) {
+      try {
+        const { deleteFile } = await import('@/lib/storage');
+        await deleteFile('cs2picker-screenshots', match.screenshotUrl);
+      } catch { /* ignore storage errors */ }
+    }
+
+    const { error: err } = await supabase.from('cs2picker_matches').delete().eq('id', matchId);
+    if (err) throw err;
+
+    setMatches((prev) => prev.filter((m) => m.id !== matchId));
+  }, [matches]);
+
   const getMatchForDraft = useCallback((draftId: string) => {
     return matches.find((m) => m.draftId === draftId);
   }, [matches]);
@@ -163,6 +204,8 @@ export function HistoryProvider({ children }: { children: ReactNode }) {
       fetchHistory,
       saveDraft,
       saveMatch,
+      deleteDraft,
+      deleteMatch,
       getMatchForDraft,
     }}>
       {children}

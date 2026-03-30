@@ -72,8 +72,11 @@ function TeamPickList({ picks, profiles, team }: {
 
 export default function DraftDetail({ draft, onBack }: DraftDetailProps) {
   const { profiles } = useProfiles();
-  const { getMatchForDraft } = useHistory();
+  const { getMatchForDraft, deleteDraft, deleteMatch } = useHistory();
   const [showMatchForm, setShowMatchForm] = useState(false);
+  const [confirmDeleteDraft, setConfirmDeleteDraft] = useState(false);
+  const [confirmDeleteMatch, setConfirmDeleteMatch] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const profileMap = new Map(profiles.map((p) => [p.id, p]));
   const match = getMatchForDraft(draft.id);
@@ -84,18 +87,52 @@ export default function DraftDetail({ draft, onBack }: DraftDetailProps) {
     hour: '2-digit', minute: '2-digit',
   });
 
+  const handleDeleteDraft = async () => {
+    setDeleting(true);
+    try {
+      await deleteDraft(draft.id);
+      onBack();
+    } catch (err) {
+      console.error('Failed to delete draft:', err);
+    } finally {
+      setDeleting(false);
+      setConfirmDeleteDraft(false);
+    }
+  };
+
+  const handleDeleteMatch = async () => {
+    if (!match) return;
+    setDeleting(true);
+    try {
+      await deleteMatch(match.id);
+    } catch (err) {
+      console.error('Failed to delete match:', err);
+    } finally {
+      setDeleting(false);
+      setConfirmDeleteMatch(false);
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       className="w-full max-w-3xl mx-auto"
     >
-      <button
-        onClick={onBack}
-        className="text-gray-500 hover:text-gray-300 font-rajdhani text-sm mb-4 flex items-center gap-1 cursor-pointer"
-      >
-        ← Back to History
-      </button>
+      <div className="flex items-center justify-between mb-4">
+        <button
+          onClick={onBack}
+          className="text-gray-500 hover:text-gray-300 font-rajdhani text-sm flex items-center gap-1 cursor-pointer"
+        >
+          &larr; Back to History
+        </button>
+        <button
+          onClick={() => setConfirmDeleteDraft(true)}
+          className="text-red-500/60 hover:text-red-400 font-rajdhani text-sm cursor-pointer transition-colors"
+        >
+          Delete Draft
+        </button>
+      </div>
 
       <div className="mb-6">
         <GlowText color="green" as="h2" className="text-2xl mb-1">
@@ -122,7 +159,17 @@ export default function DraftDetail({ draft, onBack }: DraftDetailProps) {
 
       {/* Match result */}
       {match ? (
-        <MatchDetail match={match} />
+        <div>
+          <MatchDetail match={match} />
+          <div className="text-center mt-3">
+            <button
+              onClick={() => setConfirmDeleteMatch(true)}
+              className="text-red-500/50 hover:text-red-400 font-rajdhani text-xs cursor-pointer transition-colors"
+            >
+              Delete Match Result
+            </button>
+          </div>
+        </div>
       ) : (
         <div className="text-center py-6 border border-dashed border-white/10 rounded-xl">
           <p className="text-gray-500 font-rajdhani mb-3">No match result recorded</p>
@@ -138,6 +185,45 @@ export default function DraftDetail({ draft, onBack }: DraftDetailProps) {
           onComplete={() => setShowMatchForm(false)}
           onCancel={() => setShowMatchForm(false)}
         />
+      </Modal>
+
+      {/* Confirm delete draft */}
+      <Modal isOpen={confirmDeleteDraft} onClose={() => setConfirmDeleteDraft(false)} title="Delete Draft">
+        <div className="text-center py-4">
+          <p className="text-gray-300 font-rajdhani mb-2">
+            Are you sure you want to delete this draft?
+          </p>
+          {match && (
+            <p className="text-amber-400/80 font-rajdhani text-sm mb-4">
+              This will also delete the associated match result.
+            </p>
+          )}
+          <div className="flex justify-center gap-3 mt-4">
+            <Button variant="ghost" size="sm" onClick={() => setConfirmDeleteDraft(false)} disabled={deleting}>
+              Cancel
+            </Button>
+            <Button variant="danger" size="sm" onClick={handleDeleteDraft} disabled={deleting}>
+              {deleting ? 'Deleting...' : 'Delete'}
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Confirm delete match */}
+      <Modal isOpen={confirmDeleteMatch} onClose={() => setConfirmDeleteMatch(false)} title="Delete Match Result">
+        <div className="text-center py-4">
+          <p className="text-gray-300 font-rajdhani mb-4">
+            Are you sure you want to delete this match result?
+          </p>
+          <div className="flex justify-center gap-3">
+            <Button variant="ghost" size="sm" onClick={() => setConfirmDeleteMatch(false)} disabled={deleting}>
+              Cancel
+            </Button>
+            <Button variant="danger" size="sm" onClick={handleDeleteMatch} disabled={deleting}>
+              {deleting ? 'Deleting...' : 'Delete'}
+            </Button>
+          </div>
+        </div>
       </Modal>
     </motion.div>
   );

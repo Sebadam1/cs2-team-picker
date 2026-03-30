@@ -125,12 +125,22 @@ export default function SpinWheel() {
           >
             {state.isSpinning ? 'Spinning...' : 'SPIN!'}
           </Button>
-          <button
-            onClick={() => setMuted(!muted)}
-            className="text-gray-500 hover:text-gray-300 transition-colors text-xs font-rajdhani cursor-pointer"
-          >
-            {muted ? '🔇 Sound off' : '🔊 Sound on'}
-          </button>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => setMuted(!muted)}
+              className="text-gray-500 hover:text-gray-300 transition-colors text-xs font-rajdhani cursor-pointer"
+            >
+              {muted ? '🔇 Sound off' : '🔊 Sound on'}
+            </button>
+            {!state.isSpinning && state.availablePlayers.length > 0 && (
+              <button
+                onClick={() => dispatch({ type: 'SKIP_DRAFT' })}
+                className="text-gray-600 hover:text-gray-400 transition-colors text-xs font-rajdhani cursor-pointer"
+              >
+                Skip remaining &raquo;
+              </button>
+            )}
+          </div>
         </div>
 
         {/* T - hidden on mobile, shown on desktop right */}
