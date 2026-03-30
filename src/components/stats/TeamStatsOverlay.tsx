@@ -17,8 +17,6 @@ export default function TeamStatsOverlay({ profileIds, team }: TeamStatsOverlayP
   const { drafts, matches } = useHistory();
 
   const teamMapStats = useMemo(() => {
-    if (matches.length === 0) return [];
-
     const allStats = computePlayerStats(profiles, drafts, matches);
     const teamStats = allStats.filter((s) => profileIds.includes(s.profileId));
 
@@ -33,12 +31,10 @@ export default function TeamStatsOverlay({ profileIds, team }: TeamStatsOverlayP
       m.losses += stat.losses;
     }
 
-    return CS2_MAPS
-      .filter((map) => byMap.has(map))
-      .map((map) => {
-        const s = byMap.get(map)!;
-        return { map, wins: s.wins, losses: s.losses };
-      });
+    return CS2_MAPS.map((map) => {
+      const s = byMap.get(map);
+      return { map, wins: s?.wins ?? 0, losses: s?.losses ?? 0 };
+    });
   }, [profileIds, profiles, drafts, matches]);
 
   const isCT = team === 'CT';
@@ -65,21 +61,19 @@ export default function TeamStatsOverlay({ profileIds, team }: TeamStatsOverlayP
           <span className="text-red-400">{totalLosses}L</span>
         </span>
       </div>
-      {teamMapStats.length > 0 && (
-        <div className="flex flex-wrap gap-1 justify-center">
-          {teamMapStats.map((stat) => (
-            <div
-              key={stat.map}
-              className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-white/5 text-[10px]"
-            >
-              <span className="text-gray-400 font-rajdhani">{stat.map}</span>
-              <span className="font-orbitron font-bold text-emerald-400">{stat.wins}W</span>
-              <span className="text-gray-600">/</span>
-              <span className="font-orbitron font-bold text-red-400">{stat.losses}L</span>
-            </div>
-          ))}
-        </div>
-      )}
+      <div className="flex flex-wrap gap-1 justify-center">
+        {teamMapStats.map((stat) => (
+          <div
+            key={stat.map}
+            className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-white/5 text-[10px]"
+          >
+            <span className="text-gray-400 font-rajdhani">{stat.map}</span>
+            <span className="font-orbitron font-bold text-emerald-400">{stat.wins}W</span>
+            <span className="text-gray-600">/</span>
+            <span className="font-orbitron font-bold text-red-400">{stat.losses}L</span>
+          </div>
+        ))}
+      </div>
     </motion.div>
   );
 }

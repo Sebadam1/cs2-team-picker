@@ -8,7 +8,7 @@ import { useGame } from '@/context/GameContext';
 import { useHistory } from '@/context/HistoryContext';
 import { useProfiles } from '@/context/ProfileContext';
 import { computePlayerStats } from '@/lib/utils';
-import { MAP_SHORT } from '@/lib/constants';
+import { MAP_SHORT, CS2_MAPS } from '@/lib/constants';
 
 interface PlayerCardProps {
   player: Player;
@@ -51,18 +51,20 @@ export default function PlayerCard({ player, team }: PlayerCardProps) {
   };
 
   const mapStats = useMemo(() => {
-    if (!player.profileId || matches.length === 0) return [];
+    if (!player.profileId) return [];
     const allStats = computePlayerStats(profiles, drafts, matches);
-    return allStats
-      .filter((s) => s.profileId === player.profileId)
-      .map((s) => ({
-        short: MAP_SHORT[s.mapName] || s.mapName.slice(0, 3),
-        wins: s.wins,
-        losses: s.losses,
-      }));
-  }, [player.profileId, profiles, drafts, matches]);
+    const playerStats = allStats.filter((s) => s.profileId === player.profileId);
+    const statsMap = new Map(playerStats.map((s) => [s.mapName, s]));
 
-  const hasStats = mapStats.length > 0;
+    return CS2_MAPS.map((mapName) => {
+      const s = statsMap.get(mapName);
+      return {
+        short: MAP_SHORT[mapName] || mapName.slice(0, 3),
+        wins: s?.wins ?? 0,
+        losses: s?.losses ?? 0,
+      };
+    });
+  }, [player.profileId, profiles, drafts, matches]);
 
   const totalWins = mapStats.reduce((sum, s) => sum + s.wins, 0);
   const totalLosses = mapStats.reduce((sum, s) => sum + s.losses, 0);
@@ -156,8 +158,8 @@ export default function PlayerCard({ player, team }: PlayerCardProps) {
         </span>
       </div>
 
-      {/* Right side: 2-column mini map grid with dots */}
-      {hasStats && (
+      {/* Right side: 2-column mini map grid */}
+      {mapStats.length > 0 && (
         <div className="flex gap-3 ml-auto pointer-events-none flex-shrink-0">
           {[col1, col2].map((col, ci) => (
             <div key={ci} className="flex flex-col gap-[3px]">

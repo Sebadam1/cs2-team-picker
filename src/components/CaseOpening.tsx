@@ -139,8 +139,6 @@ export default function CaseOpening() {
     setStripScale(1);
     dispatch({ type: 'START_SPIN' });
 
-    playCaseOpen();
-
     const containerWidth = containerRef.current?.offsetWidth || 700;
     const targetOffset = WINNER_INDEX * ITEM_TOTAL + ITEM_SIZE / 2 - containerWidth / 2;
     const finalTarget = targetOffset + (Math.random() - 0.5) * (ITEM_SIZE * 0.6);
