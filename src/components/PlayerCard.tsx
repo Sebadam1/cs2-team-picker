@@ -1,7 +1,7 @@
 'use client';
 
-import { useMemo } from 'react';
-import { useSortable } from '@dnd-kit/sortable';
+import { memo, useMemo } from 'react';
+import { useSortable, defaultAnimateLayoutChanges } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import type { Player, TeamSide } from '@/lib/types';
 import { useGame } from '@/context/GameContext';
@@ -24,7 +24,13 @@ function MapWL({ wins, losses }: { wins: number; losses: number }) {
   );
 }
 
-export default function PlayerCard({ player, team }: PlayerCardProps) {
+function animateLayoutChanges(args: Parameters<typeof defaultAnimateLayoutChanges>[0]) {
+  const { isSorting, wasDragging } = args;
+  if (isSorting || wasDragging) return false;
+  return defaultAnimateLayoutChanges(args);
+}
+
+function PlayerCardInner({ player, team }: PlayerCardProps) {
   const { state, dispatch } = useGame();
   const { drafts, matches } = useHistory();
   const { profiles } = useProfiles();
@@ -40,10 +46,11 @@ export default function PlayerCard({ player, team }: PlayerCardProps) {
   } = useSortable({
     id: player.id,
     data: { team },
+    animateLayoutChanges,
   });
 
   const style = {
-    transform: CSS.Transform.toString(transform),
+    transform: CSS.Translate.toString(transform),
     transition: transition || undefined,
     opacity: isDragging ? 0.4 : 1,
     zIndex: isDragging ? 50 : undefined,
@@ -122,7 +129,7 @@ export default function PlayerCard({ player, team }: PlayerCardProps) {
       className={`
         flex items-center gap-3 px-4 py-2.5 rounded-md border border-l-[3px]
         cursor-grab active:cursor-grabbing
-        transition-colors duration-200 select-none touch-none
+        transition-[color,background-color,border-color,box-shadow] duration-200 select-none touch-none
         ${teamColors.leftBorder} ${teamColors.bg} ${teamColors.border}
         ${isSelected ? 'ring-1 ring-white/10' : ''}
         ${isDragging ? 'shadow-lg shadow-black/40' : ''}
@@ -179,3 +186,12 @@ export default function PlayerCard({ player, team }: PlayerCardProps) {
     </div>
   );
 }
+
+const PlayerCard = memo(PlayerCardInner, (prev, next) => {
+  return prev.player.id === next.player.id
+    && prev.player.name === next.player.name
+    && prev.player.pickOrder === next.player.pickOrder
+    && prev.team === next.team;
+});
+
+export default PlayerCard;

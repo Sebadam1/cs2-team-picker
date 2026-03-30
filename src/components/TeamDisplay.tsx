@@ -3,11 +3,13 @@
 import { useCallback, useState } from 'react';
 import {
   DndContext,
+  DragOverlay,
   closestCenter,
   PointerSensor,
   TouchSensor,
   useSensor,
   useSensors,
+  type DragStartEvent,
   type DragEndEvent,
 } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
@@ -29,13 +31,19 @@ export default function TeamDisplay() {
   const { playSwoosh } = useSound();
   const [showMatchForm, setShowMatchForm] = useState(false);
   const [locking, setLocking] = useState(false);
+  const [activeId, setActiveId] = useState<string | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
     useSensor(TouchSensor, { activationConstraint: { delay: 150, tolerance: 5 } })
   );
 
+  const handleDragStart = useCallback((event: DragStartEvent) => {
+    setActiveId(event.active.id as string);
+  }, []);
+
   const handleDragEnd = useCallback((event: DragEndEvent) => {
+    setActiveId(null);
     const { active, over } = event;
     if (!over) return;
 
@@ -165,6 +173,7 @@ export default function TeamDisplay() {
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
+        onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
         <div className="flex flex-col md:flex-row gap-4 mb-6">
@@ -184,6 +193,31 @@ export default function TeamDisplay() {
             <TeamColumn team="T" players={state.teamT} />
           </div>
         </div>
+
+        <DragOverlay dropAnimation={null}>
+          {activeId ? (() => {
+            const activePlayer = [...state.teamCT, ...state.teamT].find((p) => p.id === activeId);
+            if (!activePlayer) return null;
+            return (
+              <div className="flex items-center gap-3 px-4 py-2.5 rounded-md border border-l-[3px] bg-[#12141a] border-white/[0.1] border-l-[#8b9bb4] shadow-2xl shadow-black/60 opacity-90 pointer-events-none">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full overflow-hidden border border-white/[0.1] flex-shrink-0">
+                    {activePlayer.photoUrl ? (
+                      <img src={activePlayer.photoUrl} alt={activePlayer.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full bg-white/[0.06] flex items-center justify-center text-gray-600 text-xs font-bold">
+                        {activePlayer.name.charAt(0)}
+                      </div>
+                    )}
+                  </div>
+                  <span className="text-[#c8ccd4] font-rajdhani font-semibold text-base whitespace-nowrap">
+                    {activePlayer.name}
+                  </span>
+                </div>
+              </div>
+            );
+          })() : null}
+        </DragOverlay>
       </DndContext>
 
       <div className="flex justify-center gap-3 mt-6">

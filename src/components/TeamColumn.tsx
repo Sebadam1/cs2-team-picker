@@ -41,10 +41,10 @@ export default function TeamColumn({ team, players }: TeamColumnProps) {
     <div
       ref={setNodeRef}
       className={`
-        flex-1 min-w-[280px] p-4 rounded-lg border transition-all duration-200
+        flex-1 min-w-[280px] p-4 rounded-lg border transition-[background-color,border-color] duration-200
         bg-white/[0.015]
         ${teamConfig.borderColor}
-        ${isOver ? 'bg-white/[0.03] scale-[1.005]' : ''}
+        ${isOver ? 'bg-white/[0.03]' : ''}
       `}
     >
       {/* Team header */}
