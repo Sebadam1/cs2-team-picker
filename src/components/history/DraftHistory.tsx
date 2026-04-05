@@ -30,6 +30,28 @@ function DraftRow({ draft, onSelect, profileNames }: {
   });
   const timeStr = date.toLocaleTimeString('cs-CZ', { hour: '2-digit', minute: '2-digit' });
 
+  // Build match badge label
+  let matchBadge: { label: string; color: string } | null = null;
+  if (match) {
+    const hasScore = match.scoreCT !== null && match.scoreT !== null;
+    const scoreStr = hasScore ? ` (${match.scoreCT}:${match.scoreT})` : '';
+
+    if (match.winningTeam === 'draw') {
+      matchBadge = {
+        label: `${match.mapName}${scoreStr} - Draw`,
+        color: 'bg-[#8b9bb4]/10 text-[#8b9bb4] border border-[#8b9bb4]/15',
+      };
+    } else {
+      const winnerName = match.winningTeam === 'CT' ? ctCaptainName : tCaptainName;
+      matchBadge = {
+        label: `${match.mapName}${scoreStr} - ${winnerName} won`,
+        color: match.winningTeam === 'CT'
+          ? 'bg-[#6b8fc2]/10 text-[#8bafd4] border border-[#6b8fc2]/15'
+          : 'bg-[#c49a6c]/10 text-[#d4a86a] border border-[#c49a6c]/15',
+      };
+    }
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -39,7 +61,7 @@ function DraftRow({ draft, onSelect, profileNames }: {
       className="p-4 border border-white/[0.06] rounded-lg bg-white/[0.015] hover:bg-white/[0.03] hover:border-white/[0.1] cursor-pointer transition-all"
     >
       <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
           <span className="text-gray-500 font-rajdhani text-sm">{dateStr} {timeStr}</span>
           <span className={`text-xs font-orbitron px-2 py-0.5 rounded ${
             draft.animationType === 'case'
@@ -48,13 +70,9 @@ function DraftRow({ draft, onSelect, profileNames }: {
           }`}>
             {draft.animationType === 'case' ? '📦 Case' : '🎡 Wheel'}
           </span>
-          {match && (
-            <span className={`text-xs font-orbitron px-2 py-0.5 rounded ${
-              match.winningTeam === 'CT'
-                ? 'bg-[#6b8fc2]/10 text-[#8bafd4] border border-[#6b8fc2]/15'
-                : 'bg-[#c49a6c]/10 text-[#d4a86a] border border-[#c49a6c]/15'
-            }`}>
-              {match.mapName} - {match.winningTeam === 'CT' ? ctCaptainName : tCaptainName} won
+          {matchBadge && (
+            <span className={`text-xs font-orbitron px-2 py-0.5 rounded ${matchBadge.color}`}>
+              {matchBadge.label}
             </span>
           )}
         </div>
@@ -85,11 +103,11 @@ export default function DraftHistory({ onNavigateToDraft }: DraftHistoryProps) {
   const profileNames = new Map(profiles.map((p) => [p.id, p.name]));
 
   const handleExportCSV = useCallback(() => {
-    // Only export drafts that have a match result
     const rows: string[][] = [];
     rows.push([
       'Date',
       'Map',
+      'Score',
       'Winner',
       'Team A Captain',
       'Team A Player 2',
@@ -113,13 +131,22 @@ export default function DraftHistory({ onNavigateToDraft }: DraftHistoryProps) {
       const ctNames = ctSorted.map((p) => profileNames.get(p.profileId) || '???');
       const tNames = tSorted.map((p) => profileNames.get(p.profileId) || '???');
 
-      // Pad to 5 if needed
       while (ctNames.length < 5) ctNames.push('');
       while (tNames.length < 5) tNames.push('');
 
       const ctCaptain = ctNames[0];
       const tCaptain = tNames[0];
-      const winnerLabel = match.winningTeam === 'CT' ? `${ctCaptain}'s Team` : `${tCaptain}'s Team`;
+
+      let winnerLabel: string;
+      if (match.winningTeam === 'draw') {
+        winnerLabel = 'Draw';
+      } else {
+        winnerLabel = match.winningTeam === 'CT' ? `${ctCaptain}'s Team` : `${tCaptain}'s Team`;
+      }
+
+      const scoreStr = match.scoreCT !== null && match.scoreT !== null
+        ? `${match.scoreCT}:${match.scoreT}`
+        : '';
 
       const date = new Date(match.playedAt).toLocaleDateString('cs-CZ', {
         day: 'numeric', month: 'numeric', year: 'numeric',
@@ -129,6 +156,7 @@ export default function DraftHistory({ onNavigateToDraft }: DraftHistoryProps) {
       rows.push([
         date,
         match.mapName,
+        scoreStr,
         winnerLabel,
         ...ctNames,
         ...tNames,

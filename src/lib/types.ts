@@ -1,5 +1,7 @@
 export type TeamSide = 'CT' | 'T';
 
+export type MatchOutcome = TeamSide | 'draw';
+
 export type GamePhase = 'input' | 'spinning' | 'results';
 
 export type AnimationType = 'wheel' | 'case';
@@ -47,20 +49,39 @@ export interface Match {
   id: string;
   draftId: string;
   mapName: CS2Map;
-  winningTeam: TeamSide;
+  winningTeam: MatchOutcome;
+  scoreCT: number | null;
+  scoreT: number | null;
   screenshotUrl: string | null;
   playedAt: string;
 }
 
-// Computed player stats
+// Per-player stats for a single match
+export interface PlayerMatchStats {
+  id: string;
+  matchId: string;
+  profileId: string;
+  kills: number;
+  deaths: number;
+  assists: number;
+  damage: number;
+}
+
+// Computed player stats (per map or overall)
 export interface PlayerStats {
   profileId: string;
   profileName: string;
   mapName: string;
   wins: number;
   losses: number;
+  draws: number;
   totalGames: number;
   winRate: number;
+  kills: number;
+  deaths: number;
+  assists: number;
+  damage: number;
+  totalRounds: number;
 }
 
 export interface GameState {

@@ -9,7 +9,7 @@ import { computePlayerStats } from '@/lib/utils';
 import type { CS2Map } from '@/lib/types';
 import GlowText from '../ui/GlowText';
 
-type SortKey = 'name' | 'wins' | 'losses' | 'total' | 'winRate';
+type SortKey = 'name' | 'wins' | 'losses' | 'draws' | 'total' | 'winRate' | 'kills' | 'deaths' | 'assists' | 'kd' | 'adr';
 type SortDir = 'asc' | 'desc';
 
 function SortHeader({ label, sortKey, currentKey, currentDir, onSort }: {
@@ -23,7 +23,7 @@ function SortHeader({ label, sortKey, currentKey, currentDir, onSort }: {
   return (
     <button
       onClick={() => onSort(sortKey)}
-      className={`font-orbitron text-xs cursor-pointer transition-colors select-none flex items-center gap-0.5 ${
+      className={`font-orbitron text-[10px] cursor-pointer transition-colors select-none flex items-center gap-0.5 ${
         sortKey === 'name' ? 'justify-start' : 'justify-center'
       } ${isActive ? 'text-[#8b9bb4]' : 'text-gray-500 hover:text-gray-300'}`}
     >
@@ -35,16 +35,33 @@ function SortHeader({ label, sortKey, currentKey, currentDir, onSort }: {
   );
 }
 
+interface PlayerRow {
+  profileId: string;
+  name: string;
+  wins: number;
+  losses: number;
+  draws: number;
+  total: number;
+  winRate: number;
+  kills: number;
+  deaths: number;
+  assists: number;
+  kd: number;
+  damage: number;
+  totalRounds: number;
+  adr: number;
+}
+
 export default function PlayerStatsPanel() {
   const { profiles } = useProfiles();
-  const { drafts, matches, loading } = useHistory();
+  const { drafts, matches, playerMatchStats, loading } = useHistory();
   const [mapFilter, setMapFilter] = useState<CS2Map | 'all'>('all');
   const [sortKey, setSortKey] = useState<SortKey>('winRate');
   const [sortDir, setSortDir] = useState<SortDir>('desc');
 
   const allStats = useMemo(
-    () => computePlayerStats(profiles, drafts, matches),
-    [profiles, drafts, matches]
+    () => computePlayerStats(profiles, drafts, matches, playerMatchStats),
+    [profiles, drafts, matches, playerMatchStats]
   );
 
   const handleSort = (key: SortKey) => {
@@ -59,21 +76,36 @@ export default function PlayerStatsPanel() {
   const playerSummary = useMemo(() => {
     const filtered = mapFilter === 'all' ? allStats : allStats.filter((s) => s.mapName === mapFilter);
 
-    const byPlayer = new Map<string, { profileId: string; name: string; wins: number; losses: number; total: number }>();
+    const byPlayer = new Map<string, Omit<PlayerRow, 'winRate' | 'kd' | 'adr'>>();
 
     for (const stat of filtered) {
       const key = stat.profileId;
       if (!byPlayer.has(key)) {
-        byPlayer.set(key, { profileId: stat.profileId, name: stat.profileName, wins: 0, losses: 0, total: 0 });
+        byPlayer.set(key, {
+          profileId: stat.profileId,
+          name: stat.profileName,
+          wins: 0, losses: 0, draws: 0, total: 0,
+          kills: 0, deaths: 0, assists: 0, damage: 0, totalRounds: 0,
+        });
       }
       const p = byPlayer.get(key)!;
       p.wins += stat.wins;
       p.losses += stat.losses;
+      p.draws += stat.draws;
       p.total += stat.totalGames;
+      p.kills += stat.kills;
+      p.deaths += stat.deaths;
+      p.assists += stat.assists;
+      p.damage += stat.damage;
+      p.totalRounds += stat.totalRounds;
     }
 
-    const rows = Array.from(byPlayer.values())
-      .map((p) => ({ ...p, winRate: p.total > 0 ? Math.round((p.wins / p.total) * 100) : 0 }));
+    const rows: PlayerRow[] = Array.from(byPlayer.values()).map((p) => ({
+      ...p,
+      winRate: p.total > 0 ? Math.round((p.wins / p.total) * 100) : 0,
+      kd: p.deaths > 0 ? Math.round((p.kills / p.deaths) * 100) / 100 : p.kills,
+      adr: p.totalRounds > 0 ? Math.round(p.damage / p.totalRounds) : 0,
+    }));
 
     const dir = sortDir === 'asc' ? 1 : -1;
     rows.sort((a, b) => {
@@ -87,6 +119,9 @@ export default function PlayerStatsPanel() {
     return rows;
   }, [allStats, mapFilter, sortKey, sortDir]);
 
+  // Check if any KDA data exists
+  const hasKDAData = playerSummary.some((p) => p.kills > 0 || p.deaths > 0 || p.assists > 0);
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
@@ -95,11 +130,15 @@ export default function PlayerStatsPanel() {
     );
   }
 
+  const gridCols = hasKDAData
+    ? 'grid-cols-[1fr_48px_48px_48px_48px_48px_48px_56px_56px_100px]'
+    : 'grid-cols-[1fr_64px_64px_64px_64px_120px]';
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="w-full max-w-4xl mx-auto"
+      className="w-full max-w-5xl mx-auto"
     >
       <div className="mb-6">
         <GlowText color="green" as="h2" className="text-2xl mb-1">
@@ -141,14 +180,24 @@ export default function PlayerStatsPanel() {
           <p className="text-gray-600 font-rajdhani text-sm">Record match results to see statistics</p>
         </div>
       ) : (
-        <div className="border border-white/[0.06] rounded-lg overflow-hidden">
+        <div className="border border-white/[0.06] rounded-lg overflow-x-auto">
           {/* Header */}
-          <div className="grid grid-cols-[1fr_80px_80px_80px_120px] gap-2 px-4 py-3 bg-white/[0.03] border-b border-white/[0.06]">
+          <div className={`grid ${gridCols} gap-1 px-3 py-3 bg-white/[0.03] border-b border-white/[0.06] min-w-[600px]`}>
             <SortHeader label="PLAYER" sortKey="name" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
             <SortHeader label="W" sortKey="wins" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
             <SortHeader label="L" sortKey="losses" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
+            <SortHeader label="D" sortKey="draws" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
+            {hasKDAData && (
+              <>
+                <SortHeader label="K" sortKey="kills" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
+                <SortHeader label="D" sortKey="deaths" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
+                <SortHeader label="A" sortKey="assists" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
+                <SortHeader label="K/D" sortKey="kd" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
+                <SortHeader label="ADR" sortKey="adr" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
+              </>
+            )}
             <SortHeader label="TOTAL" sortKey="total" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
-            <SortHeader label="WINRATE" sortKey="winRate" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
+            <SortHeader label="WR" sortKey="winRate" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
           </div>
 
           {/* Rows */}
@@ -160,7 +209,7 @@ export default function PlayerStatsPanel() {
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.03 }}
-                className="grid grid-cols-[1fr_80px_80px_80px_120px] gap-2 px-4 py-3 border-b border-white/[0.03] hover:bg-white/[0.02] transition-colors"
+                className={`grid ${gridCols} gap-1 px-3 py-2.5 border-b border-white/[0.03] hover:bg-white/[0.02] transition-colors min-w-[600px]`}
               >
                 <div className="flex items-center gap-2">
                   <div className="w-6 h-6 rounded-full overflow-hidden border border-white/[0.06] flex-shrink-0">
@@ -176,6 +225,24 @@ export default function PlayerStatsPanel() {
                 </div>
                 <span className="text-emerald-400/80 font-rajdhani font-bold text-sm text-center">{player.wins}</span>
                 <span className="text-red-400/80 font-rajdhani font-bold text-sm text-center">{player.losses}</span>
+                <span className="text-[#8b9bb4]/80 font-rajdhani font-bold text-sm text-center">{player.draws}</span>
+                {hasKDAData && (
+                  <>
+                    <span className="text-gray-300 font-rajdhani text-sm text-center">{player.kills}</span>
+                    <span className="text-gray-300 font-rajdhani text-sm text-center">{player.deaths}</span>
+                    <span className="text-gray-300 font-rajdhani text-sm text-center">{player.assists}</span>
+                    <span className={`font-orbitron text-xs font-bold text-center ${
+                      player.kd >= 1 ? 'text-emerald-400/80' : 'text-red-400/80'
+                    }`}>
+                      {player.kd.toFixed(2)}
+                    </span>
+                    <span className={`font-orbitron text-xs font-bold text-center ${
+                      player.adr >= 80 ? 'text-emerald-400/80' : player.adr >= 60 ? 'text-[#d4a86a]' : 'text-red-400/80'
+                    }`}>
+                      {player.adr}
+                    </span>
+                  </>
+                )}
                 <span className="text-gray-400 font-rajdhani text-sm text-center">{player.total}</span>
                 <div className="flex items-center gap-2">
                   <div className="flex-1 h-2 bg-white/[0.04] rounded-full overflow-hidden">

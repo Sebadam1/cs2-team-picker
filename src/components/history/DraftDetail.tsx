@@ -79,6 +79,7 @@ export default function DraftDetail({ draft, onBack, onNavigateToDraft }: DraftD
   const { getMatchForDraft, deleteDraft, deleteMatch } = useHistory();
   const { dispatch } = useGame();
   const [showMatchForm, setShowMatchForm] = useState(false);
+  const [editingMatch, setEditingMatch] = useState(false);
   const [confirmDeleteDraft, setConfirmDeleteDraft] = useState(false);
   const [confirmDeleteMatch, setConfirmDeleteMatch] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -119,7 +120,6 @@ export default function DraftDetail({ draft, onBack, onNavigateToDraft }: DraftD
   };
 
   const handleRedraft = () => {
-    // Build Player objects from the saved draft picks
     const buildPlayers = (picks: { profileId: string; pickOrder: number }[], team: 'CT' | 'T'): Player[] => {
       return [...picks]
         .sort((a, b) => a.pickOrder - b.pickOrder)
@@ -145,7 +145,6 @@ export default function DraftDetail({ draft, onBack, onNavigateToDraft }: DraftD
       payload: { teamCT, teamT, animationType: draft.animationType },
     });
 
-    // Navigate to the draft tab
     onNavigateToDraft?.();
   };
 
@@ -203,7 +202,7 @@ export default function DraftDetail({ draft, onBack, onNavigateToDraft }: DraftD
       {/* Match result */}
       {match ? (
         <div>
-          <MatchDetail match={match} />
+          <MatchDetail match={match} onEdit={() => setEditingMatch(true)} />
           <div className="text-center mt-3">
             <button
               onClick={() => setConfirmDeleteMatch(true)}
@@ -222,12 +221,25 @@ export default function DraftDetail({ draft, onBack, onNavigateToDraft }: DraftD
         </div>
       )}
 
+      {/* New match modal */}
       <Modal isOpen={showMatchForm} onClose={() => setShowMatchForm(false)} title="Record Match Result">
         <MatchForm
           draftId={draft.id}
           onComplete={() => setShowMatchForm(false)}
           onCancel={() => setShowMatchForm(false)}
         />
+      </Modal>
+
+      {/* Edit match modal */}
+      <Modal isOpen={editingMatch} onClose={() => setEditingMatch(false)} title="Edit Match Result">
+        {match && (
+          <MatchForm
+            draftId={draft.id}
+            editMatch={match}
+            onComplete={() => setEditingMatch(false)}
+            onCancel={() => setEditingMatch(false)}
+          />
+        )}
       </Modal>
 
       {/* Confirm delete draft */}

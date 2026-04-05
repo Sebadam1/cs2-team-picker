@@ -14,34 +14,36 @@ interface TeamStatsOverlayProps {
 
 export default function TeamStatsOverlay({ profileIds, team }: TeamStatsOverlayProps) {
   const { profiles } = useProfiles();
-  const { drafts, matches } = useHistory();
+  const { drafts, matches, playerMatchStats } = useHistory();
 
   const teamMapStats = useMemo(() => {
-    const allStats = computePlayerStats(profiles, drafts, matches);
+    const allStats = computePlayerStats(profiles, drafts, matches, playerMatchStats);
     const teamStats = allStats.filter((s) => profileIds.includes(s.profileId));
 
-    // Aggregate wins and losses by map
-    const byMap = new Map<string, { wins: number; losses: number }>();
+    // Aggregate wins, losses, and draws by map
+    const byMap = new Map<string, { wins: number; losses: number; draws: number }>();
     for (const stat of teamStats) {
       if (!byMap.has(stat.mapName)) {
-        byMap.set(stat.mapName, { wins: 0, losses: 0 });
+        byMap.set(stat.mapName, { wins: 0, losses: 0, draws: 0 });
       }
       const m = byMap.get(stat.mapName)!;
       m.wins += stat.wins;
       m.losses += stat.losses;
+      m.draws += stat.draws;
     }
 
     return CS2_MAPS.map((map) => {
       const s = byMap.get(map);
-      return { map, wins: s?.wins ?? 0, losses: s?.losses ?? 0 };
+      return { map, wins: s?.wins ?? 0, losses: s?.losses ?? 0, draws: s?.draws ?? 0 };
     });
-  }, [profileIds, profiles, drafts, matches]);
+  }, [profileIds, profiles, drafts, matches, playerMatchStats]);
 
   const isCT = team === 'CT';
 
   // Total across all maps
   const totalWins = teamMapStats.reduce((sum, s) => sum + s.wins, 0);
   const totalLosses = teamMapStats.reduce((sum, s) => sum + s.losses, 0);
+  const totalDraws = teamMapStats.reduce((sum, s) => sum + s.draws, 0);
 
   return (
     <motion.div
@@ -59,6 +61,12 @@ export default function TeamStatsOverlay({ profileIds, team }: TeamStatsOverlayP
           <span className="text-emerald-400/80">{totalWins}W</span>
           <span className="text-gray-700 mx-0.5">/</span>
           <span className="text-red-400/80">{totalLosses}L</span>
+          {totalDraws > 0 && (
+            <>
+              <span className="text-gray-700 mx-0.5">/</span>
+              <span className="text-[#8b9bb4]/80">{totalDraws}D</span>
+            </>
+          )}
         </span>
       </div>
       <div className="flex flex-wrap gap-1 justify-center">
@@ -71,6 +79,12 @@ export default function TeamStatsOverlay({ profileIds, team }: TeamStatsOverlayP
             <span className="font-orbitron font-bold text-emerald-400/80">{stat.wins}W</span>
             <span className="text-gray-700">/</span>
             <span className="font-orbitron font-bold text-red-400/80">{stat.losses}L</span>
+            {stat.draws > 0 && (
+              <>
+                <span className="text-gray-700">/</span>
+                <span className="font-orbitron font-bold text-[#8b9bb4]/80">{stat.draws}D</span>
+              </>
+            )}
           </div>
         ))}
       </div>
