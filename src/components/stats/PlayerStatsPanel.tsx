@@ -127,7 +127,7 @@ export default function PlayerStatsPanel() {
     );
   }
 
-  const gridCols = 'grid-cols-[1fr_44px_44px_44px_44px_44px_44px_52px_52px_52px_100px]';
+  const gridCols = 'grid-cols-[1fr_44px_44px_44px_1px_44px_44px_44px_1px_52px_52px_1px_52px_100px]';
 
   return (
     <motion.div
@@ -182,11 +182,14 @@ export default function PlayerStatsPanel() {
             <SortHeader label="W" sortKey="wins" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
             <SortHeader label="L" sortKey="losses" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
             <SortHeader label="D" sortKey="draws" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
+            <div className="bg-white/[0.06] self-stretch" />
             <SortHeader label="K" sortKey="kills" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
             <SortHeader label="D" sortKey="deaths" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
             <SortHeader label="A" sortKey="assists" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
+            <div className="bg-white/[0.06] self-stretch" />
             <SortHeader label="K/D" sortKey="kd" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
             <SortHeader label="ADR" sortKey="adr" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
+            <div className="bg-white/[0.06] self-stretch" />
             <SortHeader label="TOTAL" sortKey="total" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
             <SortHeader label="WR" sortKey="winRate" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
           </div>
@@ -217,9 +220,11 @@ export default function PlayerStatsPanel() {
                 <span className="text-emerald-400/80 font-rajdhani font-bold text-sm text-center">{player.wins}</span>
                 <span className="text-red-400/80 font-rajdhani font-bold text-sm text-center">{player.losses}</span>
                 <span className="text-[#8b9bb4]/80 font-rajdhani font-bold text-sm text-center">{player.draws}</span>
+                <div className="bg-white/[0.04] self-stretch" />
                 <span className="text-gray-300 font-rajdhani text-sm text-center">{player.kills}</span>
                 <span className="text-gray-300 font-rajdhani text-sm text-center">{player.deaths}</span>
                 <span className="text-gray-300 font-rajdhani text-sm text-center">{player.assists}</span>
+                <div className="bg-white/[0.04] self-stretch" />
                 <span className={`font-orbitron text-xs font-bold text-center ${
                   player.kd >= 1 ? 'text-emerald-400/80' : 'text-red-400/80'
                 }`}>
@@ -230,6 +235,7 @@ export default function PlayerStatsPanel() {
                 }`}>
                   {player.adr}
                 </span>
+                <div className="bg-white/[0.04] self-stretch" />
                 <span className="text-gray-400 font-rajdhani text-sm text-center">{player.total}</span>
                 <div className="flex items-center gap-2">
                   <div className="flex-1 h-2 bg-white/[0.04] rounded-full overflow-hidden">
