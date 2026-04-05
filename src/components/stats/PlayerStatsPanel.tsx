@@ -119,9 +119,6 @@ export default function PlayerStatsPanel() {
     return rows;
   }, [allStats, mapFilter, sortKey, sortDir]);
 
-  // Check if any KDA data exists
-  const hasKDAData = playerSummary.some((p) => p.kills > 0 || p.deaths > 0 || p.assists > 0);
-
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
@@ -130,9 +127,7 @@ export default function PlayerStatsPanel() {
     );
   }
 
-  const gridCols = hasKDAData
-    ? 'grid-cols-[1fr_48px_48px_48px_48px_48px_48px_56px_56px_100px]'
-    : 'grid-cols-[1fr_64px_64px_64px_64px_120px]';
+  const gridCols = 'grid-cols-[1fr_44px_44px_44px_44px_44px_44px_52px_52px_52px_100px]';
 
   return (
     <motion.div
@@ -187,15 +182,11 @@ export default function PlayerStatsPanel() {
             <SortHeader label="W" sortKey="wins" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
             <SortHeader label="L" sortKey="losses" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
             <SortHeader label="D" sortKey="draws" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
-            {hasKDAData && (
-              <>
-                <SortHeader label="K" sortKey="kills" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
-                <SortHeader label="D" sortKey="deaths" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
-                <SortHeader label="A" sortKey="assists" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
-                <SortHeader label="K/D" sortKey="kd" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
-                <SortHeader label="ADR" sortKey="adr" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
-              </>
-            )}
+            <SortHeader label="K" sortKey="kills" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
+            <SortHeader label="D" sortKey="deaths" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
+            <SortHeader label="A" sortKey="assists" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
+            <SortHeader label="K/D" sortKey="kd" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
+            <SortHeader label="ADR" sortKey="adr" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
             <SortHeader label="TOTAL" sortKey="total" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
             <SortHeader label="WR" sortKey="winRate" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
           </div>
@@ -226,23 +217,19 @@ export default function PlayerStatsPanel() {
                 <span className="text-emerald-400/80 font-rajdhani font-bold text-sm text-center">{player.wins}</span>
                 <span className="text-red-400/80 font-rajdhani font-bold text-sm text-center">{player.losses}</span>
                 <span className="text-[#8b9bb4]/80 font-rajdhani font-bold text-sm text-center">{player.draws}</span>
-                {hasKDAData && (
-                  <>
-                    <span className="text-gray-300 font-rajdhani text-sm text-center">{player.kills}</span>
-                    <span className="text-gray-300 font-rajdhani text-sm text-center">{player.deaths}</span>
-                    <span className="text-gray-300 font-rajdhani text-sm text-center">{player.assists}</span>
-                    <span className={`font-orbitron text-xs font-bold text-center ${
-                      player.kd >= 1 ? 'text-emerald-400/80' : 'text-red-400/80'
-                    }`}>
-                      {player.kd.toFixed(2)}
-                    </span>
-                    <span className={`font-orbitron text-xs font-bold text-center ${
-                      player.adr >= 80 ? 'text-emerald-400/80' : player.adr >= 60 ? 'text-[#d4a86a]' : 'text-red-400/80'
-                    }`}>
-                      {player.adr}
-                    </span>
-                  </>
-                )}
+                <span className="text-gray-300 font-rajdhani text-sm text-center">{player.kills}</span>
+                <span className="text-gray-300 font-rajdhani text-sm text-center">{player.deaths}</span>
+                <span className="text-gray-300 font-rajdhani text-sm text-center">{player.assists}</span>
+                <span className={`font-orbitron text-xs font-bold text-center ${
+                  player.kd >= 1 ? 'text-emerald-400/80' : 'text-red-400/80'
+                }`}>
+                  {player.kd.toFixed(2)}
+                </span>
+                <span className={`font-orbitron text-xs font-bold text-center ${
+                  player.adr >= 80 ? 'text-emerald-400/80' : player.adr >= 60 ? 'text-[#d4a86a]' : 'text-red-400/80'
+                }`}>
+                  {player.adr}
+                </span>
                 <span className="text-gray-400 font-rajdhani text-sm text-center">{player.total}</span>
                 <div className="flex items-center gap-2">
                   <div className="flex-1 h-2 bg-white/[0.04] rounded-full overflow-hidden">
